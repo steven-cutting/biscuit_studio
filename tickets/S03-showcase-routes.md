@@ -78,6 +78,7 @@ At the end of this ticket, on branch `ticket/s03-showcase-routes`:
 | `src/routes/model/+page.svelte` | S03 | Step 1 (embedded) | new |
 | `src/routes/gallery/+page.svelte` | S03 | Step 2 (embedded) | new |
 | `tests/pages.test.ts` | S03 | Step 3 (embedded) | new |
+| `svelte.config.js` | S03 | this repository (S01) | remove the `NOT_YET_BUILT` set and the `prerender` block, which let the crawler past a 404 on the two routes this ticket adds |
 
 The table is the whole scope. Nothing outside it is edited except the `status:` line of
 this ticket.

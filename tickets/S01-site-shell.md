@@ -602,8 +602,8 @@ Verification, each command run from the repository root after the changes above:
 Handed back:
 
 - *To S03.* Delete the `NOT_YET_BUILT` set and the `prerender` block from
-  `svelte.config.js` in the change that adds `/model/` and `/gallery/`; the file is not
-  in S03's table today. The same two lint rules will meet S03's embedded pages: its
+  `svelte.config.js` in the change that adds `/model/` and `/gallery/`; with the
+  maintainer's authorisation, S03's files table now carries the row. The same two lint rules will meet S03's embedded pages: its
   `{base}/pose-studio/viewer.html` links carry `rel="external"`, which the navigation
   rule skips, but `no-deprecated` still fires on `base`, and once the routes exist
   `resolve('/model/')` and `resolve('/gallery/')` type-check and are the form to use,
