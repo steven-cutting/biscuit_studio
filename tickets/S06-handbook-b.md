@@ -288,7 +288,7 @@ paragraph (97-106). New section **Assets** — `check-assets` (what it refuses, 
 `self-test` first), `assets-manifest` (the one recipe that writes the manifest; keeps
 `source`), `model-rebuild <biscuit_pics>` (needs Blender; never in `just check`; link
 `../how-to/rebuild-the-model.md`). **Publish** — none: the site is published by
-`pages.yml` on every push to `main`, and no recipe publishes anything (replace 108-123).
+`pages.yml` once CI passes on a push to `main`, and no recipe publishes anything (replace 108-123).
 **Aggregate** — `check-clean`, `check`, `check-links-online`. Each row's description in
 H's register, one sentence, saying what it proves and whether it needs the network.
 

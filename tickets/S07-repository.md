@@ -211,7 +211,7 @@ repository, which GitHub does by default: read `gh api repos/steven-cutting/bisc
 --jq .has_lfs` if the field exists, record it, and stop rather than pushing the objects
 some other way.
 
-The push starts two runs: `CI` and `Deploy to GitHub Pages`.
+The push starts `CI`; its success starts `Deploy to GitHub Pages` (`workflow_run`, S04).
 
 ### Step 7: Apply the rest of the bootstrap, twice
 
