@@ -899,8 +899,11 @@ stated explicitly (it is the default, and the comment says the pointer is what t
 reads), sync, check-assets. No job carries a `paths` filter or a `name:`: a skipped
 required check blocks the merge, and the job id is the check's name (T C03).
 
-`.github/workflows/pages.yml` (S04) is T `template/.github/workflows/pages.yml` verbatim
-(39 lines): it calls G `game-pages.yml` at `6c5c07f…` with
+`.github/workflows/pages.yml` (S04) is T `template/.github/workflows/pages.yml` (39 lines)
+with one deviation: it runs on `workflow_run` after `CI` completes, not on push, and its job
+deploys only when that run succeeded for a push to `main` whose `head_sha` is still
+`github.sha`, because protection does not bind administrators and a direct push would
+otherwise publish unchecked (S04 hand-back). It calls G `game-pages.yml` at `6c5c07f…` with
 `base_path: /${{ github.event.repository.name }}`, which is `/biscuit_studio`. No `stage`,
 `artifact_path` default `build`. The build job checks out with `lfs: false`, which is
 correct: nothing under `static/` is LFS.
