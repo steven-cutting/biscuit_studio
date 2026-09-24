@@ -1,7 +1,7 @@
 ---
 id: S04
 title: "Workflows: ci.yml with three jobs, pages.yml through the shared workflow"
-status: open
+status: done
 depends_on: [S00]
 parallel_with: [S01, S02, S03, S05, S06]
 branch: ticket/s04-workflows
@@ -327,15 +327,77 @@ checks on `main` read `frontend`, `documents`, `assets`.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S04-workflows` in a
+Supacode worktree, 2026-09-24. One commit on the branch; nothing pushed. The branch is the
+worktree's name rather than `ticket/s04-workflows`, as S00 agreed with the maintainer; no
+check reads it.
 
-- The `rev-parse` of G's `v0.3.0` and H's checkout SHA, quoted, confirming the pins.
-- actionlint's output, quoted, and any finding it raised with what was changed.
-- Whether the composite action was pinned with any input overridden (it should not be).
-- Anything handed to S07: in particular, that the first `Deploy to GitHub Pages` run
-  will fail at the deploy job with `Failed to create deployment (status: 404)` until the
-  Pages source is `workflow`, which is why S07 bootstraps before pushing.
-- Which authorisations were asked for (none are expected).
+`ci.yml` is Step 1's embedded block, taken from this file's lines 114-201 rather than
+retyped; `pages.yml` is T's file, copied with `cp`. Neither needed an edit after it was
+written.
+
+- **The pins.** Both were confirmed before the files were written:
+
+  ```text
+  $ git -C /Users/scutting/projects/biscuit_games_tooling rev-parse 'v0.3.0^{commit}'
+  6c5c07f6bec86e86b3930dfa41392e4b440e8c85
+  $ grep -n checkout@ /Users/scutting/projects/biscuit_games/.github/workflows/ci.yml
+  23:      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  49:      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  88:      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  ```
+
+  Each of the three `6c5c07f…` lines in `ci.yml` and the one in `pages.yml` ends
+  `# v0.3.0`; each of the three `3d3c42e…` lines ends `# v7.0.1`.
+- **actionlint raised nothing**, so nothing was changed:
+
+  ```text
+  $ uv run --frozen prek run --all-files check-yaml actionlint
+  check yaml...............................................................Passed
+  Lint GitHub Actions workflow files.......................................Passed
+  ```
+
+  `.github/` is not in `.prettierignore`, so Prettier also checks both files, which
+  `pages.yml` could not survive if it disagreed, because it must stay byte for byte.
+  `npx prettier --check .github/workflows/` printed `All matched files use Prettier code
+  style!`, and `just fix` was never run on this ticket.
+- **The job-id criterion's grep also matches a trigger.** `grep -E '^  [a-z]+:$'` over
+  the whole file prints four lines, not three, because `push:` under `on:` has the same
+  indentation (`pull_request` and `workflow_dispatch` escape only by their underscore):
+
+  ```text
+  $ grep -E '^  [a-z]+:$' .github/workflows/ci.yml
+    push:
+    frontend:
+    documents:
+    assets:
+  $ sed -n '/^jobs:/,$p' .github/workflows/ci.yml | grep -E '^  [a-z]+:$'
+    frontend:
+    documents:
+    assets:
+  ```
+
+  The file is as the ticket gives it; the criterion is the defect. The second command is
+  the check the criterion means, and it prints exactly the three job ids in order. The
+  criterion's text is left as written.
+- **The other criteria.** `grep -cE '^\s+(name|paths):'` prints `0`. `NODE_AUTH_TOKEN`
+  occurs `3` times, at lines 42, 60 and 87, each in the `env:` of the `just sync` step
+  that begins at line 37, 58 and 85. `lfs: false` occurs `1` time, in `assets`.
+  The SHA counts are `ci.yml:3`, `pages.yml:1`, and `3` for the checkout. `cmp`
+  printed `identical`. The workflow-level `permissions` are `contents: read` and
+  `packages: read` and nothing else. `just lint` and `just check` are green.
+- **The composite action is called with no input overridden.** Every default in G
+  `actions/setup-toolchain/action.yml` lines 8-31 is already the studio's pin.
+- **For S07.** Neither workflow has run. The first `Deploy to GitHub Pages` run fails at
+  the `deploy` job with `Failed to create deployment (status: 404)` until the Pages
+  source is `workflow`, which is why S07 runs `scripts/bootstrap_repo.sh` before the
+  first push. The required checks it names must be `frontend,documents,assets`, the bare
+  job ids, because `ci.yml` is not called through a reusable workflow and so there is no
+  `ci / …` prefix. The Open points below about `lfs: false` and the `assets` job's
+  unused install are S07's to observe on the first run.
+- **Authorisations.** None were asked for or needed: only local edits, `just sync`
+  (a registry read with the token already in `~/.npmrc`) and local checks. Pushing and
+  opening the pull request have not been done and need separate authorisation.
 
 ## Open points
 
