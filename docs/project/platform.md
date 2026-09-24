@@ -9,7 +9,7 @@ requires: []
 # The platform upstream
 
 This repository is the platform's studio, and the platform is a repository of its own:
-[Biscuit Games](https://github.com/steven-cutting/biscuit_games). Everything two games would
+[Biscuit Games](https://github.com/steven-cutting/biscuit_games/blob/main/docs/README.md). Everything two games would
 share is decided there and installed here. This page says what that covers, which version of
 it is installed, what holds the two repositories to the same words, and where to read the
 rest.
