@@ -8,6 +8,10 @@ set -eu
 #   scripts/rebuild_model.sh /path/to/biscuit_pics
 #
 # BLENDER names the executable; the default is the macOS application bundle.
+#
+# It starts only when assets/ and static/pose-studio/ match HEAD, and a run that
+# fails or is interrupted restores both to HEAD, so a half-rebuilt set never
+# outlives the run.
 
 usage() {
   printf '%s\n' 'usage: scripts/rebuild_model.sh <path to a biscuit_pics checkout>' >&2
@@ -36,14 +40,43 @@ studies=$checkout/biscuit_pics/generated/3d
   exit 2
 }
 git rev-parse --is-inside-work-tree >/dev/null
+# A clean start is what makes the restore below safe: anything it removes was
+# written by this run.
+[ -z "$(git status --porcelain --untracked-files=all -- assets "$served")" ] || {
+  printf '%s\n' "assets/ or $served/ differs from HEAD; commit or remove the changes first" >&2
+  exit 2
+}
 
 # src/common.py and src/viewer.py resolve the studies two directories above the
 # package, which is assets/ here. A link there, removed on exit, is what makes
 # assets/biscuit_pics/generated/3d/... resolve without editing either script.
 link=assets/biscuit_pics
 [ ! -e "$link" ] || { printf '%s\n' "$link already exists; remove it first" >&2; exit 2; }
+
+# Python's bytecode caches are gitignored but would be walked into the manifest.
+# PYTHONDONTWRITEBYTECODE reaches uv's Python; Blender may ignore it, so purge.
+export PYTHONDONTWRITEBYTECODE=1
+purge_bytecode() {
+  find "$package" -name __pycache__ -type d -prune -exec rm -rf {} +
+}
+
+finished=0
+cleanup() {
+  status=$?
+  rm -f "$link" || true
+  if [ "$finished" -ne 1 ]; then
+    purge_bytecode || true
+    git restore --source=HEAD --staged --worktree -- assets "$served" || true
+    git clean -fdq -- assets "$served" || true
+    printf '%s\n' "rebuild failed; assets/ and $served/ restored to HEAD" >&2
+    [ "$status" -ne 0 ] || status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 ln -s "$checkout/biscuit_pics" "$link"
-trap 'rm -f "$link"' EXIT
 
 # The five commands the package's README gives, in its order, from inside it.
 # build.py writes model/biscuit-poseable.blend and model/biscuit-poseable.glb;
@@ -63,6 +96,7 @@ trap 'rm -f "$link"' EXIT
 # written, so the walk under assets/ never meets it. The trap stays for an
 # interrupted run.
 rm -f "$link"
+purge_bytecode
 
 # The three outputs the site serves live beside the viewer, not in the package.
 mv "$package/viewer.html" "$served/viewer.html"
@@ -87,6 +121,7 @@ p.write_bytes(s)
 PYEOF
 
 just assets-manifest
+finished=1
 
 printf '\n%s\n' 'Rebuilt. Read the assets/manifest.json diff, then set each changed entry'
 printf '%s\n' 'source to rebuilt:<date> and its source_sha256 to the new viewer digest.'

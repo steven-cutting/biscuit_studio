@@ -927,8 +927,8 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   names `assets/` whole and so skips the README; left as the belt it is, since
   `pyproject.toml` was not in the authorisation and typos reads the README's prose nowhere
   else. Commit `c0c4a6b`.
-- **`scripts/rebuild_model.sh` deviates from the embedded text in two places**,
-  authorised by the maintainer and both about shape, not the build sequence: (1) the
+- **`scripts/rebuild_model.sh` deviates from the embedded text in three places**,
+  authorised by the maintainer and all about shape, not the build sequence: (1) the
   argument is made absolute before `cd "$project_root"` (`checkout=$(CDPATH='' cd --
   "$1" && pwd -P) || usage`), because the ticket's text resolved the symlink target from
   `assets/` and the study-chain test from the project root, so a relative path satisfied
@@ -938,7 +938,35 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   that); the `trap` stays for an interrupted run. Consequences for the checks: a missing
   path now fails at the absolutising step and prints the usage line (`rc=2`), while a real
   directory without the chain prints the "no study chain" line (`rc=2`); both were run,
-  with an absolute and a relative directory. shellcheck passes it in `just lint`.
+  with an absolute and a relative directory. (3) After a Codex adversarial review of the
+  branch found that a failed build left `assets/` half-rewritten under the old manifest,
+  the maintainer chose a guard and an automatic restore: the script refuses to start
+  (`rc=2`) unless `git status --porcelain --untracked-files=all` is empty for `assets` and
+  `static/pose-studio`, and an `EXIT` trap, with `INT` and `TERM` routed to it, restores
+  both from `HEAD` and cleans what the run created unless the run reached the end of
+  `just assets-manifest`. A staging directory was rejected because the build scripts write
+  by relative path inside the package and are themselves assets. The same change purges
+  `__pycache__` under the package after the build and on failure, and exports
+  `PYTHONDONTWRITEBYTECODE=1`: `build.py` imports `common`, `rig` and `pose_io`, and the
+  checker walks the filesystem, so ignored `.pyc` files would otherwise have entered the
+  manifest and failed `check-assets` in a clean clone. Tested with a fake `BLENDER` that
+  appends to `model/rig.json`, creates `previews/stray.png`, `src/__pycache__/x.pyc` and a
+  stray file under `static/pose-studio/`, then exits 1:
+
+  ```text
+  $ touch assets/stray; BLENDER=<fake> sh scripts/rebuild_model.sh <fake checkout>
+  assets/ or static/pose-studio/ differs from HEAD; commit or remove the changes first
+  rc=2   (assets/stray left in place, then removed)
+  $ BLENDER=<fake failing blender> sh scripts/rebuild_model.sh <fake checkout>
+  rebuild failed; assets/ and static/pose-studio/ restored to HEAD
+  rc=1
+  $ just check-assets
+  check_assets check: ok
+  ```
+
+  Afterwards neither `assets/biscuit_pics` nor `src/__pycache__` existed and the only
+  change in the worktree was the script itself. The success path needs Blender and the
+  real study chain and was not run. shellcheck passes it in `just lint`.
 - **What `common.py` and `viewer.py` resolve.** Both compute `ROOT` as the package
   directory (`assets/models/biscuit`) and `REPO_ROOT = ROOT.parents[1]`, which is
   `assets/`, then reach `REPO_ROOT / 'biscuit_pics/generated/3d/…'`; the link at
@@ -996,7 +1024,7 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   $ just check
   All checks passed and the worktree is unchanged.   (15 s)
   $ git ls-files -s scripts/rebuild_model.sh
-  100755 1034dfe01a23d5186e5632faf25c54e519bc8129 0 scripts/rebuild_model.sh
+  100755 8109b897829a314e451b4aa0e3c427759dc1fcce 0 scripts/rebuild_model.sh
   $ sh scripts/rebuild_model.sh; echo "rc=$?"
   usage: scripts/rebuild_model.sh <path to a biscuit_pics checkout>
   rc=2
