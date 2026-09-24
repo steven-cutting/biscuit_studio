@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+package-lock.json linguist-generated=true
+uv.lock linguist-generated=true
+
+# Large-file policy: docs/explanation/large-files.md. Sources the site never
+# serves go through LFS; what the site serves, and what a browser reads, stays
+# an ordinary blob because GitHub Pages serves an LFS pointer as text.
+*.blend filter=lfs diff=lfs merge=lfs -text
+assets/models/biscuit/qa/geometry/*.json filter=lfs diff=lfs merge=lfs -text
+assets/models/biscuit/qa/native-samples.json filter=lfs diff=lfs merge=lfs -text
+
+# Binary and generated: never normalised, never diffed, so a checkout is
+# byte-identical to the commit and assets/manifest.json stays true.
+*.glb -text -diff
+*.png -text -diff
+*.jpg -text -diff
+static/pose-studio/viewer.html -text -diff linguist-generated=true

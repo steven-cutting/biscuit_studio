@@ -1,0 +1,82 @@
+[project]
+# Not `biscuit-games-tooling`, which is the package the dev group installs: uv
+# refuses a project that depends on a package sharing its own name.
+name = "biscuit-studio-tooling"
+version = "0.1.0"
+description = "Repository tooling for the Biscuit Games studio. Not the site; see package.json for that."
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "biscuit-games-tooling @ git+https://github.com/steven-cutting/biscuit_games_tooling@v0.3.0",
+  "pillow==12.3.0",
+  "prek==0.4.12",
+  "ruff==0.16.2",
+]
+
+[tool.uv]
+# The studio ships no Python package. This project exists so `uv run --frozen`
+# can provide a pinned prek, ruff, Pillow and biscuit-games-tooling to the hooks
+# and recipes; see docs/decisions/0003-python-toolchain.md.
+package = false
+default-groups = ["dev"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py314"
+unsafe-fixes = false
+src = ["scripts"]
+# The Blender scripts under assets/ are the model's own build tooling, run inside
+# Blender against bpy, and were never written to these rules. They are excluded
+# here as well as in the hook gate so `ruff check .` by hand agrees with it.
+extend-exclude = ["assets"]
+
+[tool.ruff.lint]
+select = [
+  "A", "ANN", "ARG", "B", "BLE", "C4", "COM", "DTZ", "E",
+  "EM", "EXE", "F", "FA", "FLY", "FURB", "G", "I", "INP", "INT",
+  "ISC", "LOG", "N", "PERF", "PGH", "PIE", "PL", "PTH", "PYI",
+  "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "T10", "TC",
+  "TID", "TRY", "UP", "W",
+]
+ignore = ["COM812", "E501", "ISC001"]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+# A single-file command-line checker: it prints, it takes no annotations beyond
+# its own signatures, and it shells out to git by design.
+"scripts/**" = [
+  "ANN", "BLE001", "EM101", "EM102", "INP001", "PLR0912", "PLR0915",
+  "PLR2004", "S404", "S603", "S607", "T201", "TRY003",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.typos.files]
+# Lockfiles carry hashes that look like typos; the assets carry base64 and
+# Blender's own vocabulary.
+extend-exclude = [
+  "package-lock.json",
+  "uv.lock",
+  "assets/",
+  "static/pose-studio/",
+]
+
+[tool.biscuit-games-tooling]
+# What `just check` runs, in order, before `check-clean`. No check-specs or
+# analyse-specs: this repository has no docs/specs/, and bg-run-allium exits 2
+# on an empty input set rather than passing it.
+recipes = [
+  "lock-check", "lint", "frontend-static", "frontend-coverage", "frontend-build",
+  "check-assets", "check-docs", "check-agents",
+]
+# Predicates a page's `requires` may name, true when enabled. None.
+predicates = {}

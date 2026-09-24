@@ -1,0 +1,28 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.cache/
+.lycheecache
+.env
+.env.*
+!.env.example
+
+ai_tmp/
+
+# The symlink scripts/rebuild_model.sh places so the model's build scripts, which
+# resolve their repository root as assets/, find the earlier studies in a
+# biscuit_pics checkout. Removed by the script; ignored in case a rebuild is
+# interrupted. CONVENTIONS.md §3.
+assets/biscuit_pics
+
+# Assistant state written on first use; the agent contract covers only the
+# committed surface, so these must never enter the inventory.
+.claude/settings.local.json
+.codex/settings.local.json
+
+node_modules/
+.svelte-kit/
+build/
+coverage/
