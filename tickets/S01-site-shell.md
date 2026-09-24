@@ -532,11 +532,14 @@ Smaller notes:
     `HeaderBar`, `Wordmark` and `Monogram` hold none, and the components that do
     (`Button`, `IconButton`, `Switch`, `SegmentedControl`, `GameCard`, `Modal`) are not
     rendered. The hub's own pages settle where the fix goes: H
-    `docs/explanation/accessibility.md` says the hub's route writes the attribute flat,
-    calls a media query beside the attribute "a second opinion on the same question", and
-    names a media query in `app.css` "the smaller of the two debts and the one to pay
-    first". Under invariant 1 the hub changes first, so no studio-side media query and no
-    change to `app.html`; the item is handed to the hub handover register below.
+    `docs/explanation/accessibility.md` says of contrast that a media query in `app.css`
+    "would answer the device half without the port, so it is the smaller of the two debts
+    and the one to pay first", and of motion that the attribute is "the single gate", the
+    derivation exists and nothing on the hub's route calls it, and "a media query of a
+    component's own is a second opinion on the same question". A root-level
+    reduced-motion rule is therefore the hub's to decide, not the studio's to add. Under
+    invariant 1 the hub changes first, so no studio-side media query and no change to
+    `app.html`; the item is handed to the hub handover register below.
 - **The coverage table** for `src/lib/**`. Vitest 4's text reporter printed the per-file
   table empty, as S00 recorded; the figures below are the `json-summary` reporter's
   `coverage/coverage-summary.json`, and the run passed the 90 floor:
@@ -640,10 +643,11 @@ Handed back:
   default, so a device asking for reduced motion has the three durations at their `on`
   values and a device asking for more contrast has the standard palette, until the
   layout writes the port's answer. The studio cannot close either without a second
-  opinion on the attribute, which the hub's accessibility page rules out; the hub's
-  `app.css` closes both with a root-level `prefers-reduced-motion: reduce` rule holding
-  the durations at zero and a `prefers-contrast: more` rule selecting the high-contrast
-  palette, which that page already names as the debt to pay first. With the
+  opinion on the attribute, which the hub's accessibility page rules out. What the hub
+  can do in `app.css`: a `prefers-contrast: more` rule selecting the high-contrast
+  palette, which that page already names as the debt to pay first, and a root-level
+  `prefers-reduced-motion: reduce` rule holding the durations at zero, which is the hub's
+  to weigh against its stance that the attribute is the single gate for motion. With the
   maintainer's authorisation, S06's files table row for the page now carries the item.
 
 ## Open points
