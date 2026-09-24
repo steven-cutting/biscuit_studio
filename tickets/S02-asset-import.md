@@ -1,7 +1,7 @@
 ---
 id: S02
 title: "Asset import: the approved model and the cel set from biscuit_pics, LFS, the manifest"
-status: open
+status: done
 depends_on: [S00]
 parallel_with: [S01, S03, S04, S05, S06]
 branch: ticket/s02-asset-import
@@ -831,21 +831,214 @@ Expected: `106`; three LFS lines; the two fact-8 digests; four href lines with c
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S02-asset-import` in a
+Supacode worktree, 2026-09-23. Three commits on the branch, this one included; nothing
+pushed. As agreed on S00, the work stays on the worktree's branch rather than
+`ticket/s02-asset-import`; no check reads the branch name.
 
-- The D HEAD and the three digests read in step 1, and the viewer's digest after step 5.
-- Output of steps 4, 6, 9 and 10, quoted.
-- How long `just check` took with the assets in the tree, and whether any hook had to be
-  excluded beyond §2.1 (it must not have been; if it had to, what and why, handed back to
-  S00).
-- Whether `check_assets.py write`'s layout matched step 10's script, and any change made
-  to the script to match the tool.
-- Whether `assets/biscuit_pics` is gitignored, and the one-line S00 follow-up if not.
-- What `common.py` and `viewer.py` actually resolve, and whether the link at
-  `assets/biscuit_pics` is the right bridge (step 8).
-- Any file whose `git check-attr filter` disagreed with §3.
-- Which authorisations were asked for (none are expected: nothing here leaves the
-  machine).
+- **Step 1.** `git -C "$D" rev-parse HEAD` printed
+  `1d9d3580f2037826feb6e05f39f5a777b52db86c`, `status --short | wc -l` printed `0`, and
+  the four digests were the ticket's: viewer `8838e723399ee4e1eba5e9926da4503fe639459f1b809bc3bf9575856e55170a`,
+  GLB `51d16c1826b2c3ad6ad85fcb176a73e0d1c7a0ac3665ad10f1b6700e9e9be716`, `.blend`
+  `95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3`, D README
+  `b267406bd34ef01291590e5b26c5b9812d7b54e0cf6d3c3871257eeff39d2ec4`. `git check-attr
+  filter` printed `lfs` for the three LFS paths and `unspecified` for the GLB; `git lfs env`
+  printed `git-lfs/3.8.0 (GitHub; darwin arm64; go 1.27.0)`; D holds no symlink; `git
+  check-ignore assets/biscuit_pics` printed the path. No file's `check-attr` disagreed with
+  §3.
+- **The viewer after step 5.** sha256
+  `ec1e9d32399191de2593e9737d5242c10ca8b6a41dc0029680f710065fe3c6e8`, 27,561,668 bytes
+  (243 bytes longer than D's: the two URLs). `grep -o 'href=…' | sort | uniq -c` before:
+  `2 model/biscuit-poseable.blend`, `1 model/biscuit-poseable.glb`,
+  `3 previews/pose-overview.jpg`, `1 README.md`; after: the two GitHub blob URLs with
+  counts 2 and 1, and the GLB and overview lines unchanged.
+- **Step 3 and 4.** `find assets static/pose-studio -type f | wc -l` printed `105`. The
+  three digests were unchanged after the copy. The expected-list run checked **101** files
+  (the ticket says 100: the `.blend` is in the list, since only the README, the viewer,
+  the GLB and the overview are excluded) and `grep -vc ': OK$'` printed `0`. Every text
+  file in D is LF-only (checked with `grep -c $'\r'` over the non-binary files before the
+  copy) and `git ls-files --eol assets static/pose-studio` after `git add` reports
+  `i/-text w/-text` (71), `i/lf w/lf` (34) and one `i/lf w/-text` (the `.blend`, whose
+  index entry is the pointer), so `* text=auto` altered nothing.
+- **Step 6.** The sweep printed `70 images; 4 with EXIF`, not the ticket's `69 images; 0
+  with EXIF`. CONVENTIONS.md §1 fact 9 already predicts both corrections: the four are
+  `assets/models/biscuit/previews/native/{lying,paw-raised,sitting,standing}.png`, each
+  carrying exactly `{282: 72.0, 283: 72.0}` (XResolution, YResolution) and an empty GPS
+  IFD, which the checker allows; and there are 22 previews under `assets/`, not 21, so the
+  count is 36 + 22 + 11 + 1. Nothing was stripped; `just check-assets` passes as copied.
+- **Ticket arithmetic**, for the record and without effect on the totals: `previews/`
+  under `assets/` holds 22 files (the table says 21), `src/` holds 16 (the table says 15),
+  and step 4 checks 101 files (the text says 100). 94 files from `models/biscuit/`, 105
+  destinations and 106 tracked paths are all as written.
+- **Step 9.** After `git add`, `git lfs ls-files --long` listed exactly the three paths
+  (`95d16473…` for the `.blend`, `927bf1ee…` for `qa/geometry/rigged.json`, `863cf74e…`
+  for `qa/native-samples.json`, each starred as present); `git show
+  :assets/models/biscuit/model/biscuit-poseable.blend | head -3` printed `version
+  https://git-lfs.github.com/spec/v1`, `oid sha256:95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3`,
+  `size 12004899`; `git ls-files -s scripts/rebuild_model.sh` printed `100755`; `git
+  ls-files assets static/pose-studio | wc -l` printed `106`. Unchanged after the commit.
+- **Step 10.** The first `just assets-manifest` wrote 105 entries, storages `['blob',
+  'lfs']` (102 and 3), byte total **111,680,319**, which is the per-file copy list summed exactly,
+  with the viewer 243 bytes longer and the adapted README at 9,164 (the ticket's
+  "about 106.9 MB" is its own arithmetic). Two directory totals in CONVENTIONS.md §3
+  are wrong while every per-file figure is right: `textures/` sums to 10,040,783 (§3
+  says 12,209,289) and `illustrations/good/` to 15,137,724 (§3 says 14,092,724); S06
+  should take the manifest's figures for `docs/explanation/large-files.md`. `check_assets.py write`'s layout
+  matched the step-10 script exactly: after the script and the README's two hand-added
+  fields, a second `just assets-manifest` left `git diff assets/manifest.json` empty, so no
+  change to the script was needed. Every `source` starts `biscuit_pics@1d9d358:`, every
+  `licence` is `unsettled`, and only the viewer (`source_sha256` `8838e723…`, three
+  `patched` items) and the README (`source_sha256` `b267406b…`, one `patched` item) carry
+  the optional fields. `just check-assets` printed `check_assets check: ok`, exit 0.
+- **Step 11.** `just lint`: every hook passed (actionlint skipped, no workflow files yet)
+  with the 26 MB viewer and the 16 MB GLB in the tree, so the prek `exclude` alone keeps
+  `check-added-large-files`, editorconfig-checker, typos and lychee off the assets: the
+  §10 claim holds and no hook was excluded beyond §2.1. `just check` exit 0 in **15
+  seconds** wall clock (nine sha256 snapshots over the 112 MB, `bg-project-check` included);
+  the snapshot is not slow enough to matter. Elided transcript:
+
+  ```text
+  ==> just lock-check
+  ==> just lint            (21 hooks Passed, actionlint Skipped)
+  ==> just frontend-static COMPLETED 376 FILES 0 ERRORS 0 WARNINGS
+  ==> just frontend-coverage  Test Files 1 passed (1)  Tests 2 passed (2)
+  ==> just frontend-build  Wrote site to "build"
+  ==> just check-assets    check_assets check: ok
+  ==> just check-docs      markdownlint, typos, lychee Passed; Validated 39 pages and 40 canonical topics.
+  ==> just check-agents    Validated AGENTS.md, 2 adapters, and 8 skills.
+  ==> just check-clean     The worktree matches the check baseline.
+  All checks passed and the worktree is unchanged.
+  ```
+
+- **The README was invisible to the gate, now fixed (authorised).** `lychee.toml`
+  `exclude_path` and `.markdownlint-cli2.jsonc` `ignores` both named `assets` whole, so
+  neither hook read `assets/models/biscuit/README.md`, contradicting CONVENTIONS.md §2.1's
+  sentence that the README is linted and its links resolved. Both are S00-owned files
+  outside this ticket's table (not on §9's no-lane list); the maintainer authorised
+  narrowing them here, as a CONVENTIONS correction, rather than a hand-back. Both now list the six package directories and `assets/illustrations`
+  (the §2.1 set), and CONVENTIONS.md §2 (the two tree lines) and the §2.1 table say so.
+  Proof, lychee 0.24.2 run directly on the README with `--offline --root-dir .`: under the
+  old `lychee.toml` it prints `No files found for this input source` and `0 Total`;
+  under the new one `4 Total, 4 Unique, 4 OK, 0 Errors` (the four relative links), and
+  `prek run lychee --files assets/models/biscuit/README.md -v` reports the same four.
+  markdownlint's verbose run now lists the README among its 85 files with 0 issues; its
+  `ignores` work by the same negated globs that listing prints, so the old `!assets`
+  hid it the same way. The typos exclusion in `pyproject.toml` still
+  names `assets/` whole and so skips the README; left as the belt it is, since
+  `pyproject.toml` was not in the authorisation and typos reads the README's prose nowhere
+  else. Commit `c0c4a6b`.
+- **`scripts/rebuild_model.sh` deviates from the embedded text in three places**,
+  authorised by the maintainer and all about shape, not the build sequence: (1) the
+  argument is made absolute before `cd "$project_root"` (`checkout=$(CDPATH='' cd --
+  "$1" && pwd -P) || usage`), because the ticket's text resolved the symlink target from
+  `assets/` and the study-chain test from the project root, so a relative path satisfied
+  one and not the other; (2) `rm -f "$link"` runs after the five build commands and before
+  `just assets-manifest`, so the manifest walk under `assets/` never meets the link
+  (`rglob` on 3.14 would not have followed it, but the ordering now does not depend on
+  that); the `trap` stays for an interrupted run. Consequences for the checks: a missing
+  path now fails at the absolutising step and prints the usage line (`rc=2`), while a real
+  directory without the chain prints the "no study chain" line (`rc=2`); both were run,
+  with an absolute and a relative directory. (3) After a Codex adversarial review of the
+  branch found that a failed build left `assets/` half-rewritten under the old manifest,
+  the maintainer chose a guard and an automatic restore: the script refuses to start
+  (`rc=2`) unless `git status --porcelain --untracked-files=all` is empty for `assets` and
+  `static/pose-studio`, and an `EXIT` trap, with `INT` and `TERM` routed to it, restores
+  both from `HEAD` and cleans what the run created unless the run reached the end of
+  `just assets-manifest`. A staging directory was rejected because the build scripts write
+  by relative path inside the package and are themselves assets. The same change purges
+  `__pycache__` under the package after the build and on failure, and exports
+  `PYTHONDONTWRITEBYTECODE=1`: `build.py` imports `common`, `rig` and `pose_io`, and the
+  checker walks the filesystem, so ignored `.pyc` files would otherwise have entered the
+  manifest and failed `check-assets` in a clean clone. For the same reason it removes
+  `*.blend1` under the package: `build.py` calls `save_as_mainfile` over the existing
+  `.blend`, Blender keeps the old file as `.blend1` by default, and that name matches
+  neither the LFS pattern nor `.gitignore`. Tested with a fake `BLENDER` that appends to
+  `model/rig.json` and to the LFS-tracked `model/biscuit-poseable.blend`, creates
+  `previews/stray.png`, `src/__pycache__/x.pyc` and a stray file under
+  `static/pose-studio/`, then exits 1:
+
+  ```text
+  $ touch assets/stray; BLENDER=<fake> sh scripts/rebuild_model.sh <fake checkout>
+  assets/ or static/pose-studio/ differs from HEAD; commit or remove the changes first
+  rc=2   (assets/stray left in place, then removed)
+  $ BLENDER=<fake failing blender> sh scripts/rebuild_model.sh <fake checkout>
+  rebuild failed; assets/ and static/pose-studio/ restored to HEAD
+  rc=1
+  $ shasum -a 256 assets/models/biscuit/model/biscuit-poseable.blend
+  95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3  (12004899 bytes, content not pointer)
+  $ just check-assets
+  check_assets check: ok
+  ```
+
+  Afterwards neither `assets/biscuit_pics` nor `src/__pycache__` existed and the only
+  change in the worktree was the script itself. The success path needs Blender and the
+  real study chain and was not run, nor was the `INT`/`TERM` routing.
+  `docs/how-to/rebuild-the-model.md` (S05) should state the clean-tree precondition and the
+  automatic restore. shellcheck passes it in `just lint`.
+- **What `common.py` and `viewer.py` resolve.** Both compute `ROOT` as the package
+  directory (`assets/models/biscuit`) and `REPO_ROOT = ROOT.parents[1]`, which is
+  `assets/`, then reach `REPO_ROOT / 'biscuit_pics/generated/3d/…'`; the link at
+  `assets/biscuit_pics` pointing at `<checkout>/biscuit_pics` is the right bridge for both.
+  One thing the ticket's reasoning did not mention: `common.py` also `exec`s the
+  eyes-refined study's own `src/common.py` (lines 13-15) and then sets `legacy.c.ROOT =
+  ROOT`. That module resolves its own paths with `Path(__file__).resolve()`, which follows
+  the symlink into the real checkout, so the study's helpers read their own chain where it
+  lives; this is the intended behaviour and needs nothing from the script. Neither script
+  reads an environment variable. The scripts are copied verbatim and untouched.
+- **`assets/biscuit_pics` is gitignored**: `git check-ignore assets/biscuit_pics` prints
+  the path. No S00 follow-up.
+- **The LFS quota figure (open point).** Read on 2026-09-23 from GitHub Docs, "About
+  storage and bandwidth usage" (Git LFS): a free account includes **10 GiB of storage and
+  10 GiB of bandwidth a month**, and the pre-paid data packs have been replaced by metered
+  billing beyond that (bandwidth per GiB downloaded, storage at an hourly rate); a
+  download counts against the repository owner, and source archives containing LFS
+  objects count too. CONVENTIONS.md §3 and §10 say 1 GB and 1 GB; the figure is ten times
+  larger, so the three objects (32.3 MB) are 0.3% of a month's bandwidth per full fetch
+  rather than 3%. Nothing changes in the design; S06 carries the figure onto
+  `docs/explanation/large-files.md`.
+- **Whether the packed textures are photo-derived (open point).** Asked; the maintainer
+  does not know. Recorded as still open. Nothing here depends on it: the 36 maps carry no
+  EXIF and pass the checker.
+- **The licence (open point).** Not resolved. 105 entries carry `licence: "unsettled"`
+  and wait on the answer in `docs/explanation/content-policy.md`.
+- **Setup in this worktree.** `just sync` ran first (`uv sync`, then `npm ci` through the
+  token in `~/.npmrc`; `.venv` and `node_modules` are gitignored), and the first `just
+  lint` cloned the hook repositories into prek's cache. Neither `just install-hooks` nor
+  `git lfs install --local` was run, since the worktree shares `.git` with
+  `~/projects/biscuit_studio`. The three LFS objects are in that shared `.git/lfs/objects/`.
+- **Authorisations asked**, all granted before the work: the three network reads above
+  (`npm ci`, prek's hook clones, one fetch of the GitHub Docs page); the two rebuild-script
+  fixes; the narrowing of the two lint configurations with the CONVENTIONS correction.
+  Nothing left the machine; no push, no pull request.
+- **Verification**, run after the commits, as the section above lists:
+
+  ```text
+  $ git ls-files assets static/pose-studio | wc -l
+  106
+  $ git lfs ls-files --long
+  95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3 * assets/models/biscuit/model/biscuit-poseable.blend
+  927bf1ee2c5b1756f8cb3a89d16eb5910ebe2523c7fdd7969601b4bd40d7b986 * assets/models/biscuit/qa/geometry/rigged.json
+  863cf74e5431d94811a12fb0e686b163fad5e28bdf16610accc171fa370b7a00 * assets/models/biscuit/qa/native-samples.json
+  $ shasum -a 256 static/pose-studio/model/biscuit-poseable.glb assets/models/biscuit/model/biscuit-poseable.blend
+  51d16c1826b2c3ad6ad85fcb176a73e0d1c7a0ac3665ad10f1b6700e9e9be716  static/pose-studio/model/biscuit-poseable.glb
+  95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3  assets/models/biscuit/model/biscuit-poseable.blend
+  $ grep -o 'href="[^"]*"' static/pose-studio/viewer.html | sort | uniq -c
+  2 href="https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/model/biscuit-poseable.blend"
+  1 href="https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/README.md"
+  1 href="model/biscuit-poseable.glb"
+  3 href="previews/pose-overview.jpg"
+  $ just check-assets
+  check_assets check: ok
+  $ just check
+  All checks passed and the worktree is unchanged.   (15 s)
+  $ git ls-files -s scripts/rebuild_model.sh
+  100755 5447aaafa9d23033a7adec25ce22f709af42b861 0 scripts/rebuild_model.sh
+  $ sh scripts/rebuild_model.sh; echo "rc=$?"
+  usage: scripts/rebuild_model.sh <path to a biscuit_pics checkout>
+  rc=2
+  ```
+
+  `git status` is clean after the commits and no `assets/biscuit_pics` link exists.
 
 ## Open points
 
