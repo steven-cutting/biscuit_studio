@@ -940,6 +940,17 @@ separately authorised.
   tickets were checked against each other; an agent that finds a need to edit another
   lane's file hands it back instead. S07 and S08 run after every lane and may touch what
   they list.
+- **A done ticket is not reopened.** Once a ticket's `status:` is `done`, or once an
+  agent has started executing it, no other ticket edits its file or reopens it to change
+  the work it delivered; the executing agent still writes its own hand-back notes and
+  `status:` line, as §9 above allows. A hand-back addressed to such a ticket, a correction to one of its
+  passages, and a defect found in its work after it is done all go into a follow-up
+  ticket: the next free `S` id, which cites each item by its source ticket and hand-back
+  bullet, lists the files it touches like any other ticket, and depends on the tickets
+  whose work it changes. A follow-up that nothing has started yet absorbs new items in
+  place; one that has started gets a follow-up of its own. A ticket nobody has started
+  may be amended in place instead, and the commit that amends it says which hand-back
+  it carries. S09 is the first follow-up, holding what S00 to S06 handed back.
 - **Self-contained.** A ticket is written for an agent with no context: it embeds exact
   content or cites this document by section, and names the H, P, T, G and D paths to read.
   It never cites a chat transcript, a scratch directory or a tool result.

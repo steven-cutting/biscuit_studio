@@ -242,10 +242,14 @@ rule that nothing under `assets/` is edited by hand. Related pages:
 **Why two storages** (Pages serves an LFS pointer as text; a source a rebuild rewrites is
 history the clone carries forever); **The patterns** (`.gitattributes` quoted whole, with
 the reason for each line); **What is where** (the table of the nine rows with bytes,
-storage and reason, and the total of 32.3 MB in LFS); **What it costs** (the free tier's
-storage and bandwidth figures — write the figure S02's hand-back notes report from
-GitHub's documentation if S02 has merged, else §3's figure marked "at the time of
-writing"; a clone that fetches spends about 3% of a month's bandwidth; every viewer rebuild
+storage and reason, and the total of 32.3 MB in LFS; take each byte figure from
+`assets/manifest.json`, not from §3, whose `textures/` and `illustrations/good/` totals
+are wrong: the manifest sums them to 10,040,783 and 15,137,724, S02's hand-back notes);
+**What it costs** (the free tier's storage and bandwidth figures as S02's hand-back notes
+read them from GitHub's documentation on 2026-09-23: 10 GiB of storage and 10 GiB of
+bandwidth a month, with metered billing beyond that rather than data packs, and a
+download counting against the repository owner — write the date beside the figure;
+a clone that fetches spends about 0.3% of a month's bandwidth; every viewer rebuild
 adds 26 MB of ordinary history; `git lfs install` is per machine and
 `scripts/initialize.sh` runs it; every CI checkout is `lfs: false` and the checker reads
 pointers); **The risk** (a served path moved under an LFS pattern silently deploys pointer
@@ -424,8 +428,11 @@ unset` (a file landed as a blob because `git lfs install` had not run — §11);
 minute and needs the network (prek clones every hook); `Failed to create deployment
 (status: 404)` (the Pages source is not GitHub Actions; `scripts/bootstrap_repo.sh`);
 the deployed viewer's download link serves a small text file (a served path was moved
-under an LFS pattern). Quote each message from S00's `check_assets.py` and hand-back notes
-rather than from this ticket where the two differ.
+under an LFS pattern); `just dev` answers `403` for a gallery drawing with "outside of
+Vite serving allow list" (an import from `assets/` needs `server.fs.allow: ['assets']` in
+`vite.config.ts`, which S03 added; never widen it to the repository root). Quote each
+message from S00's `check_assets.py` and hand-back notes rather than from this ticket
+where the two differ.
 
 `docs/operations/hub-handover.md` — title `Hub handover`. The studio's ledger, in the
 register of the hub's Poodl handover (narrative prose grouped by shape, never a
@@ -517,8 +524,8 @@ Filled in by the agent that executes this ticket.
 - The `bg-validate-docs` line, the `just check-docs` tail and the `just check` tail,
   quoted.
 - The word count per page.
-- The CONVENTIONS.md §6 miscount ("Forty pages" stated, thirty-nine listed) reported for
-  correction on `main`, with the count this ticket used.
+- Anything this ticket finds wrong in CONVENTIONS.md or in a done ticket's files, handed
+  to S09 (the follow-up ticket) rather than edited here (CONVENTIONS.md §9).
 - Whether S02 had merged when `large-files.md` was written, and which LFS figure the page
   carries.
 - Whether S01 and S03 had merged when `testing.md` was written; if not, that the suite
@@ -532,9 +539,6 @@ Filled in by the agent that executes this ticket.
 
 ## Open points
 
-- The CONVENTIONS.md §6 page count (stated as forty; thirty-nine are listed).
-  This ticket follows the list. Confirm the total of thirty-nine pages against
-  `docs/manifest.yml` as S00 wrote it and report the true split.
 - `troubleshooting.md` quotes refusal messages from `scripts/check_assets.py`. If S00's
   script words them differently from CONVENTIONS.md §4, the page follows the script and
   the hand-back says so.

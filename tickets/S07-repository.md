@@ -2,8 +2,8 @@
 id: S07
 title: "Repository: create it, bootstrap its settings, first push, first deploy"
 status: open
-depends_on: [S01, S02, S03, S04, S05, S06]
-parallel_with: []
+depends_on: [S01, S02, S03, S04, S05, S06, S09]
+parallel_with: [S11]
 branch: ticket/s07-repository
 estimated_size: M
 ---
@@ -109,7 +109,8 @@ The table is the whole scope. No tracked file other than this ticket changes.
 
 Work from the repository root. This ticket's own commit (the status line and the notes)
 lands on `ticket/s07-repository` and reaches `main` through a pull request like every
-other ticket; the steps below act on `main` as it stands after S01 to S06 merged.
+other ticket; the steps below act on `main` as it stands after S01 to S06 and the
+follow-up S09 merged.
 
 ### Step 1: Confirm the starting state
 
@@ -287,6 +288,22 @@ settle the §10 claims that the Pages actions accept a 26 MB and a 16 MB file an
 them unchanged. Pages can take a minute after the run to serve the new content; retry
 `curl` rather than reading a `404` as failure inside that minute.
 
+Then the three links into the repository that nothing checked before it was public (S03's
+hand-back notes, "To S07"): the model page's "The Blender scene on GitHub", and the
+viewer's "Posing guide" and "Poseable Blender scene", which point at two blob URLs between
+them. Collect them from what Pages serves rather than retyping them:
+
+```sh
+curl -s https://steven-cutting.github.io/biscuit_studio/model/ | grep -o 'https://github.com/steven-cutting/biscuit_studio/blob/[^"]*' | sort -u
+curl -sL https://steven-cutting.github.io/biscuit_studio/pose-studio/viewer.html | grep -o 'https://github.com/steven-cutting/biscuit_studio/blob/[^"]*' | sort -u
+curl -sI https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/model/biscuit-poseable.blend | head -1
+curl -sI https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/README.md | head -1
+```
+
+Expected: the first prints the `.blend` URL, the second the `.blend` and README URLs, and
+each `curl -sI` answers `HTTP/2 200`. A URL the first two print that is not one of the two
+checked is a finding for the hand-back notes, and it is checked the same way.
+
 ### Step 9: A fresh clone receives the objects
 
 ```sh
@@ -325,6 +342,7 @@ ticket gives.
 - [ ] `curl -sI` of the site root answers `200`; the viewer's and the GLB's served
       digests equal the manifest's.
 - [ ] A fresh clone's `.blend` has the fact-8 digest and `12004899` bytes.
+- [ ] The two GitHub blob URLs the model page and the viewer link to answer `200`.
 - [ ] Every `gh repo create`, `POST /pages`, `git push`, `--apply` and (if taken)
       `--hygiene` was authorised before it happened and appears in the hand-back table.
 - [ ] No tracked file other than this ticket changed.

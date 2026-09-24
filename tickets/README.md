@@ -24,8 +24,11 @@ authoritative; this table is a snapshot.
 | S04 | Workflows: `ci.yml` with three jobs, `pages.yml` through the shared workflow | `S04-workflows.md` | S00 | S01 to S03, S05, S06 | open |
 | S05 | Handbook A: project, tutorial, how-to pages and the decision records | `S05-handbook-a.md` | S00 | S01 to S04, S06 | open |
 | S06 | Handbook B: explanation, reference and operations pages | `S06-handbook-b.md` | S00 | S01 to S05 | open |
-| S07 | Repository: create it, bootstrap its settings, first push, first deploy | `S07-repository.md` | S01 to S06 | none | open |
-| S08 | Maintainer docs: `README.md`, `CHANGELOG.md` 0.1.0, `AGENTS.md` provenance | `S08-maintainer-docs.md` | S07 | none | open |
+| S09 | Follow-up: what S00 to S06 handed back to tickets that are done | `S09-follow-up-hand-backs.md` | S01 to S06 | none | open |
+| S07 | Repository: create it, bootstrap its settings, first push, first deploy | `S07-repository.md` | S01 to S06, S09 | S11 | open |
+| S08 | Maintainer docs: `README.md`, `CHANGELOG.md` 0.1.0, `AGENTS.md` provenance | `S08-maintainer-docs.md` | S07 | S11 | open |
+| S10 | Gallery thumbnails: WebP copies of the cel set, made by a recipe and listed in the manifest | `S10-gallery-thumbnails.md` | S08 | S11 | open |
+| S11 | The rebuild, run end to end: the success and interrupted paths of `scripts/rebuild_model.sh` | `S11-rebuild-success-path.md` | S09 | S07, S08, S10 | open |
 
 Cross-repository and design tickets. Each is a recommendation written to be picked up on
 its own; C01 is the one that gates anything leaving the studio.
@@ -42,9 +45,9 @@ its own; C01 is the one that gates anything leaving the studio.
 ```text
 S00 ──┬── S01 ──┬── S03 ──┐
       ├── S02 ──┘         │
-      ├── S04 ────────────┼── S07 ── S08
-      ├── S05 ────────────┤
-      └── S06 ────────────┘
+      ├── S04 ────────────┼── S09 ──┬── S07 ── S08 ── S10
+      ├── S05 ────────────┤         │
+      └── S06 ────────────┘         └── S11
 
 C01 ── C04
 C02 waits for S02 (the manifest exists)
@@ -52,7 +55,9 @@ C03 waits for S03 and C01
 ```
 
 The graph is acyclic: S00, then five lanes (S01, S02, S04, S05, S06) in parallel, S03 once
-S01 and S02 have merged, then S07 and S08 in sequence. The C tickets stand apart; C01 can
+S01 and S02 have merged, then S09 (the follow-up that carries what the lanes handed back
+to tickets already done), then S07 and S08 in sequence, and S10 after S08. S11 needs only
+S09 and runs beside the rest. The C tickets stand apart; C01 can
 start at any time because it touches only the hub.
 
 ## How to pick up a ticket
@@ -75,6 +80,9 @@ start at any time because it touches only the hub.
    clones `CONVENTIONS.md` §0 pins, at the commits it pins. `biscuit_pics` is read-only.
 3. Edit only the files the ticket lists, plus the `status:` line of the ticket itself. A
    change needed elsewhere is handed back in the ticket's hand-back notes, not made.
+   A ticket that is done, or in progress, is never reopened: what is handed back to it
+   goes into a follow-up ticket, and only a ticket nobody has started is amended in place
+   (CONVENTIONS.md §9).
 4. Run the ticket's verification commands and quote their output in the hand-back notes.
 5. Commit on the ticket branch. Pushing and opening the pull request are separately
    authorised: stop and ask.

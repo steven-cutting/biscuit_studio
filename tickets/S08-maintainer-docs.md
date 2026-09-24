@@ -3,7 +3,7 @@ id: S08
 title: "Maintainer docs: README.md, CHANGELOG.md 0.1.0, AGENTS.md provenance"
 status: open
 depends_on: [S07]
-parallel_with: []
+parallel_with: [S11]
 branch: ticket/s08-maintainer-docs
 estimated_size: S
 ---
@@ -201,8 +201,9 @@ Filled in by the agent that executes this ticket.
 
 - The three files' final line counts, and the date written into the `0.1.0` entry.
 - The verification output, quoted.
-- Any fact the README wanted and no page or hand-back note supplied, handed to S05 or
-  S06's owner as a follow-up.
+- Any fact the README wanted and no page or hand-back note supplied, handed to a
+  follow-up ticket for the page's owner (CONVENTIONS.md §9); S05's and S06's files are
+  not edited here.
 - A reminder that `v0.1.0` is untagged and that tagging is the maintainer's call.
 
 ## Open points
