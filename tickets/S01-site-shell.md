@@ -1,7 +1,7 @@
 ---
 id: S01
 title: "Site shell: the platform package, the lockup, and appearance on the document element"
-status: open
+status: done
 depends_on: [S00]
 parallel_with: [S02, S03, S04, S05, S06]
 branch: ticket/s01-site-shell
@@ -430,15 +430,188 @@ Record what was seen.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S01-site-shell` in a
+Supacode worktree, 2026-09-24. One commit on the branch; nothing pushed. The branch is the
+worktree's name rather than `ticket/s01-site-shell`, as S00 agreed with the maintainer; no
+check reads it.
 
-- The coverage table for `src/lib/**`, quoted.
-- The output of every verification command, quoted.
-- Whether `document.title` was reflected under jsdom (CONVENTIONS.md §10, assigned here);
-  if the case was dropped, say so and why.
-- Whether rendering `+page.svelte` under Vitest resolved `$app/paths` without further
-  configuration (the open point below).
-- Anything handed back to S00 (a needed change to a file no lane touches) or to S03.
+Three things the ticket did not foresee, each confirmed against the SvelteKit `2.70.2`
+that `package.json` pins and then observed at the gate, changed the page, one file outside
+the table, and one acceptance criterion. Each was put to the maintainer before the change
+was made.
+
+- **`base` is deprecated, and the lint preset errors on it.** `$app/paths` marks `base`
+  `@deprecated` in favour of `resolve()` (`node_modules/@sveltejs/kit/types/index.d.ts`
+  line 3419), and `strictTypeChecked` runs `@typescript-eslint/no-deprecated` as an error
+  on every use; `eslint-plugin-svelte`'s recommended set adds
+  `svelte/no-navigation-without-resolve`, which refuses an internal `href` that is not a
+  `resolve()` call. `just frontend-static` on Step 5 as written, the messages' link to
+  the SvelteKit docs elided:
+
+  ```text
+  src/routes/+page.svelte
+    41:14  error  Unexpected href link without resolve()              svelte/no-navigation-without-resolve
+    41:21  error  `base` is deprecated. Use `resolve(...)` instead    @typescript-eslint/no-deprecated
+    42:14  error  Unexpected href link without resolve()              svelte/no-navigation-without-resolve
+    42:21  error  `base` is deprecated. Use `resolve(...)` instead    @typescript-eslint/no-deprecated
+  ✖ 4 problems (4 errors, 0 warnings)
+  ```
+
+  `resolve('/model/')` is not yet a substitute: its argument is typed against the
+  generated `Pathname` union, which is only `"/"` until S03 adds the routes. The page
+  therefore reads `const home = resolve('/')` and links to `{home}model/` and
+  `{home}gallery/`: no suppression, no `src/lib/paths.ts`, and the same output as `base`
+  gave (`/model/` under Vitest, `./model/` at prerender, `/biscuit_studio/model/` after
+  hydration on Pages). The navigation rule checks the leading expression of an `href` and
+  accepts a variable initialised by a `resolve()` call. The comment in the page says why.
+  Agreed with the maintainer; the alternative, keeping `{base}` under a single-rule
+  suppression, was declined.
+- **The prerender crawler follows the two links.** `handleHttpError` defaults to `fail`,
+  and the crawler skips only a link carrying `rel="external"`, so `just frontend-build`
+  on the page as written died on the first link:
+
+  ```text
+  [404] GET /model/
+  [404] GET /gallery/
+  Error: 404 /model/ (linked from /)
+  To suppress or handle this error, implement `handleHttpError` in
+  https://svelte.dev/docs/kit/configuration#prerender
+  ```
+
+  The non-goal's "nothing here follows them" is true of the tests and false of the
+  crawler. With the maintainer's authorisation, `svelte.config.js`, a file outside this
+  ticket's table, gained a `kit.prerender.handleHttpError` that lets through a 404 on
+  exactly `${base}/model/` and `${base}/gallery/` and rethrows everything else, with a
+  comment saying S03 deletes it. The alternatives, `rel="external"` on the links or
+  dropping them from this ticket, were declined.
+- **The built `href` is relative, so the acceptance criterion's grep counts zero.**
+  `kit.paths.relative` defaults to true, and at prerender SvelteKit rewrites `base` to
+  `.` for the root page (`src/runtime/server/page/render.js` lines 121-129), exactly as
+  the hub's own `build/index.html` carries `./_app/...`. Under
+  `BASE_PATH=/biscuit_studio` the page holds `href="./model/"` and `href="./gallery/"`,
+  which resolve to `/biscuit_studio/model/` and `/biscuit_studio/gallery/` where Pages
+  serves the page (SvelteKit's own `base_expression` then rewrites them absolute after
+  hydration, reasoned from `render.js` line 130 rather than seen, since the browser check
+  was not run). The criterion's `href="/biscuit_studio/model/"` never appears in the markup; the
+  corrected check and its output are below. Ticket correction, no design change.
+
+Smaller notes:
+
+- **Prettier reflowed the paragraph.** Step 5's `<p>` is wrapped at about 90 columns and
+  `.prettierrc.json` says 100, so `prettier --check` refused the file until the two lines
+  were rewrapped. Words unchanged.
+- **The browser check was not run**, by the maintainer's decision: the Chrome tooling
+  available to the agent cannot drive the DevTools rendering emulation the Verification
+  section asks for, and the automated proof in `tests/appearance.test.ts` (both values of
+  both attributes through `createFakePreferences`, and the unsubscribe) stands alone. The
+  prerendered `<html>` was checked instead: `build/index.html` opens with
+  `<html lang="en" data-theme="dark" data-animations="on">`.
+- **`document.title` under jsdom** (CONVENTIONS.md §10): reflected. The
+  `titles the document after the site` case passed on every run and was kept.
+- **`$app/paths` under Vitest**: resolved by the SvelteKit plugin in `vite.config.ts`
+  with no further configuration; `resolve('/')` answers `/` there, so the expected hrefs
+  carry no prefix. The `src/lib/paths.ts` shim the open point floats was not needed.
+- **The link copy.** S03's ticket labels its sections `The model` and `The gallery`
+  (`CardLabel` in its Steps 1 and 2, and its `pages.test.ts` asserts the same); the names
+  here match and nothing follows S03.
+- **The coverage table** for `src/lib/**`. Vitest 4's text reporter printed the per-file
+  table empty, as S00 recorded; the figures below are the `json-summary` reporter's
+  `coverage/coverage-summary.json`, and the run passed the 90 floor:
+
+  ```text
+  total                             statements 100% (16/16) | branches 100% (8/8) | functions 100% (5/5) | lines 100% (13/13)
+  src/lib/appearance.ts             statements 100% (11/11) | branches 100% (8/8) | functions 100% (3/3) | lines 100% (9/9)
+  src/lib/brand.ts                  statements 100% (3/3)   | branches 100% (0/0) | functions 100% (0/0) | lines 100% (3/3)
+  src/lib/components/Lockup.svelte  statements 100% (2/2)   | branches 100% (0/0) | functions 100% (2/2) | lines 100% (1/1)
+  ```
+
+- **`src/lib/appearance.ts`** was diffed against CONVENTIONS.md §2.7's block after
+  writing: byte-identical.
+
+Verification, each command run from the repository root after the changes above:
+
+- `just frontend-static`, exit 0:
+
+  ```text
+  All matched files use Prettier code style!
+  svelte-check --tsconfig ./tsconfig.json --fail-on-warnings
+  COMPLETED 421 FILES 0 ERRORS 0 WARNINGS 0 FILES_WITH_PROBLEMS
+  ```
+
+- `just frontend-coverage`, exit 0:
+
+  ```text
+  Test Files  4 passed (4)
+       Tests  13 passed (13)
+  Statements   : 100% ( 16/16 )
+  Branches     : 100% ( 8/8 )
+  Functions    : 100% ( 5/5 )
+  Lines        : 100% ( 13/13 )
+  ```
+
+- `grep -rn 'document\.' src/`, one line:
+
+  ```text
+  src/routes/+layout.svelte:25:  onMount(() => applyAppearance(document.documentElement, createMediaPreferences()));
+  ```
+
+- `BASE_PATH=/biscuit_studio just frontend-build`, exit 0, ending `Wrote site to "build"`
+  after the two let-through lines `[404] GET /biscuit_studio/model/` and
+  `[404] GET /biscuit_studio/gallery/`. The ticket's grep,
+  `grep -c 'href="/biscuit_studio/\(model\|gallery\)/"' build/index.html`, prints `0`.
+  The corrected check, `grep -o 'href="\./\(model\|gallery\)/"' build/index.html`,
+  prints the two links:
+
+  ```text
+  href="./model/"
+  href="./gallery/"
+  ```
+
+- `just check`, exit 0 on the first full run. Elided transcript:
+
+  ```text
+  ==> just lock-check
+  Resolved 5 packages in 4ms  /  up to date in 184ms
+  ==> just lint
+  Ruff lint ... Passed  /  Ruff format check ... Passed  /  ESLint and Prettier ... Passed
+  Documentation contract ... Passed  /  Agent instruction contract ... Passed
+  check for added large files, case conflicts, shebangs, json, merge conflicts,
+  executable scripts, toml, yaml, private key ... Passed
+  EditorConfig ... Passed  /  markdownlint ... Passed  /  typos ... Passed
+  lychee ... Passed  /  shellcheck ... Passed  /  ripsecrets ... Passed
+  Lint GitHub Actions workflow files ... (no files to check) Skipped
+  ==> just frontend-static
+  All matched files use Prettier code style!
+  COMPLETED 421 FILES 0 ERRORS 0 WARNINGS 0 FILES_WITH_PROBLEMS
+  ==> just frontend-coverage
+  Test Files  4 passed (4)   Tests  13 passed (13)   (summary as above)
+  ==> just frontend-build
+  Wrote site to "build"
+  ==> just check-assets
+  check_assets check: ok
+  ==> just check-docs
+  markdownlint ... Passed  /  typos ... Passed  /  lychee ... Passed
+  Validated 39 pages and 40 canonical topics.
+  ==> just check-agents
+  Validated AGENTS.md, 2 adapters, and 8 skills.
+  ==> just check-clean
+  The worktree matches the check baseline.
+  All checks passed and the worktree is unchanged.
+  ```
+
+Handed back:
+
+- *To S03.* Delete the `NOT_YET_BUILT` set and the `prerender` block from
+  `svelte.config.js` in the change that adds `/model/` and `/gallery/`; the file is not
+  in S03's table today. The same two lint rules will meet S03's embedded pages: its
+  `{base}/pose-studio/viewer.html` links carry `rel="external"`, which the navigation
+  rule skips, but `no-deprecated` still fires on `base`, and once the routes exist
+  `resolve('/model/')` and `resolve('/gallery/')` type-check and are the form to use,
+  here on the home page too. Nothing here depends on S03's headings.
+- *To S00 or CONVENTIONS.md.* §2.7 describes the page reaching `base`; the module block
+  itself is unchanged and byte-identical. Step 5's page and the `href` acceptance
+  criterion are corrected as described above. The `document.title` claim in §10 is
+  settled: reflected.
 
 ## Open points
 

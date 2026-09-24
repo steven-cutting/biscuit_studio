@@ -1,12 +1,20 @@
 <!doctype html>
 <!--
-  data-theme="dark" is `default AppearanceSettings appearance_settings` from
-  the platform's appearance.allium, which @steven-cutting/biscuit-games ships,
-  stated in the markup so the prerendered page paints the default before
-  anything hydrates. A route that lets the player choose writes their choice
-  over it: `light` replaces it, `system` removes it.
+  data-theme="dark" and data-animations="on" are `default AppearanceSettings
+  appearance_settings` from the platform's appearance.allium, which
+  @steven-cutting/biscuit-games ships, stated in the markup so the prerendered
+  page paints the platform default before anything hydrates. Dark is home.
+
+  The theme never changes: this site ships no settings control, so `theme` is
+  the default and dark_active is true. The other two attributes are re-derived
+  after hydration from the device, through the preferences port the package
+  exports — src/routes/+layout.svelte does it, and src/lib/appearance.ts says
+  how. data-high-contrast is absent here because app.css matches the literal
+  string "true" and the setting's default is false; the layout adds it when the
+  device asks for more contrast, and removes data-animations when the device asks
+  for less motion.
 -->
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-animations="on">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

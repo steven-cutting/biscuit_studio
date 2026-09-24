@@ -1,20 +1,28 @@
 <script lang="ts">
   import '@steven-cutting/biscuit-games/app.css';
 
+  import { createMediaPreferences } from '@steven-cutting/biscuit-games';
+  import { onMount } from 'svelte';
+
+  import { applyAppearance } from '$lib/appearance';
+
   /*
-   * The design system's stylesheet, imported once and nowhere below it. It is
-   * the platform's — the token vocabulary, the four palettes, the two faces and
-   * the global element rules together — and the game's own styles name tokens from
-   * it rather than restating values. Two copies of these custom properties
-   * would be a cascade question nobody wants to answer twice, which is why the
-   * copy that used to sit beside this file is gone rather than kept in step.
+   * The design system's stylesheet, imported once and nowhere below it: the
+   * token vocabulary, the four palettes, the two faces and the global element
+   * rules together. This site's own styles name tokens from it and restate no
+   * value.
    *
-   * Only the stylesheet lives here. The header is `HeaderBar`, rendered by
-   * `+page.svelte`, because its controls need the page's panel state and the
-   * store's callbacks — and callbacks-as-props with no context means the
-   * layout could never receive them.
+   * The one place `document` is reached. Everything under src/lib/ takes its
+   * element and its port as arguments; this layout is where the real ones are
+   * handed over, after hydration, because at prerender there is no document
+   * and no device to ask. `createMediaPreferences()` reads `globalThis.matchMedia`
+   * and answers "no preference" where it is absent, so the call is safe under
+   * jsdom too. The unsubscribe is returned so the listeners go when the layout
+   * does.
    */
   let { children }: { children?: import('svelte').Snippet } = $props();
+
+  onMount(() => applyAppearance(document.documentElement, createMediaPreferences()));
 </script>
 
 {@render children?.()}
