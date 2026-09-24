@@ -173,7 +173,7 @@ hands it back. "H", "P", "T", "G", "D" as §0.
 .editorconfig                 S00   H verbatim, plus the two sections §2.1 gives
 .gitattributes                S00   §3, exact
 .gitignore                    S00   T's `template/.gitignore` minus the allium, storybook, chromatic and vitest-browser blocks (lines 24-47), plus one line `assets/biscuit_pics` (the symlink `scripts/rebuild_model.sh` places so the model's build scripts find the earlier studies; §3). No LFS cache entry: git-lfs keeps its cache under .git/
-.markdownlint-cli2.jsonc      S00   H's, `ignores` gaining "assets" and "static", losing "dist" and "storybook-static"
+.markdownlint-cli2.jsonc      S00   H's, `ignores` gaining the seven §2.1 `assets/…` paths and "static", losing "dist" and "storybook-static" (S02 narrowed "assets" so the model README is linted)
 .npmrc                        S00   P verbatim (one line, the scope)
 .pre-commit-config.yaml       S00   H's with the `exclude` regex of §2.1, minus the eslint `files` entries that name storybook, minus check-specs and analyse-specs
 .pre-commit-fix.yaml          S00   H's with the same `exclude`
@@ -194,7 +194,7 @@ eslint.config.js              S00   H's minus the storybook import and spread, `
 svelte.config.js              S00   §2.5, exact
 tsconfig.json                 S00   H verbatim
 vite.config.ts                S00   H verbatim
-lychee.toml                   S00   H's, `exclude_path` gaining "assets" and "static/pose-studio", minus "storybook-static"
+lychee.toml                   S00   H's, `exclude_path` gaining the seven §2.1 `assets/…` paths and "static/pose-studio", minus "storybook-static" (S02 narrowed "assets" so the model README's links are checked)
 .claude/settings.json         S00   H verbatim
 .agents/skills/<8>/SKILL.md   S00   §7, final
 .claude/skills/<8>/SKILL.md   S00   bridges, exact body
@@ -269,8 +269,8 @@ Where each is written:
 | `.pre-commit-config.yaml` and `.pre-commit-fix.yaml` `exclude` | three lines added to H's `(?x)` block: `assets/models/biscuit/(model\|poses\|previews\|qa\|src\|textures)/\|`, `assets/illustrations/\|`, `static/pose-studio/\|`, before `uv\.lock$` |
 | `.prettierignore` | `assets` and `static/pose-studio`, each on its own line, after `package-lock.json` |
 | `eslint.config.js` `ignores` | `'assets/'` and `'static/'` appended to H's array |
-| `.markdownlint-cli2.jsonc` `ignores` | `"assets"` and `"static"` appended |
-| `lychee.toml` `exclude_path` | `"assets"` and `"static/pose-studio"` appended |
+| `.markdownlint-cli2.jsonc` `ignores` | the six `assets/models/biscuit/<dir>` paths, `"assets/illustrations"` and `"static"` appended — not `"assets"`, which would hide the README (corrected by S02) |
+| `lychee.toml` `exclude_path` | the six `assets/models/biscuit/<dir>` paths, `"assets/illustrations"` and `"static/pose-studio"` appended — not `"assets"`, for the same reason (corrected by S02) |
 | `pyproject.toml` `[tool.typos.files] extend-exclude` | `"assets/"` and `"static/pose-studio/"` appended |
 | `.editorconfig` | two sections appended: `[assets/**]` and `[static/pose-studio/**]`, each setting `indent_style`, `indent_size`, `end_of_line`, `insert_final_newline` and `trim_trailing_whitespace` to `unset` — the belt under the prek exclude, for editors |
 
