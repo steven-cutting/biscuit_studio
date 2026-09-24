@@ -123,7 +123,7 @@ are green; no file outside the list changed.
 | `docs/reference/agent-contract.md` | page | H `docs/reference/agent-contract.md` | replace stub body |
 | `docs/operations/maintenance.md` | page | H `docs/operations/maintenance.md` | replace stub body |
 | `docs/operations/troubleshooting.md` | page | H `docs/operations/troubleshooting.md` | replace stub body |
-| `docs/operations/hub-handover.md` | page | new; H `docs/operations/poodl-handover.md` for register | replace stub body (step 6) |
+| `docs/operations/hub-handover.md` | page | new; H `docs/operations/poodl-handover.md` for register | replace stub body (step 6); carry the item S01 hands over: the window before hydration in which a device asking for reduced motion or more contrast still gets the platform default, closed by `prefers-reduced-motion` and `prefers-contrast` rules in the hub's `app.css` |
 
 Sixteen rows: six under `docs/explanation/`, seven under `docs/reference/`, three under
 `docs/operations/`, which is every page CONVENTIONS.md §6's table assigns to S06, out of

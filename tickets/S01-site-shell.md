@@ -514,6 +514,29 @@ Smaller notes:
 - **The link copy.** S03's ticket labels its sections `The model` and `The gallery`
   (`CardLabel` in its Steps 1 and 2, and its `pages.test.ts` asserts the same); the names
   here match and nothing follows S03.
+- **The Codex adversarial review** of the branch against `main` (2026-09-24) returned two
+  findings; the maintainer reviewed both and decided as follows.
+  - *Links to routes that do not exist yet* (`svelte.config.js`, rated high): rejected.
+    The finding assumes deployed readers reach the two 404s. Nothing is deployed until S07
+    creates the repository and makes the first deploy, and S07 depends on S01 to S06, so
+    S03's routes exist before anything is served; this branch has no
+    `.github/workflows/pages.yml` at all, which S04 adds. The crawler exception and S03's
+    removal row stand as decided above.
+  - *Reduced motion before hydration* (`src/app.html`, rated medium): valid as a class,
+    not manifest here, and the remedy belongs to the hub. The markup ships
+    `data-animations="on"`, the package's `app.css` sets the three durations under that
+    attribute, and the layout removes it only after hydration, so a reader who asked for
+    less motion has non-zero durations until then. High contrast has the same window in
+    the other direction: the palette switches only after hydration. On this page nothing
+    can animate before hydration: `app.css` holds no `transition` or `animation` rule,
+    `HeaderBar`, `Wordmark` and `Monogram` hold none, and the components that do
+    (`Button`, `IconButton`, `Switch`, `SegmentedControl`, `GameCard`, `Modal`) are not
+    rendered. The hub's own pages settle where the fix goes: H
+    `docs/explanation/accessibility.md` says the hub's route writes the attribute flat,
+    calls a media query beside the attribute "a second opinion on the same question", and
+    names a media query in `app.css` "the smaller of the two debts and the one to pay
+    first". Under invariant 1 the hub changes first, so no studio-side media query and no
+    change to `app.html`; the item is handed to the hub handover register below.
 - **The coverage table** for `src/lib/**`. Vitest 4's text reporter printed the per-file
   table empty, as S00 recorded; the figures below are the `json-summary` reporter's
   `coverage/coverage-summary.json`, and the run passed the 90 floor:
@@ -612,6 +635,16 @@ Handed back:
   itself is unchanged and byte-identical. Step 5's page and the `href` acceptance
   criterion are corrected as described above. The `document.title` claim in §10 is
   settled: reflected.
+- *To S06, for `docs/operations/hub-handover.md`.* One item for the register, owed to
+  the hub: between first paint and hydration the studio's page carries the platform
+  default, so a device asking for reduced motion has the three durations at their `on`
+  values and a device asking for more contrast has the standard palette, until the
+  layout writes the port's answer. The studio cannot close either without a second
+  opinion on the attribute, which the hub's accessibility page rules out; the hub's
+  `app.css` closes both with a root-level `prefers-reduced-motion: reduce` rule holding
+  the durations at zero and a `prefers-contrast: more` rule selecting the high-contrast
+  palette, which that page already names as the debt to pay first. With the
+  maintainer's authorisation, S06's files table row for the page now carries the item.
 
 ## Open points
 
