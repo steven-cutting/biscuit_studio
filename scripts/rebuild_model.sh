@@ -53,11 +53,14 @@ git rev-parse --is-inside-work-tree >/dev/null
 link=assets/biscuit_pics
 [ ! -e "$link" ] || { printf '%s\n' "$link already exists; remove it first" >&2; exit 2; }
 
-# Python's bytecode caches are gitignored but would be walked into the manifest.
-# PYTHONDONTWRITEBYTECODE reaches uv's Python; Blender may ignore it, so purge.
+# The manifest walk lists every file, ignored or not, so the build's by-products
+# go before it: Python's bytecode caches (PYTHONDONTWRITEBYTECODE reaches uv's
+# Python; Blender may ignore it) and the .blend1 backup Blender keeps when
+# build.py saves over the existing .blend.
 export PYTHONDONTWRITEBYTECODE=1
-purge_bytecode() {
+purge_debris() {
   find "$package" -name __pycache__ -type d -prune -exec rm -rf {} +
+  find "$package" -name '*.blend1' -type f -exec rm -f {} +
 }
 
 finished=0
@@ -65,7 +68,7 @@ cleanup() {
   status=$?
   rm -f "$link" || true
   if [ "$finished" -ne 1 ]; then
-    purge_bytecode || true
+    purge_debris || true
     git restore --source=HEAD --staged --worktree -- assets "$served" || true
     git clean -fdq -- assets "$served" || true
     printf '%s\n' "rebuild failed; assets/ and $served/ restored to HEAD" >&2
@@ -96,7 +99,7 @@ ln -s "$checkout/biscuit_pics" "$link"
 # written, so the walk under assets/ never meets it. The trap stays for an
 # interrupted run.
 rm -f "$link"
-purge_bytecode
+purge_debris
 
 # The three outputs the site serves live beside the viewer, not in the package.
 mv "$package/viewer.html" "$served/viewer.html"

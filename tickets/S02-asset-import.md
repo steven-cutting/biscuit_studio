@@ -949,9 +949,13 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   `__pycache__` under the package after the build and on failure, and exports
   `PYTHONDONTWRITEBYTECODE=1`: `build.py` imports `common`, `rig` and `pose_io`, and the
   checker walks the filesystem, so ignored `.pyc` files would otherwise have entered the
-  manifest and failed `check-assets` in a clean clone. Tested with a fake `BLENDER` that
-  appends to `model/rig.json`, creates `previews/stray.png`, `src/__pycache__/x.pyc` and a
-  stray file under `static/pose-studio/`, then exits 1:
+  manifest and failed `check-assets` in a clean clone. For the same reason it removes
+  `*.blend1` under the package: `build.py` calls `save_as_mainfile` over the existing
+  `.blend`, Blender keeps the old file as `.blend1` by default, and that name matches
+  neither the LFS pattern nor `.gitignore`. Tested with a fake `BLENDER` that appends to
+  `model/rig.json` and to the LFS-tracked `model/biscuit-poseable.blend`, creates
+  `previews/stray.png`, `src/__pycache__/x.pyc` and a stray file under
+  `static/pose-studio/`, then exits 1:
 
   ```text
   $ touch assets/stray; BLENDER=<fake> sh scripts/rebuild_model.sh <fake checkout>
@@ -960,13 +964,17 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   $ BLENDER=<fake failing blender> sh scripts/rebuild_model.sh <fake checkout>
   rebuild failed; assets/ and static/pose-studio/ restored to HEAD
   rc=1
+  $ shasum -a 256 assets/models/biscuit/model/biscuit-poseable.blend
+  95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3  (12004899 bytes, content not pointer)
   $ just check-assets
   check_assets check: ok
   ```
 
   Afterwards neither `assets/biscuit_pics` nor `src/__pycache__` existed and the only
   change in the worktree was the script itself. The success path needs Blender and the
-  real study chain and was not run. shellcheck passes it in `just lint`.
+  real study chain and was not run, nor was the `INT`/`TERM` routing.
+  `docs/how-to/rebuild-the-model.md` (S05) should state the clean-tree precondition and the
+  automatic restore. shellcheck passes it in `just lint`.
 - **What `common.py` and `viewer.py` resolve.** Both compute `ROOT` as the package
   directory (`assets/models/biscuit`) and `REPO_ROOT = ROOT.parents[1]`, which is
   `assets/`, then reach `REPO_ROOT / 'biscuit_pics/generated/3d/…'`; the link at
@@ -1024,7 +1032,7 @@ pushed. As agreed on S00, the work stays on the worktree's branch rather than
   $ just check
   All checks passed and the worktree is unchanged.   (15 s)
   $ git ls-files -s scripts/rebuild_model.sh
-  100755 8109b897829a314e451b4aa0e3c427759dc1fcce 0 scripts/rebuild_model.sh
+  100755 5447aaafa9d23033a7adec25ce22f709af42b861 0 scripts/rebuild_model.sh
   $ sh scripts/rebuild_model.sh; echo "rc=$?"
   usage: scripts/rebuild_model.sh <path to a biscuit_pics checkout>
   rc=2
