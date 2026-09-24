@@ -7,7 +7,10 @@ export default defineConfig({
   // Testing Library cleanup hook; without it components render server-side.
   plugins: [sveltekit(), svelteTesting()],
   server: {
-    port: 5173
+    port: 5173,
+    // The gallery imports its PNG files from assets/, outside src/;
+    // without this `vite dev` refuses them with a 403.
+    fs: { allow: ['assets'] }
   },
   test: {
     name: 'unit',
