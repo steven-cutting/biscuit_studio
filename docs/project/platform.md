@@ -79,7 +79,7 @@ indexed in [Architecture decisions](../decisions/README.md).
 
 ## What nothing here checks
 
-Every link above is an `https://` URL, and the documentation contract skips those: the
+Every link above is an absolute URL into another repository, and the documentation contract skips those: the
 exact-case, must-resolve rule that governs an internal link does not apply, and the offline
 link checker passes `--offline`. Only `just check-links-online` resolves them, and it is run
 by hand — monthly, per [Maintenance](../operations/maintenance.md).

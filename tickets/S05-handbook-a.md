@@ -1,7 +1,7 @@
 ---
 id: S05
 title: "Handbook A: project, tutorial and how-to pages, and the decision records"
-status: open
+status: done
 depends_on: [S00]
 parallel_with: [S01, S02, S03, S04, S06]
 branch: ticket/s05-handbook-a
@@ -552,19 +552,144 @@ with every recipe listed.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S05-handbook-a` in a Supacode
+worktree, 2026-09-24. Four commits on the branch, this one included; nothing pushed. As
+agreed on S00, the work stays on the worktree's branch rather than `ticket/s05-handbook-a`;
+no check reads the branch name. Decided with the maintainer before writing: the Pages
+address is written without its scheme off `project/platform.md` (below), no Codex review,
+one commit per group of pages.
 
-- The `bg-validate-docs` line, the `just check-docs` tail and the `just check` tail,
-  quoted.
-- The word count per page.
-- Whether S02 had merged when `rebuild-the-model.md` was written, and what interface the
-  page describes for `scripts/rebuild_model.sh`.
-- Whether S07 had merged when `deploy-to-github-pages.md` was written; if not, that the
-  address is written as the design says and S07 confirms it.
-- Every sentence written as the design says rather than as the repository is, with the
-  ticket that makes it true.
-- Deviations from this ticket, each with the reason.
-- Which open points were settled and which are carried forward.
+- **Verification**, run from the repository root after the third commit and the two
+  follow-up edits below:
+
+  ```text
+  $ uv run --frozen bg-validate-docs
+  Validated 39 pages and 40 canonical topics.
+  $ just check-docs
+  markdownlint ... Passed  /  typos ... Passed  /  lychee ... Passed
+  Validated 39 pages and 40 canonical topics.
+  $ grep -rn 'https://' docs/project docs/tutorials docs/how-to docs/decisions
+  15 lines, all docs/project/platform.md: line 12 and the 14 table rows 61-74, each
+  https://github.com/steven-cutting/biscuit_games/blob/main/docs/<page>.md, none with #
+  $ grep -rln 'this game' docs/ || echo none
+  none
+  $ git diff --stat main -- docs/manifest.yml docs/README.md
+  (empty)
+  $ just check
+  ==> just check-assets     check_assets check: ok
+  ==> just check-docs       Validated 39 pages and 40 canonical topics.
+  ==> just check-agents     Validated AGENTS.md, 2 adapters, and 8 skills.
+  ==> just check-clean      The worktree matches the check baseline.
+  All checks passed and the worktree is unchanged.
+  ```
+
+  `git diff --name-only main` lists exactly the twenty-two pages and this ticket, and for
+  every page the first nine lines (frontmatter, blank, H1) match `main`.
+- **Word counts** (`wc -w`, whole file), every one above 150:
+
+  ```text
+     791 docs/project/platform.md              1040 docs/tutorials/first-change.md
+     687 docs/project/purpose-and-scope.md      448 docs/decisions/0001-static-site-no-backend.md
+    1273 docs/project/repository-map.md          725 docs/decisions/0002-the-hub-is-upstream.md
+     723 docs/project/terminology.md             535 docs/decisions/0003-python-toolchain.md
+     902 docs/how-to/deploy-to-github-pages.md   619 docs/decisions/0004-a-project-pages-site.md
+     871 docs/how-to/develop-locally.md          458 docs/decisions/0005-assembled-by-hand.md
+    1011 docs/how-to/import-an-asset.md          657 docs/decisions/0006-sources-in-lfs-served-files-as-blobs.md
+    1031 docs/how-to/maintain-dependencies.md    497 docs/decisions/0007-assets-travel-by-copy-and-ledger.md
+     797 docs/how-to/promote-an-asset.md         501 docs/decisions/0008-the-viewer-is-embedded-as-is.md
+    1056 docs/how-to/rebuild-the-model.md        389 docs/decisions/0009-no-component-workshop-yet.md
+     661 docs/how-to/test-and-debug.md           557 docs/decisions/README.md
+  ```
+
+  (Counted before the two follow-up edits, which changed a word or two on
+  `platform.md` and `terminology.md`.)
+- **S02 had merged** when `rebuild-the-model.md` was written, so the page describes the
+  real `scripts/rebuild_model.sh`: one positional path to the `biscuit_pics` checkout
+  root, made absolute; `BLENDER` for the executable, defaulting to the macOS bundle; the
+  refusals with status 2 (missing path, no study chain, no Blender, `assets/` or
+  `static/pose-studio/` differing from `HEAD`, an existing `assets/biscuit_pics`); the
+  symlink; the five commands; the purge of `__pycache__` and `*.blend1`; the three moves
+  and the three asserted rewrites; `just assets-manifest`; and the trap that restores both
+  trees to `HEAD` on failure or interruption, as S02 asked. Neither script reads an
+  environment variable for the chain; the argument is the only interface.
+- **S07 had not merged.** The address is written as the design says,
+  `steven-cutting.github.io/biscuit_studio/`, and S07 confirms it on the first deploy.
+- **Written as the design says rather than as the repository is:**
+  - The three routes `/`, `/model/` and `/gallery/` (`develop-locally.md`,
+    `first-change.md` step 2, `deploy-to-github-pages.md` "What the site serves",
+    `repository-map.md`'s tree), and the model page saying beside the GLB download that
+    its look differs (`rebuild-the-model.md`, decision 0008): **S03**.
+  - The gallery importing the illustrations and the build fingerprinting them under
+    `_app/` (`deploy-to-github-pages.md`, `repository-map.md`, `terminology.md`): the
+    CONVENTIONS.md §10 Vite-import claim, **S03**.
+  - The live address, the deploy gate's first run, and `scripts/bootstrap_repo.sh`
+    applying the Pages source: **S07**.
+- **Deviations from this ticket**, each with the reason:
+  - *No `https://` scheme off `platform.md`.* Steps 2 and 4 asked for the Pages address
+    as a code span with its scheme, which the `https://` acceptance grep matches. The
+    maintainer chose to keep the criterion: the address is
+    `steven-cutting.github.io/biscuit_studio/`, and the viewer's two rewritten GitHub URLs
+    are described in words on `rebuild-the-model.md` and decision 0008, never written out.
+  - *`platform.md`, beyond Step 3's list:* T's first link named the hub's repository root,
+    which the grep's blob-URL rule refuses, so it names the hub's `docs/README.md`; the
+    "What nothing here checks" opener, verbatim in T, said "an `https://` URL" and now
+    says "an absolute URL into another repository", for the same grep. The two new
+    sentences in "What holds the two together" end "never as a number written down a
+    second time here" rather than repeating T's following sentence about version bumps.
+    The boundary paragraph's example ("a cell is a cell … is this game's") had no studio
+    reading and was rewritten around the character and a pose. The Consume the hub row
+    says the studio "followed it by hand" rather than "was rendered with it done", and the
+    Architecture decisions row says "the three below", since two rows were dropped.
+  - *The checker's refusal line.* The ticket's shape `<path>: not in
+    assets/manifest.json` is not what `scripts/check_assets.py` prints. A live run, with a
+    4×4 PNG copied to `assets/illustrations/first-change.png` and then removed with the
+    manifest restored, printed `assets/illustrations/first-change.png: present but not
+    listed; run just assets-manifest` and `check_assets check: 1 finding(s)`, exit 1. The
+    tutorial and `import-an-asset.md` quote that.
+  - *Git LFS per clone, not per machine.* `scripts/initialize.sh` runs
+    `git lfs install --local`, which configures the clone (and, from a worktree, the
+    shared `.git/config`), so the pages say git-lfs is installed once per machine and
+    `git lfs install --local` runs in each clone. CONVENTIONS.md §11's "per machine" is
+    looser than the script.
+  - *Frozen titles win.* The H1s S00 wrote for 0005 ("Assembled by hand, not rendered from
+    the template") and 0007 ("Assets travel by copy and ledger") differ from Step 6's
+    list; the index keeps S00's, which are the manifest's titles.
+  - *The deploy page describes the `workflow_run` gate.* Step 4 predates S04's gate; the
+    page says what `pages.yml` does now (after CI, only a push to `main` still at its head,
+    no manual run, `gh run rerun` for a redeploy, the `name: CI` hazard) and decision 0004
+    carries it as a consequence, as S04 corrected.
+  - *`repository-map.md` gained "Where each part came from"*, a table of source
+    repositories and commits by group, because decision 0005 (Step 7) cites a provenance
+    table on that page and Step 2 did not provide one. It carries no ticket or owner
+    column.
+  - *`test-and-debug.md` gained "Debug an asset failure"*, a short section on reading
+    `just check-assets` findings, which T has no counterpart for.
+  - *`terminology.md`'s Lane row* is not one of H's entries (H has none); written fresh,
+    without pointing a handbook reader at `tickets/`.
+  - *`maintain-dependencies.md`* adds a sixth step to "Moving the design system package":
+    look at the three routes in the four combinations, replacing T's Chromatic review.
+  - *Decision 0004* opens with the italic provenance line although T's `.jinja` record
+    has none, as Step 7 asks of all four carried records.
+- **Found, not changed:** the viewer's `source_sha256` after a rebuild. The script's
+  closing message says to set it "to the new viewer digest", which would make it equal to
+  `sha256` if read literally, while CONVENTIONS.md §4 defines it as the source's digest
+  when the committed bytes differ. The page says to update it for the new page, as the
+  script asks, without choosing; whoever runs the first rebuild settles which digest is
+  meant. A candidate note for S02's script or `reference/asset-manifest.md` (S06).
+- **Authorisations.** `just sync` read the npm registry with the token already in
+  `~/.npmrc`, needed for `just check`; nothing else touched the network. Pushing and
+  opening the pull request have not been done and need separate authorisation.
+- **Open points.**
+  - *`rebuild-the-model.md` and S02*: settled; S02 had merged and the page describes its
+    script.
+  - *The address and S07*: carried forward; S07 confirms
+    `github.event.repository.name` is `biscuit_studio`.
+  - *The LFS figure in 0006*: settled from S02's note, 10 GiB of storage and 10 GiB of
+    bandwidth a month, metered beyond, read 2026-09-23; 0006 says so and puts the three
+    objects at about 0.3% of a month's bandwidth, not §3's 3%.
+  - *The ledger's shape on `promote-an-asset.md`*: confirmed; the page describes the
+    interim procedure only and says the ledger's design is a separate discussion.
+  - *The tutorial's line shape*: settled by the live run above.
 
 ## Open points
 

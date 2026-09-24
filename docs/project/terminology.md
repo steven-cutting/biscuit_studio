@@ -38,7 +38,7 @@ behaviour.
 | --- | --- |
 | Gate | A check that can fail the build. Listed in [Quality gates](../reference/quality-gates.md). |
 | Recipe | A `Justfile` target. The only supported way to run anything. |
-| Lane | One of the tickets the studio was first built in, each touching its own files so several could run side by side. The word survives in the hand-back notes under `tickets/`. |
+| Lane | One of the parallel pieces of work the studio was first built in, each touching its own files so several could run side by side. Two lanes never edit the same file; work that needs another lane's file is handed back rather than done. |
 | Port | The interface a side effect sits behind, with a real adapter and an in-memory fake beside it. The studio uses the preferences port the package exports, and any side effect it adds gets a port of its own. |
 | Fake | The in-memory implementation of a port, used by tests. Not a mock: it behaves, rather than recording calls. |
 | Import | Bringing a file into `assets/` or `static/pose-studio/` from outside, byte for byte, with its source recorded. See [Import an asset](../how-to/import-an-asset.md). |
