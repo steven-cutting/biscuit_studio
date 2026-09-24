@@ -1,0 +1,20 @@
+{
+  "offline": true,
+  "bytes": 27561425,
+  "sha256": "8838e723399ee4e1eba5e9926da4503fe639459f1b809bc3bf9575856e55170a",
+  "bones": 33,
+  "presets": [
+    "standing",
+    "sitting",
+    "lying",
+    "paw-raised"
+  ],
+  "character": {
+    "parts": 146,
+    "triangles": 74880
+  },
+  "garment": {
+    "parts": 2,
+    "triangles": 11948
+  }
+}

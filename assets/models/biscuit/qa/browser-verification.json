@@ -1,0 +1,36 @@
+{
+  "offline": true,
+  "poses": {
+    "standing": {
+      "sampledVertices": 2460,
+      "maxNativeDifference": 0.0000013799472931373386
+    },
+    "sitting": {
+      "sampledVertices": 2460,
+      "maxNativeDifference": 0.0000013764027641720162
+    },
+    "lying": {
+      "sampledVertices": 2460,
+      "maxNativeDifference": 0.0000015105397579043134
+    },
+    "paw-raised": {
+      "sampledVertices": 2460,
+      "maxNativeDifference": 0.0000013799472931373386
+    },
+    "head-ears-tail": {
+      "sampledVertices": 2460,
+      "maxNativeDifference": 0.0000013965814726185778
+    }
+  },
+  "invalidPosesRejected": 10,
+  "blenderIkImport": true,
+  "fileRoundtrip": true,
+  "png": {
+    "width": 930,
+    "height": 900,
+    "bytes": 324892
+  },
+  "mobileControls": true,
+  "externalRequests": 0,
+  "consoleErrors": 0
+}

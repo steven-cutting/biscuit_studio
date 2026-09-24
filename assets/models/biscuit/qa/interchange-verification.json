@@ -1,0 +1,37 @@
+{
+  "standing": {
+    "meshes": 148,
+    "vertices": 48993,
+    "maxSurfaceError": 2.025023377427715e-06,
+    "maxPortableSkinSurfaceError": 2.2649765014648438e-06,
+    "maxNativePoseRoundtripError": 2.1288050788825785e-07
+  },
+  "sitting": {
+    "meshes": 148,
+    "vertices": 48993,
+    "maxSurfaceError": 2.1499024569493486e-06,
+    "maxPortableSkinSurfaceError": 1.6434569261036813e-06,
+    "maxNativePoseRoundtripError": 4.1350722312927246e-07
+  },
+  "lying": {
+    "meshes": 148,
+    "vertices": 48993,
+    "maxSurfaceError": 1.9406438696023542e-06,
+    "maxPortableSkinSurfaceError": 1.6422574162788806e-06,
+    "maxNativePoseRoundtripError": 5.224719643592834e-07
+  },
+  "paw-raised": {
+    "meshes": 148,
+    "vertices": 48993,
+    "maxSurfaceError": 2.025023377427715e-06,
+    "maxPortableSkinSurfaceError": 2.2649765014648438e-06,
+    "maxNativePoseRoundtripError": 6.183981895446777e-07
+  },
+  "browser-saved": {
+    "meshes": 148,
+    "vertices": 48993,
+    "maxSurfaceError": 2.1499024569493486e-06,
+    "maxPortableSkinSurfaceError": 1.6434569261036813e-06,
+    "maxNativePoseRoundtripError": 7.152557373046875e-07
+  }
+}
