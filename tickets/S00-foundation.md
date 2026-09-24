@@ -1480,7 +1480,7 @@ the git-lfs version and the repository's config; `filter: lfs`; three lines begi
 ## Hand-back notes
 
 Filled in by the agent that executed this ticket, on branch `S00-foundation` in a
-Supacode worktree, 2026-09-23. Eight commits on the branch, this one included; nothing pushed.
+Supacode worktree, 2026-09-23. Nine commits on the branch, this one included; nothing pushed.
 
 - **The Pillow pin.** `uv lock` resolved `pillow==12.3.0` under CPython 3.14.3 beside
   `biscuit-games-tooling` 0.3.0 (which has no runtime dependencies), `prek==0.4.12` and
@@ -1593,6 +1593,51 @@ Supacode worktree, 2026-09-23. Eight commits on the branch, this one included; n
     Worth a sentence on the develop-locally page.
   - *`npm ci`* printed npm 11's `allow-scripts` warning for `fsevents@2.3.3`; nothing was
     approved or changed.
+- **Post-review changes (Codex adversarial review, 2026-09-23).** A challenge review of
+  the branch returned two findings, decided with the maintainer and applied in the ninth
+  commit.
+  - *No Pages workflow: rejected.* This ticket's Non-goals give `.github/workflows/` to
+    S04 and say S00 creates no workflow; `svelte.config.js` is CONVENTIONS.md §2.5
+    verbatim. Nothing changed.
+  - *The asset gate's metadata net: accepted as a design tightening.* The checker had
+    refused only the GPS IFD and four camera-identity tags on `.png`, `.jpg` and
+    `.jpeg`, while the content policy says every metadata field is stripped and S02's
+    Step 6 sweep already counts any tag. Now `scripts/check_assets.py` inspects every
+    raster suffix Pillow registers (`.png`, `.apng`, `.jpg`, `.jpeg`, `.jpe`, `.jfif`,
+    `.mpo`, `.webp`, `.gif`, `.bmp`, `.avif`, `.heic`, `.heif`) and refuses an image
+    carrying any IFD0 tag other than `XResolution`, `YResolution` and `ResolutionUnit`,
+    anything in the Exif IFD, or a GPS IFD, naming every tag found; refuses a `.tif` or
+    `.tiff` outright, because a clean TIFF stores ten structural tags in IFD0 and
+    metadata cannot be told from structure; and refuses a raster suffix Pillow cannot
+    open (HEIC and HEIF in this build) as unreadable. The self-test gained five cases,
+    each generated in its temporary tree: a JPEG carrying only `DateTimeOriginal` and a
+    WebP carrying only `Software` are refused with `EXIF`; a PNG carrying only
+    `XResolution` and `YResolution` and a clean WebP pass; a clean TIFF is refused with
+    `TIFF`. No committed fixture was added. The WebP cases make the gate depend on the
+    libwebp Pillow's wheels bundle; there is no `features.check` guard, so a build
+    without it fails loudly rather than skipping.
+  - *The resolution triple is allowed because four in-scope files carry it.* Sweeping D
+    `1d9d358` with S02's own rule found `XResolution` and `YResolution` = 72, and
+    nothing else, in the four native renders `models/biscuit/previews/native/lying.png`,
+    `paw-raised.png`, `sitting.png` and `standing.png`, which S02 copies. CONVENTIONS.md
+    §1 fact 9 said every preview was clean; it was wrong and is corrected. The maintainer
+    chose to allow the triple so the renders arrive byte-identical, rather than strip and
+    re-encode them.
+  - *Files changed.* `scripts/check_assets.py`; `AGENTS.md` invariant 8; the
+    `asset-change` and `fix-quality` skills (the bridges are unchanged); the
+    `check-assets` comment in the `Justfile`; and, under the maintainer's authorisation,
+    `tickets/CONVENTIONS.md` at §1 decision 9, §1 fact 9, the Justfile comment §2.2 pins,
+    §4 `check` and `self-test`, and the §10 note on Pillow.
+  - *Handed to S02.* Its lines 22 to 25 restate the old rule; its Step 6 sweep will print
+    `70 images; 4 with EXIF` with the four native renders listed, not `69 images; 0 with
+    EXIF`, because `previews/` holds 22 files besides `pose-overview.jpg` (its table row
+    says 21) and the four carry the tags above; and the flagged files need no stripping,
+    since the checker allows exactly what they carry.
+  - *Passages of this ticket now behind the code.* Step 8's embedded checker and the
+    `check-assets` comment, and Step 10's sentence "the checker refuses an image
+    carrying location or camera identity regardless". They are the original
+    instructions; the files are ahead of them. The Acceptance criteria and Verification
+    sections mention EXIF only through the fixture's path and stay true.
 
 ## Open points
 

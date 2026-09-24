@@ -93,7 +93,8 @@ Decisions, taken on 2026-09-23:
 9. **Raw photographs.** No ticket copies a photograph of the real dog. If one is ever
    copied, the maintainer approves it first, one photograph at a time, and it is committed
    only after every metadata field has been stripped from it; `just check-assets` refuses
-   any image carrying a GPS or camera-identifying EXIF field regardless of approval. §5.
+   any image carrying an EXIF field beyond its resolution regardless of approval, and any
+   TIFF. §5.
 10. **No component workshop in the first release.** The studio authors no shared
     component; it mounts the platform's. Storybook and Chromatic are not installed, and
     decision 0009 in the studio's own record says why and what would reopen it (C03 does).
@@ -146,10 +147,15 @@ Facts, each verified in source, that shape the mechanism:
    `95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3` (12,004,899 bytes).
    S02 asserts these before and after the copy; §3's `.gitattributes` is what keeps a
    checkout byte-identical to the commit.
-9. **No image in scope carries EXIF.** Pillow's `getexif()` returns an empty mapping for
-   every PNG under D `good/` and every PNG under D `models/biscuit/previews/` and
-   `textures/` (checked 2026-09-23). The GPS check in §4 therefore has nothing to refuse in
-   the first import, and its fixture test is what proves it is live.
+9. **Four native renders carry resolution EXIF; no other image in scope carries any.**
+   Pillow's `getexif()` returns an empty mapping for every PNG under D `good/` and D
+   `models/biscuit/textures/`, and for every file under D `models/biscuit/previews/` except
+   the four under `native/` (`lying.png`, `paw-raised.png`, `sitting.png`,
+   `standing.png`), which carry exactly `XResolution` and `YResolution` = 72 (checked
+   2026-09-23 on D `1d9d358`, after S00's review; the first check had missed them). The
+   EXIF check in §4 allows the resolution triple and refuses every other tag, so the first
+   import passes as copied, and its fixture test is what proves it is live. S02's Step 6
+   sweep counts any tag, so it reports those four files; S02 corrects its expected line.
 10. **The viewer links four relative targets** (counted with `grep -o 'href="[^"]*"'`):
     `model/biscuit-poseable.blend` twice, `model/biscuit-poseable.glb` once,
     `previews/pose-overview.jpg` three times, `README.md` once. It fetches nothing; every
@@ -293,7 +299,7 @@ whole and make exactly these changes; every recipe not named below is H's verbat
 # Every file under assets/ and static/pose-studio/ against assets/manifest.json:
 # present, listed, and byte-identical to the recorded sha256. An LFS pointer is
 # verified from the oid it carries, so a checkout with lfs: false passes and CI
-# never fetches an object. Refuses any image carrying GPS or camera EXIF.
+# never fetches an object. Refuses EXIF beyond an image's resolution, and TIFF.
 check-assets:
     uv run --frozen python scripts/check_assets.py check
 
@@ -686,10 +692,14 @@ beyond the standard library; the ledger keys it prints are its interface). Subco
   refuse a mismatch; for each `lfs` entry read the pointer (`version
   https://git-lfs.github.com/spec/v1`, `oid sha256:<hex>`, `size <n>`) and refuse a
   mismatch against the entry — and, when the object is present rather than the pointer,
-  hash it instead; for every `.png`, `.jpg` and `.jpeg` open it with Pillow, read
-  `getexif()`, and refuse the file if the GPS IFD (`0x8825`) is present or any of the
-  tags `Make` (`0x010F`), `Model` (`0x0110`), `BodySerialNumber` (`0xA431`) or
-  `LensSerialNumber` (`0xA435`) is set; assert `storage` agrees with `git check-attr
+  hash it instead; for every raster image (`.png`, `.apng`, `.jpg`, `.jpeg`, `.jpe`,
+  `.jfif`, `.mpo`, `.webp`, `.gif`, `.bmp`, `.avif`, `.heic`, `.heif`) open it with
+  Pillow, read `getexif()`, and refuse the file if any IFD0 tag other than `XResolution`
+  (`0x011A`), `YResolution` (`0x011B`) and `ResolutionUnit` (`0x0128`) is set, or the
+  Exif IFD (`0x8769`) or the GPS IFD (`0x8825`) holds anything, naming every tag found;
+  refuse a `.tif` or `.tiff` outright, because a TIFF stores its structure as IFD0 tags,
+  and refuse a raster suffix Pillow cannot open as unreadable; assert `storage` agrees
+  with `git check-attr
   filter <path>` (`lfs` ↔ `filter: lfs`). Exit 0 and print one summary line; on any
   refusal print every finding, one per line as `<path>: <reason>`, and exit 1.
 - `write` (what `just assets-manifest` runs): recompute every entry from the worktree,
@@ -698,7 +708,10 @@ beyond the standard library; the ledger keys it prints are its interface). Subco
   file; then run `check` and exit with its status. It never deletes a `source` field.
 - `self-test`: build a temporary tree with one blob, one hand-written LFS pointer, one
   clean PNG and `tests/fixtures/exif-gps.jpg`; assert `check` passes on the first three
-  and refuses the fourth with `GPS`; assert a tampered byte is refused; exit 0 on
+  and refuses the fourth with `GPS`; then, each generated in the temporary tree, assert a
+  JPEG carrying only `DateTimeOriginal` and a WebP carrying only `Software` are refused
+  with `EXIF`, a PNG carrying only `XResolution` and `YResolution` and a clean WebP pass,
+  and a clean TIFF is refused with `TIFF`; assert a tampered byte is refused; exit 0 on
   success. The `check` subcommand runs `self-test` first, so `just check-assets` proves its
   own checker is live on every run and §2.2's recipe stays one command.
 
@@ -955,7 +968,10 @@ goes back through this document.
 
 - `pillow==12.3.0` resolves under `uv lock` for Python 3.14 beside the tooling package,
   and `Image.getexif()` exposes the GPS IFD through `get_ifd(0x8825)` without an extra
-  dependency. **S00.**
+  dependency. `len(getexif())` is zero for every clean PNG, JPEG, WebP, GIF, BMP and AVIF
+  Pillow writes, but a clean TIFF holds ten structural tags, which is why §4 refuses TIFF
+  outright; Pillow's PNG writer drops an `Exif` whose IFD0 is empty, so the sub-IFD case
+  in the self-test is a JPEG. **S00.**
 - The prek `exclude` regex alone keeps editorconfig-checker, typos, lychee and
   `check-added-large-files` off the assets, so the `.editorconfig` sections and the typos
   entry are belts rather than the thing holding. **S00** (with the stub manifest) and

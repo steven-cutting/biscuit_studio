@@ -72,7 +72,8 @@ These hold everywhere. Breaking one is a defect, not a trade-off.
    that writes the manifest, and its diff is read before it is committed. No
    photograph of the real dog is committed without the maintainer's approval of
    that photograph, and never with a metadata field left in it; the checker
-   refuses an image carrying location or camera identity regardless.
+   refuses an image carrying any EXIF beyond its resolution regardless, and a
+   TIFF outright.
 
 ## Stack and conventions
 

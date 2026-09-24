@@ -22,6 +22,7 @@ import tempfile
 from pathlib import Path
 
 from PIL import Image, UnidentifiedImageError
+from PIL.ExifTags import TAGS
 
 ROOTS = ("assets", "static/pose-studio")
 MANIFEST = Path("assets/manifest.json")
@@ -30,14 +31,27 @@ POINTER_HEAD = b"version https://git-lfs.github.com/spec/v1"
 POINTER = re.compile(
     r"^version https://git-lfs\.github\.com/spec/v1\noid sha256:([0-9a-f]{64})\nsize (\d+)\n"
 )
-IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg"})
+INSPECTED_SUFFIXES = frozenset(
+    {
+        ".png",
+        ".apng",
+        ".jpg",
+        ".jpeg",
+        ".jpe",
+        ".jfif",
+        ".mpo",
+        ".webp",
+        ".gif",
+        ".bmp",
+        ".avif",
+        ".heic",
+        ".heif",
+    }
+)
+UNINSPECTABLE_SUFFIXES = frozenset({".tif", ".tiff"})
 GPS_IFD = 0x8825
-IDENTIFYING_TAGS = {
-    0x010F: "Make",
-    0x0110: "Model",
-    0xA431: "BodySerialNumber",
-    0xA435: "LensSerialNumber",
-}
+EXIF_IFD = 0x8769
+RESOLUTION_TAGS = frozenset({0x011A, 0x011B, 0x0128})  # XResolution, YResolution, ResolutionUnit
 REQUIRED_FIELDS = ("path", "bytes", "sha256", "storage", "source", "licence")
 OPTIONAL_FIELDS = ("source_sha256", "patched")
 STORAGES = frozenset({"blob", "lfs"})
@@ -109,18 +123,26 @@ def measure(path: Path) -> tuple[str, int]:
 
 
 def exif_findings(path: Path) -> list[str]:
-    """Why an image may not be committed: location or camera identity left inside it."""
-    if path.suffix.lower() not in IMAGE_SUFFIXES or pointer(path) is not None:
+    """Why an image may not be committed: EXIF beyond its resolution, or a format that cannot be inspected."""
+    suffix = path.suffix.lower()
+    if suffix not in INSPECTED_SUFFIXES | UNINSPECTABLE_SUFFIXES or pointer(path) is not None:
         return []
+    if suffix in UNINSPECTABLE_SUFFIXES:
+        return [
+            "a TIFF, whose structure is stored as EXIF tags and cannot be told from metadata; export it as PNG"
+        ]
     try:
         with Image.open(path) as image:
             exif = image.getexif()
     except (UnidentifiedImageError, OSError) as error:
         return [f"not a readable image ({error})"]
-    findings = [f"carries EXIF {name}" for tag, name in IDENTIFYING_TAGS.items() if exif.get(tag)]
-    if exif.get_ifd(GPS_IFD):
-        findings.append("carries GPS EXIF; strip every metadata field before committing")
-    return findings
+    tags = sorted(set(exif) - RESOLUTION_TAGS) + sorted(exif.get_ifd(EXIF_IFD))
+    if exif.get_ifd(GPS_IFD) and GPS_IFD not in tags:
+        tags.append(GPS_IFD)
+    if not tags:
+        return []
+    names = ", ".join(TAGS.get(tag, f"0x{tag:04X}") for tag in tags)
+    return [f"carries EXIF ({names}); strip every metadata field before committing"]
 
 
 def load_manifest(root: Path) -> dict[str, dict[str, object]]:
@@ -261,6 +283,34 @@ def self_test(root: Path) -> list[str]:
         (models / "photo.jpg").unlink()
         if found := write_tree(stage):
             problems.append(f"the tree was refused after the photograph left: {found}")
+
+        def expect(name: str, marker: str | None, exif: Image.Exif | None = None) -> None:
+            """Save a one-pixel image as `name`; assert `check` names `marker`, or passes when None."""
+            target = models / name
+            Image.new("RGB", (1, 1), (61, 35, 19)).save(
+                target, **({"exif": exif} if exif is not None else {})
+            )
+            found = write_tree(stage)
+            if marker is None and found:
+                problems.append(f"{name} was refused: {found}")
+            if marker is not None and not any(marker in item for item in found):
+                problems.append(f"{name} was not refused naming {marker}: {found}")
+            target.unlink()
+            if leftover := write_tree(stage):
+                problems.append(f"the tree was refused after {name} left: {leftover}")
+
+        dated = Image.Exif()
+        dated.get_ifd(EXIF_IFD)[0x9003] = "2026:09:23 00:00:00"
+        expect("dated.jpg", "EXIF", dated)
+        render = Image.Exif()
+        render[0x011A] = 72.0
+        render[0x011B] = 72.0
+        expect("render.png", None, render)
+        tagged = Image.Exif()
+        tagged[0x0131] = "self-test"
+        expect("tagged.webp", "EXIF", tagged)
+        expect("clean.webp", None)
+        expect("flat.tif", "TIFF")
         with (models / "blob.bin").open("r+b") as stream:
             stream.seek(0)
             stream.write(b"B")

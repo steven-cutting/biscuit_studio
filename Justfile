@@ -95,7 +95,7 @@ check-agents:
 # Every file under assets/ and static/pose-studio/ against assets/manifest.json:
 # present, listed, and byte-identical to the recorded sha256. An LFS pointer is
 # verified from the oid it carries, so a checkout with lfs: false passes and CI
-# never fetches an object. Refuses any image carrying GPS or camera EXIF.
+# never fetches an object. Refuses EXIF beyond an image's resolution, and TIFF.
 check-assets:
     uv run --frozen python scripts/check_assets.py check
 

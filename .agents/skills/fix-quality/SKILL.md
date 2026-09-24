@@ -13,7 +13,7 @@ description: Diagnose and repair a failing quality gate at its root instead of s
    - Coverage below the floor — add the missing test. Never lower the threshold in `vite.config.ts`.
    - `check-docs` — a frontmatter list that disagrees with `docs/manifest.yml` is usually list order; the comparison is order-sensitive.
    - `check-agents` — a bridge under `.claude/` or `.codex/` has grown content, or a managed file is missing from the inventory.
-   - `check-assets` — a file under `assets/` or `static/pose-studio/` changed without `just assets-manifest`, an entry names a file that is gone, `.gitattributes` and the entry disagree about LFS, or an image carries EXIF. Run `just assets-manifest`, read its diff, and never edit the manifest by hand to make it agree; an image that carries location or camera data is stripped outside the repository or not committed at all.
+   - `check-assets` — a file under `assets/` or `static/pose-studio/` changed without `just assets-manifest`, an entry names a file that is gone, `.gitattributes` and the entry disagree about LFS, or an image carries EXIF. Run `just assets-manifest`, read its diff, and never edit the manifest by hand to make it agree; an image that carries any EXIF beyond its resolution is stripped outside the repository or not committed at all, and a TIFF is exported as PNG.
    - `lock-check` — run `just lock`, and read the lockfile diff before accepting it.
 3. Distinguish an unreachable branch from an untested one. Defensive code no input can reach should be removed, not covered by a contrived test.
 4. Never disable a gate to make a run green. A suppression is a last resort: one rule, one line, with a stated reason.
