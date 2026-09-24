@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "pages": [
+    {"path": "README.md", "title": "Documentation map", "kind": "project", "audience": ["user", "contributor", "maintainer", "operator", "agent"], "canonical_for": ["documentation_navigation"], "requires": []},
+
+    {"path": "project/purpose-and-scope.md", "title": "Purpose and scope", "kind": "project", "audience": ["user", "contributor", "maintainer", "agent"], "canonical_for": ["project_purpose", "project_non_goals"], "requires": []},
+    {"path": "project/platform.md", "title": "The platform upstream", "kind": "project", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["platform_upstream"], "requires": []},
+    {"path": "project/repository-map.md", "title": "Repository map", "kind": "project", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["repository_layout"], "requires": []},
+    {"path": "project/terminology.md", "title": "Terminology", "kind": "project", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["project_terminology"], "requires": []},
+
+    {"path": "tutorials/first-change.md", "title": "Make your first change", "kind": "tutorial", "audience": ["contributor", "agent"], "canonical_for": ["first_change_tutorial"], "requires": []},
+
+    {"path": "how-to/develop-locally.md", "title": "Develop locally", "kind": "how-to", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["local_development"], "requires": []},
+    {"path": "how-to/test-and-debug.md", "title": "Test and debug", "kind": "how-to", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["test_workflow"], "requires": []},
+    {"path": "how-to/deploy-to-github-pages.md", "title": "Deploy to GitHub Pages", "kind": "how-to", "audience": ["maintainer", "operator", "agent"], "canonical_for": ["deployment_procedure"], "requires": []},
+    {"path": "how-to/maintain-dependencies.md", "title": "Maintain dependencies", "kind": "how-to", "audience": ["maintainer", "agent"], "canonical_for": ["dependency_maintenance"], "requires": []},
+    {"path": "how-to/import-an-asset.md", "title": "Import an asset", "kind": "how-to", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["asset_import_procedure"], "requires": []},
+    {"path": "how-to/rebuild-the-model.md", "title": "Rebuild the model", "kind": "how-to", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["model_rebuild_procedure"], "requires": []},
+    {"path": "how-to/promote-an-asset.md", "title": "Promote an asset", "kind": "how-to", "audience": ["maintainer", "agent"], "canonical_for": ["asset_promotion"], "requires": []},
+
+    {"path": "explanation/architecture.md", "title": "Architecture", "kind": "explanation", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["system_architecture"], "requires": []},
+    {"path": "explanation/large-files.md", "title": "Large files", "kind": "explanation", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["large_file_policy"], "requires": []},
+    {"path": "explanation/content-policy.md", "title": "Content policy", "kind": "explanation", "audience": ["user", "contributor", "maintainer", "agent"], "canonical_for": ["content_policy"], "requires": []},
+    {"path": "explanation/accessibility.md", "title": "Accessibility", "kind": "explanation", "audience": ["user", "contributor", "maintainer", "agent"], "canonical_for": ["accessibility_model"], "requires": []},
+    {"path": "explanation/security-model.md", "title": "Security model", "kind": "explanation", "audience": ["user", "contributor", "maintainer", "operator", "agent"], "canonical_for": ["security_model"], "requires": []},
+    {"path": "explanation/quality-philosophy.md", "title": "Quality philosophy", "kind": "explanation", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["quality_philosophy"], "requires": []},
+
+    {"path": "reference/commands.md", "title": "Commands", "kind": "reference", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["command_reference"], "requires": []},
+    {"path": "reference/configuration.md", "title": "Configuration", "kind": "reference", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["configuration_reference"], "requires": []},
+    {"path": "reference/testing.md", "title": "Testing", "kind": "reference", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["testing_reference"], "requires": []},
+    {"path": "reference/quality-gates.md", "title": "Quality gates", "kind": "reference", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["quality_gate_reference"], "requires": []},
+    {"path": "reference/asset-manifest.md", "title": "Asset manifest", "kind": "reference", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["asset_manifest_format"], "requires": []},
+    {"path": "reference/documentation-contract.md", "title": "Documentation contract", "kind": "reference", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["documentation_contract"], "requires": []},
+    {"path": "reference/agent-contract.md", "title": "Agent contract", "kind": "reference", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["agent_contract"], "requires": []},
+
+    {"path": "operations/maintenance.md", "title": "Maintenance", "kind": "operations", "audience": ["maintainer", "operator", "agent"], "canonical_for": ["maintenance_routine"], "requires": []},
+    {"path": "operations/troubleshooting.md", "title": "Troubleshooting", "kind": "operations", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["troubleshooting"], "requires": []},
+    {"path": "operations/hub-handover.md", "title": "Hub handover", "kind": "operations", "audience": ["maintainer", "agent"], "canonical_for": ["hub_handover"], "requires": []},
+
+    {"path": "decisions/README.md", "title": "Architecture decisions", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_index"], "requires": []},
+    {"path": "decisions/0001-static-site-no-backend.md", "title": "Decision 0001: A static site with no backend", "kind": "decision", "audience": ["maintainer", "agent"], "canonical_for": ["decision_no_backend"], "requires": []},
+    {"path": "decisions/0002-the-hub-is-upstream.md", "title": "Decision 0002: The hub is upstream", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_hub_upstream"], "requires": []},
+    {"path": "decisions/0003-python-toolchain.md", "title": "Decision 0003: A Python toolchain in a frontend repository", "kind": "decision", "audience": ["maintainer", "agent"], "canonical_for": ["decision_python_toolchain"], "requires": []},
+    {"path": "decisions/0004-a-project-pages-site.md", "title": "Decision 0004: A project Pages site", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_project_pages_site"], "requires": []},
+    {"path": "decisions/0005-assembled-by-hand.md", "title": "Decision 0005: Assembled by hand, not rendered from the template", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_assembled_by_hand"], "requires": []},
+    {"path": "decisions/0006-sources-in-lfs-served-files-as-blobs.md", "title": "Decision 0006: Sources in LFS, served files as blobs", "kind": "decision", "audience": ["contributor", "maintainer", "operator", "agent"], "canonical_for": ["decision_large_file_storage"], "requires": []},
+    {"path": "decisions/0007-assets-travel-by-copy-and-ledger.md", "title": "Decision 0007: Assets travel by copy and ledger", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_asset_distribution"], "requires": []},
+    {"path": "decisions/0008-the-viewer-is-embedded-as-is.md", "title": "Decision 0008: The viewer is embedded as-is", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_viewer_embedded"], "requires": []},
+    {"path": "decisions/0009-no-component-workshop-yet.md", "title": "Decision 0009: No component workshop yet", "kind": "decision", "audience": ["contributor", "maintainer", "agent"], "canonical_for": ["decision_no_workshop"], "requires": []}
+  ]
+}
