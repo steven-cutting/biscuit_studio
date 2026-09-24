@@ -1,7 +1,7 @@
 ---
 id: S00
 title: "Foundation: toolchain, contracts, large-file policy, the asset checker, an empty site, stubs for every path"
-status: open
+status: done
 depends_on: []
 parallel_with: []
 branch: ticket/s00-foundation
@@ -1479,18 +1479,120 @@ the git-lfs version and the repository's config; `filter: lfs`; three lines begi
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S00-foundation` in a
+Supacode worktree, 2026-09-23. Eight commits on the branch, this one included; nothing pushed.
 
-- The Pillow pin `uv lock` resolved, and whether it was 12.3.0.
-- What `npm run coverage` printed for a `src/lib/` holding only `brand.ts`, and whether
-  the fallback function was added.
-- Which form wrote the GPS IFD into the fixture, and the fixture's sha256.
-- Whether `just lint` passed with the prek `exclude` alone or needed the `.editorconfig`
-  sections and the typos entry to hold (both are written regardless).
-- Any ruff rule `check_assets.py` tripped and how the code, not the waiver list, changed.
-- The full `just check` transcript, elided where long.
-- Anything handed back: a CONVENTIONS.md correction, a path §2 names that could not be
-  created as described, a lane whose stub needed more than forty words to pass.
+- **The Pillow pin.** `uv lock` resolved `pillow==12.3.0` under CPython 3.14.3 beside
+  `biscuit-games-tooling` 0.3.0 (which has no runtime dependencies), `prek==0.4.12` and
+  `ruff==0.16.2`. `pyproject.toml` is CONVENTIONS.md §2.4 unchanged.
+- **Coverage over a one-file `src/lib/`.** `npm run coverage` passed the thresholds with
+  an empty per-file table and this summary; the fallback `lockupWords()` was not added:
+
+  ```text
+  Statements   : 100% ( 3/3 )
+  Branches     : 100% ( 0/0 )
+  Functions    : 100% ( 0/0 )
+  Lines        : 100% ( 3/3 )
+  ```
+
+- **The fixture.** The first form wrote the GPS IFD: assigning the mapping to
+  `exif[0x8825]` and saving with `exif=exif`. The read-back printed
+  `{1: 'N', 2: (51.0, 30.0, 0.0)}`. `tests/fixtures/exif-gps.jpg` is 722 bytes, sha256
+  `42d7c44d8fa128391200f9c6d8db1fb66366c40c0fed5a19ae375f2bc1478861`. The self-test
+  refuses it with the GPS finding, which settles the `get_ifd(0x8825)` claim.
+- **The prek exclude.** `just lint` passes with the exclude, the `.editorconfig` sections
+  and the typos entry all in place. Whether the exclude alone would hold is not
+  distinguishable on a tree with no asset in it; S02 settles it. The first `just lint`,
+  run before the validators' inputs existed, failed on exactly the two validators and
+  passed every other hook, including markdownlint, typos, offline lychee and
+  editorconfig-checker over `tickets/`, which no gate had read before.
+- **Ruff.** No rule fired outside the `scripts/**` waivers; `ruff check scripts/` was clean
+  on the first run. `ruff format` reflowed five long lines and rewrote
+  `except (OSError, TypeError, ValueError):` as `except OSError, TypeError, ValueError:`
+  (the unparenthesised form Python 3.14 accepts, under `target-version = "py314"`).
+- **`just check`**, run after Step 13 with the root files staged, exit 0 on the first full
+  run. Elided transcript:
+
+  ```text
+  ==> just lock-check
+  uv lock --check
+  Resolved 5 packages in 4ms
+  npm ci --ignore-scripts --dry-run --no-audit
+  up to date in 284ms
+  ==> just lint
+  uv run --frozen prek run --all-files
+  Ruff lint ... Passed  /  Ruff format check ... Passed  /  ESLint and Prettier ... Passed
+  Documentation contract ... Passed  /  Agent instruction contract ... Passed
+  check for added large files, case conflicts, shebangs, json, merge conflicts,
+  executable scripts, toml, yaml, private key ... Passed
+  EditorConfig ... Passed  /  markdownlint ... Passed  /  typos ... Passed
+  lychee ... Passed  /  shellcheck ... Passed  /  ripsecrets ... Passed
+  Lint GitHub Actions workflow files ... (no files to check) Skipped
+  ==> just frontend-static
+  All matched files use Prettier code style!
+  COMPLETED 376 FILES 0 ERRORS 0 WARNINGS 0 FILES_WITH_PROBLEMS
+  ==> just frontend-coverage
+  Test Files  1 passed (1)   Tests  2 passed (2)   (summary as above)
+  ==> just frontend-build
+  Wrote site to "build"
+  ==> just check-assets
+  check_assets check: ok
+  ==> just check-docs
+  markdownlint ... Passed  /  typos ... Passed  /  lychee ... Passed
+  Validated 39 pages and 40 canonical topics.
+  ==> just check-agents
+  Validated AGENTS.md, 2 adapters, and 8 skills.
+  ==> just check-clean
+  The worktree matches the check baseline.
+  All checks passed and the worktree is unchanged.
+  ```
+
+- **Handed back.**
+  - *Branch.* The work is on `S00-foundation`, the branch the Supacode worktree was created
+    on, not `ticket/s00-foundation`. Agreed with the maintainer before starting; no check
+    reads the branch name.
+  - *Verification text.* `bg-validate-docs` prints `Validated 39 pages and 40 canonical
+    topics.` The Verification section says its summary "names 40 pages"; the validator
+    counts every registered page including `README.md`, which is one of the thirty-nine.
+    Ticket correction, no design change.
+  - *Acceptance criterion, the `grep -c` line.* `pyproject.toml` matches twice, not once:
+    §2.4's comment above `recipes` spans two lines, one naming `check-specs` and the next
+    naming `bg-run-allium`. Both are the one comment the criterion means; the count in
+    the criterion is what is wrong.
+  - *`just install-hooks` was not run.* This execution ran in a secondary worktree (the
+    git directory and the common directory differ), which is the case Step 6 and
+    `scripts/initialize.sh` say must not install hooks. Run it once from the primary
+    checkout. Step 6's sentence "because this is the primary checkout" did not hold here.
+  - *`git lfs install --local` in a secondary worktree* (the last open point) wrote the
+    `[lfs]` and `[filter "lfs"]` sections into the shared
+    `/Users/scutting/projects/biscuit_studio/.git/config`, because every worktree shares
+    the repository's config, and the four LFS hooks (`post-checkout`, `post-commit`,
+    `post-merge`, `pre-push`) into the shared `.git/hooks`. `git lfs env` reports
+    `LocalGitDir` as the worktree's own git directory. Either was acceptable; this is the
+    answer for `docs/how-to/develop-locally.md` through S05.
+  - *Two skill lines the edit list did not reach.* `accessibility-review`'s introductory
+    paragraph still cites `docs/specs/appearance.allium` and "every game", and
+    `code-review` step 1 still reads "the specification module the change touches". Both
+    are H's text outside the named edits and were kept as the ticket says; a candidate
+    S00 follow-up on `main`, since the validators do not object.
+  - *A CONVENTIONS.md §2.1 inconsistency.* `.markdownlint-cli2.jsonc` and `lychee.toml`
+    ignore `assets` wholesale, as §2.1's table and this ticket's Step 5 say, while §2.1's
+    prose says `assets/models/biscuit/README.md` is linted like any Markdown. Only the prek
+    exclude keeps that README visible; markdownlint's own `ignores` hides it. S02 meets
+    this when it writes the README; the correction goes through CONVENTIONS.md.
+  - *One edit beyond §2.2.* The `frontend-watch` comment's example path became
+    `tests/brand.test.ts`; H's `tests/wordmark.test.ts` does not exist here.
+  - *Stubs.* None needed more than forty words: by the validator's count they carry
+    between 63 and 80, and `decisions/README.md` 186 with its table.
+  - *Prettier* reported every pinned file unchanged (`svelte.config.js`, `brand.ts`,
+    `+page.svelte`, `brand.test.ts`, `eslint.config.js`), so the "byte for byte" files are
+    exactly their sources.
+  - *The gate reads the index, not the worktree.* `prek run --all-files` lints the files
+    `git ls-files` reports, so an untracked file is invisible to `just lint` until it is
+    staged; the shebang and shellcheck hooks first saw the three scripts once staged.
+    Worth a sentence on the develop-locally page.
+  - *`npm ci`* printed npm 11's `allow-scripts` warning for `fsevents@2.3.3`; nothing was
+    approved or changed.
 
 ## Open points
 
