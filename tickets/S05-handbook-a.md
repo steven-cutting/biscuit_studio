@@ -553,7 +553,8 @@ with every recipe listed.
 ## Hand-back notes
 
 Filled in by the agent that executed this ticket, on branch `S05-handbook-a` in a Supacode
-worktree, 2026-09-24. Four commits on the branch, this one included; nothing pushed. As
+worktree, 2026-09-24. Five commits on the branch, the fourth being these notes and the
+fifth the `source_sha256` settlement below; nothing pushed. As
 agreed on S00, the work stays on the worktree's branch rather than `ticket/s05-handbook-a`;
 no check reads the branch name. Decided with the maintainer before writing: the Pages
 address is written without its scheme off `project/platform.md` (below), no Codex review,
@@ -670,15 +671,26 @@ one commit per group of pages.
     look at the three routes in the four combinations, replacing T's Chromatic review.
   - *Decision 0004* opens with the italic provenance line although T's `.jinja` record
     has none, as Step 7 asks of all four carried records.
-- **Found, not changed:** the viewer's `source_sha256` after a rebuild. The script's
-  closing message says to set it "to the new viewer digest", which would make it equal to
-  `sha256` if read literally, while CONVENTIONS.md §4 defines it as the source's digest
-  when the committed bytes differ. The page says to update it for the new page, as the
-  script asks, without choosing; whoever runs the first rebuild settles which digest is
-  meant. A candidate note for S02's script or `reference/asset-manifest.md` (S06).
+- **Settled with the maintainer (fifth commit):** the viewer's `source_sha256` after a
+  rebuild. The script's closing message said to set it "to the new viewer digest", which
+  read literally makes it equal to `sha256`, while CONVENTIONS.md §4 defines it as the
+  source's digest when the committed bytes differ; and the script rewrote the viewer in
+  place without ever hashing it first, so the digest the field is for was gone by the time
+  the message printed. Decided: for a `rebuilt:` entry the source is the build output, so
+  `source_sha256` is the digest of the page as `viewer.py` wrote it, before the three
+  rewrites. Two edits outside this ticket's table, each authorised by the maintainer as
+  S02's lint-configuration narrowing was: `scripts/rebuild_model.sh` (S02's file) now
+  takes `shasum -a 256` of the viewer before the rewrite step and prints that digest in
+  its closing message, with the message reworded; and CONVENTIONS.md §4's optional-fields
+  sentence says what the field means for a rebuilt entry. `rebuild-the-model.md` says the
+  same in its recipe and its after-run steps. The success path still needs Blender and
+  the study chain and was not run; the no-argument usage path (`rc=2`), shellcheck and
+  `just check` were.
 - **Authorisations.** `just sync` read the npm registry with the token already in
-  `~/.npmrc`, needed for `just check`; nothing else touched the network. Pushing and
-  opening the pull request have not been done and need separate authorisation.
+  `~/.npmrc`, needed for `just check`; nothing else touched the network. The two edits
+  outside the table (`scripts/rebuild_model.sh`, CONVENTIONS.md §4) were each authorised
+  with the specific change before it was made. Pushing and opening the pull request have
+  not been done and need separate authorisation.
 - **Open points.**
   - *`rebuild-the-model.md` and S02*: settled; S02 had merged and the page describes its
     script.

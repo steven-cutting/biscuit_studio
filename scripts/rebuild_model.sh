@@ -106,6 +106,11 @@ mv "$package/viewer.html" "$served/viewer.html"
 mv "$package/model/biscuit-poseable.glb" "$served/model/biscuit-poseable.glb"
 mv "$package/previews/pose-overview.jpg" "$served/previews/pose-overview.jpg"
 
+# The viewer as viewer.py wrote it exists only here, before the rewrites below;
+# its digest is what the manifest records as the viewer's source_sha256, so
+# that `patched` names a difference from bytes that can still be checked.
+built_digest=$(shasum -a 256 "$served/viewer.html" | cut -d' ' -f1)
+
 # The viewer links two files the site does not serve; the same three rewrites
 # the first import made, asserted the same way. assets/manifest.json records
 # them under `patched`.
@@ -127,5 +132,7 @@ just assets-manifest
 finished=1
 
 printf '\n%s\n' 'Rebuilt. Read the assets/manifest.json diff, then set each changed entry'
-printf '%s\n' 'source to rebuilt:<date> and its source_sha256 to the new viewer digest.'
+printf '%s\n' 'source to rebuilt:<date>, and the viewer entry source_sha256 to the digest'
+printf '%s\n' 'of the page before its three links were rewritten:'
+printf '  %s\n' "$built_digest"
 printf '%s\n' 'Nothing has been staged, committed, tagged, or pushed.'

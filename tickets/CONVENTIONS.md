@@ -681,8 +681,10 @@ pointer), `storage` (`blob` or `lfs`), `source` (`<repository>@<commit>:<path>` 
 import, or `rebuilt:<date>` for a regenerated file, or `studio` for one made here), and
 `licence` (`unsettled` until §5's open question is answered; the field exists so that
 answering it is a diff). Two optional fields, present only where true: `source_sha256`
-(when the committed bytes differ from the source's) and `patched` (a list of short strings
-saying what changed).
+(when the committed bytes differ from the source's; for a `rebuilt:` entry the source is
+the build output, so it is the digest of the file before any patch the rebuild script
+applies, which `scripts/rebuild_model.sh` prints at the end of a run) and `patched` (a
+list of short strings saying what changed).
 
 `scripts/check_assets.py` (S00, final; ruff-clean under §2.4; Pillow is its one import
 beyond the standard library; the ledger keys it prints are its interface). Subcommands:

@@ -73,9 +73,10 @@ makes it absolute first. In order, it:
    the `.blend`.
 5. Moves the viewer, the GLB and the overview image to `static/pose-studio/`, where the
    site serves them.
-6. Rewrites the viewer's three links to files the site does not serve — two to the
-   `.blend` and one to the README — to their pages on GitHub, asserting that each old link
-   occurs exactly as often as the first import found it.
+6. Hashes the viewer as `viewer.py` wrote it, then rewrites its three links to files the
+   site does not serve — two to the `.blend` and one to the README — to their pages on
+   GitHub, asserting that each old link occurs exactly as often as the first import found
+   it. The digest taken before the rewrites is printed at the end.
 7. Runs `just assets-manifest`, which rehashes every file and runs the checker.
 
 If any step fails, or the run is interrupted, a trap removes the link, restores
@@ -88,9 +89,10 @@ A successful run stages, commits and pushes nothing. What is left is yours:
 1. Read the whole `assets/manifest.json` diff. Every regenerated file's hash moved;
    anything else that moved is a question.
 2. Set `source` to `rebuilt:<date>` on every regenerated entry, by hand, because the tool
-   never rewrites a source. The viewer's entry also keeps the `source_sha256` of the page
-   it was made from last time; update it for the new page, as the script's closing message
-   asks, so the entry never names a digest that no longer exists.
+   never rewrites a source. On the viewer's entry, set `source_sha256` to the digest the
+   script printed: the page as `viewer.py` wrote it, before the three rewrites. The tool
+   keeps the old value otherwise, and a `source_sha256` that names a page which no longer
+   exists makes `patched` a claim nothing can check.
 3. Open the viewer and look at her, in the four poses, before asking the maintainer to
    approve the result.
 4. Run `just check`.
