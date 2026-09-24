@@ -32,7 +32,7 @@ sync` stays in the job, on the one step that carries `NODE_AUTH_TOKEN`
 G's `game-pages.yml` (86 lines) is reused unchanged. T's rendered
 `template/.github/workflows/pages.yml` (39 lines) already calls it at the `v0.3.0` commit
 with `base_path: /${{ github.event.repository.name }}`, which for this repository is
-`/biscuit_studio`; the file is taken verbatim. It builds with `npm ci` and `npm run build`,
+`/biscuit_studio`; the file is taken from T with one deviation, the gate below. It builds with `npm ci` and `npm run build`,
 uploads `build/` (the default `artifact_path`; no `stage`, because there is no domain root
 to stage around, H decision 0012), and deploys in a second job holding `pages: write` and
 `id-token: write`. Its checkout does not fetch LFS objects, which is correct: nothing
@@ -66,7 +66,8 @@ job id; no `paths` filter, no `name:`).
 - `.github/workflows/ci.yml` exists with three jobs whose ids are `frontend`, `documents`
   and `assets`, each running the steps §8 lists through `just`, on `pull_request`, push to
   `main` and `workflow_dispatch`.
-- `.github/workflows/pages.yml` exists and is T's file byte for byte.
+- `.github/workflows/pages.yml` exists and is T's file with its trigger replaced by a
+  `workflow_run` gate on `CI` and nothing else changed.
 - `just lint` is green (actionlint accepts both files).
 - `just check` is green.
 
@@ -87,8 +88,9 @@ job id; no `paths` filter, no `name:`).
 | Path | Class | Source | Change |
 | --- | --- | --- | --- |
 | `.github/workflows/ci.yml` | S04 | H `.github/workflows/ci.yml` with the edits step 1 gives; exact content embedded | new |
-| `.github/workflows/pages.yml` | S04 | T `template/.github/workflows/pages.yml` verbatim | new |
+| `.github/workflows/pages.yml` | S04 | T `template/.github/workflows/pages.yml` with the CI gate | new |
 | `tickets/S04-workflows.md` | ticket | this file | `status:` line, hand-back notes |
+| `tickets/CONVENTIONS.md`, `S05`, `S06`, `S07` | ticket | the gate | the sentences that described the old trigger |
 
 The table is the whole scope. Nothing outside it is edited. S00 ships neither file, so
 both are created here; if S00 left a stub at either path, it is replaced.
@@ -208,14 +210,14 @@ is passed, because every default is the studio's pin (§0: node 26, npm 11.17.0,
 
 ### Step 2: `.github/workflows/pages.yml`
 
-Copy T's file byte for byte:
+Copy T's file, then gate it (below):
 
 ```sh
 cp /Users/scutting/projects/biscuit_games_template/template/.github/workflows/pages.yml .github/workflows/pages.yml
 cmp /Users/scutting/projects/biscuit_games_template/template/.github/workflows/pages.yml .github/workflows/pages.yml && echo identical
 ```
 
-For the record, the file (39 lines):
+For the record, T's file (39 lines), before the gate:
 
 ```yaml
 name: Deploy to GitHub Pages
@@ -259,10 +261,20 @@ jobs:
       base_path: /${{ github.event.repository.name }}
 ```
 
-"Every game" in the comment is T's wording and is left as it is: the file is verbatim, and
+"Every game" in the comment is T's wording and is left as it is: the file is otherwise T's, and
 the sentence is still true of why the name is read from the event. `svelte.config.js`
 (§2.5) reads `BASE_PATH`, which the called workflow sets from `base_path` (G
 `game-pages.yml` lines 19-22).
+
+**The gate (added after the adversarial review, §8).** T's trigger runs the deploy beside
+CI, and branch protection does not bind administrators, so a direct push to `main` would
+publish a commit no required check has passed. Replace `push` and `workflow_dispatch` with
+`workflow_run` on `workflows: ['CI']`, `types: [completed]`, `branches: ['main']`, and
+give job `pages` an `if:` requiring `github.event.workflow_run.conclusion == 'success'`,
+`github.event.workflow_run.event == 'push'` and `github.event.workflow_run.head_sha ==
+github.sha` (the called workflow checks out `github.sha`, which for this event is the head
+of `main`; the equality makes that the commit CI passed). Each change carries a comment
+saying why; nothing else in T's file moves.
 
 ### Step 3: Lint
 
@@ -300,11 +312,12 @@ file. Pushing and opening the pull request are separately authorised.
       `# v0.3.0`.
 - [ ] `grep -c '3d3c42e5aac5ba805825da76410c181273ba90b1' .github/workflows/ci.yml`
       prints `3`, each followed by `# v7.0.1`.
-- [ ] `cmp` reports `pages.yml` identical to T's.
+- [ ] `diff` of `pages.yml` against T's shows only the header sentence, the `workflow_run`
+      trigger (replacing `push` and `workflow_dispatch`) and the `if:` on job `pages`.
 - [ ] Workflow-level `permissions` in `ci.yml` are exactly `contents: read` and
       `packages: read`.
 - [ ] `just lint` and `just check` are green.
-- [ ] No file outside `.github/workflows/` changed.
+- [ ] No file outside `.github/workflows/` and `tickets/` changed.
 
 ## Verification
 
@@ -313,16 +326,16 @@ grep -E '^  [a-z]+:$' .github/workflows/ci.yml
 grep -c 'NODE_AUTH_TOKEN' .github/workflows/ci.yml
 grep -c 'lfs: false' .github/workflows/ci.yml
 grep -c '6c5c07f6bec86e86b3930dfa41392e4b440e8c85' .github/workflows/ci.yml .github/workflows/pages.yml
-cmp /Users/scutting/projects/biscuit_games_template/template/.github/workflows/pages.yml .github/workflows/pages.yml && echo identical
+diff /Users/scutting/projects/biscuit_games_template/template/.github/workflows/pages.yml .github/workflows/pages.yml
 just lint
 just check
 ```
 
 Expected: `frontend:`, `documents:`, `assets:` (each indented two spaces); `3`; `1`; `ci.yml:3` and
-`pages.yml:1`; `identical`; both gates green.
+`pages.yml:1`; only the gate's hunks; both gates green.
 
 The end-to-end proof is S07's: after the first push, `gh run list` shows the `CI` run
-with three jobs and the `Deploy to GitHub Pages` run, all `success`, and the required
+with three jobs and, after it, the `Deploy to GitHub Pages` run it started, all `success`, and the required
 checks on `main` read `frontend`, `documents`, `assets`.
 
 ## Hand-back notes
@@ -333,8 +346,8 @@ worktree's name rather than `ticket/s04-workflows`, as S00 agreed with the maint
 check reads it.
 
 `ci.yml` is Step 1's embedded block, taken from this file's lines 114-201 rather than
-retyped; `pages.yml` is T's file, copied with `cp`. Neither needed an edit after it was
-written.
+retyped; `pages.yml` is T's file, copied with `cp`, and changed only by the gate the
+adversarial review led to (below).
 
 - **The pins.** Both were confirmed before the files were written:
 
@@ -384,7 +397,7 @@ written.
   occurs `3` times, at lines 42, 60 and 87, each in the `env:` of the `just sync` step
   that begins at line 37, 58 and 85. `lfs: false` occurs `1` time, in `assets`.
   The SHA counts are `ci.yml:3`, `pages.yml:1`, and `3` for the checkout. `cmp`
-  printed `identical`. The workflow-level `permissions` are `contents: read` and
+  printed `identical` before the gate; the `diff` after it is below. The workflow-level `permissions` are `contents: read` and
   `packages: read` and nothing else. `just lint` and `just check` are green.
 - **The composite action is called with no input overridden.** Every default in G
   `actions/setup-toolchain/action.yml` lines 8-31 is already the studio's pin.
@@ -395,6 +408,32 @@ written.
   job ids, because `ci.yml` is not called through a reusable workflow and so there is no
   `ci / …` prefix. The Open points below about `lfs: false` and the `assets` job's
   unused install are S07's to observe on the first run.
+- **Adversarial review, and the gate.** A Codex adversarial review of the branch
+  returned `needs-attention` with one `[high]` finding: `pages.yml` deploys on push to
+  `main` independently of `ci.yml`, so a commit failing `assets` (the EXIF check
+  included) could be published. It is valid here: S07 leaves administrators unbound, the
+  first push predates protection, and `check-assets` is not in the local hook. The
+  maintainer chose the `workflow_run` gate (Step 2, "The gate") over keeping T's file
+  verbatim or moving the deploy into `ci.yml`; CONVENTIONS.md §8, the Goal and the
+  criteria were amended to match, and S05 (decision 0004), S06 (`commands.md`'s Publish)
+  and S07 (step 6) were corrected where they described the old trigger. The diff against
+  T is only the gate (hunk headers as `diff` printed them, contents summarised):
+
+  ```text
+  4c4,5  header: "It runs after CI rather than beside it ..."
+  7c8,15 push: -> comment + workflow_run: workflows ['CI'], types [completed]
+  9d16   workflow_dispatch: removed
+  23a31,39 comment + if: conclusion == 'success' && event == 'push'
+           && head_sha == github.sha
+  ```
+
+  actionlint, check-yaml and Prettier pass on the gated file. What the gate costs: no
+  manual deploy (a redeploy is `gh run rerun` of a gated run); nothing deploys while CI
+  is red; a push that CI passes after a newer push has landed is skipped, and the newer
+  one deploys itself; renaming `ci.yml`'s `name: CI` silently stops deploys, which the
+  comment in `pages.yml` says. `workflow_run` fires only from the default branch's copy
+  of `pages.yml`, so the gate cannot be exercised before S07. T and G carry the same gap
+  for every game; that is theirs to take up, not edited from here.
 - **Authorisations.** None were asked for or needed: only local edits, `just sync`
   (a registry read with the token already in `~/.npmrc`) and local checks. Pushing and
   opening the pull request have not been done and need separate authorisation.

@@ -448,8 +448,9 @@ NNNN at `2283589`, and restated for a repository that is not a game.*
   `game-pages.yml` with the repository name from the event, `BASE_PATH` empty locally;
   Consequences: one setting before the first push (the Pages source; no package grant,
   the package is public), the address in the handbook is prose, every path goes through
-  `paths.base`, and one more: the build checks out without LFS objects, so nothing served
-  may ever be LFS-tracked. Reopeners: a custom domain; the platform serving the studio
+  `paths.base`, and two more: the build checks out without LFS objects, so nothing served
+  may ever be LFS-tracked; and the deploy runs on `workflow_run` after `CI`, publishing
+  only a commit CI passed, a deliberate deviation from T (S04 hand-back). Reopeners: a custom domain; the platform serving the studio
   beneath a domain of its own (the hub's decision 0012 is where that is deferred).
 - **0005** `Assembled by hand`: Context: T renders only a game (four questions, no toggle),
   and a render whose handbook pages are deleted breaks on its next `copier update`
