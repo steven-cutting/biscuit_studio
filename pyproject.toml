@@ -61,12 +61,19 @@ indent-style = "space"
 line-ending = "lf"
 
 [tool.typos.files]
-# Lockfiles carry hashes that look like typos; the assets carry base64 and
-# Blender's own vocabulary.
+# Lockfiles carry hashes that look like typos; the imported assets carry base64
+# and Blender's own vocabulary. The model's README and assets/manifest.json are
+# not excluded: typos reads both, as markdownlint and lychee read the README.
 extend-exclude = [
   "package-lock.json",
   "uv.lock",
-  "assets/",
+  "assets/models/biscuit/model/",
+  "assets/models/biscuit/poses/",
+  "assets/models/biscuit/previews/",
+  "assets/models/biscuit/qa/",
+  "assets/models/biscuit/src/",
+  "assets/models/biscuit/textures/",
+  "assets/illustrations/",
   "static/pose-studio/",
 ]
 
