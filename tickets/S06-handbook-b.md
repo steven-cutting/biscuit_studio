@@ -1,7 +1,7 @@
 ---
 id: S06
 title: "Handbook B: explanation, reference and operations pages"
-status: open
+status: done
 depends_on: [S00]
 parallel_with: [S01, S02, S03, S04, S05]
 branch: ticket/s06-handbook-b
@@ -519,23 +519,177 @@ green.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Filled in by the agent that executed this ticket, on branch `S06-handbook-b` in a Supacode
+worktree, 2026-09-24. Five commits on the branch, this one included; nothing pushed. As agreed
+on S00, the work stays on the worktree's branch rather than `ticket/s06-handbook-b`; no check
+reads the branch name. Decided with the maintainer before writing: `just sync` and prek's hook
+clones authorised; no ticket ids on handbook pages (future work described in words, as S05
+did: the hub decision permitting renders, the ledger's design, the hub registering the studio,
+the three.js port, the gallery thumbnails); one commit per group of pages; a Codex adversarial
+review before hand-back; and the §11 error below handed to S09 rather than corrected here.
 
-- The `bg-validate-docs` line, the `just check-docs` tail and the `just check` tail,
-  quoted.
-- The word count per page.
-- Anything this ticket finds wrong in CONVENTIONS.md or in a done ticket's files, handed
-  to S09 (the follow-up ticket) rather than edited here (CONVENTIONS.md §9).
-- Whether S02 had merged when `large-files.md` was written, and which LFS figure the page
-  carries.
-- Whether S01 and S03 had merged when `testing.md` was written; if not, that the suite
-  table describes the design and those tickets confirm it.
-- The exact `check-assets` messages quoted on `troubleshooting.md`, and whether they came
-  from `scripts/check_assets.py` or from this ticket.
-- Every sentence written as the design says rather than as the repository is, with the
-  ticket that makes it true.
-- Deviations from this ticket, each with the reason.
-- Which open points were settled and which are carried forward.
+- **Verification**, run from the repository root after the last page commit:
+
+  ```text
+  $ uv run --frozen bg-validate-docs
+  Validated 39 pages and 40 canonical topics.
+  $ just check-docs
+  markdownlint ... Passed  /  typos ... Passed  /  lychee ... Passed
+  Validated 39 pages and 40 canonical topics.
+  $ grep -rn 'https://' docs/explanation docs/reference docs/operations || echo none
+  none
+  $ grep -rln 'this game' docs/ || echo none
+  none
+  $ diff ai_tmp/recipes.txt ai_tmp/documented.txt && echo recipes-agree
+  recipes-agree
+  $ git diff --stat main -- docs/manifest.yml docs/README.md
+  (empty)
+  $ just check
+  ==> just check-assets     check_assets check: ok
+  ==> just check-docs       Validated 39 pages and 40 canonical topics.
+  ==> just check-agents     Validated AGENTS.md, 2 adapters, and 8 skills.
+  ==> just check-clean      The worktree matches the check baseline.
+  All checks passed and the worktree is unchanged.
+  ```
+
+  The two `>` redirects in the Verification block were run as `>|`, because the shell has
+  `noclobber`, after `mkdir -p ai_tmp`. `git diff --name-only main` lists exactly the sixteen
+  pages (and this ticket, after this commit), and for every page the first nine lines match
+  `main`. `grep -rn 'Chromatic\|Storybook'` over the three directories matches nothing at all:
+  the pages say "no component workshop" and "no story run" and cite decision 0009 instead.
+  `docs/operations/hub-handover.md` opens with "Nothing here has happened" and holds no
+  `- [ ]`. `quality-gates.md`'s table is `pyproject.toml`'s eight recipes in order, then
+  `check-clean`.
+- **Word counts** (`wc -w`, whole file), every one above 150:
+
+  ```text
+     907 docs/explanation/accessibility.md       973 docs/reference/agent-contract.md
+    1243 docs/explanation/architecture.md       1705 docs/reference/asset-manifest.md
+     798 docs/explanation/content-policy.md     1154 docs/reference/commands.md
+    1274 docs/explanation/large-files.md        1219 docs/reference/configuration.md
+     900 docs/explanation/quality-philosophy.md  542 docs/reference/documentation-contract.md
+     943 docs/explanation/security-model.md     1437 docs/reference/quality-gates.md
+    1378 docs/operations/hub-handover.md        1156 docs/reference/testing.md
+    1019 docs/operations/maintenance.md
+    2182 docs/operations/troubleshooting.md
+  ```
+
+- **Every lane had merged** (S00 to S05, `main` at `c735798`), so nothing on these pages is
+  written as the design says rather than as the repository is. `large-files.md` carries
+  S02's figures: 10 GiB of storage and 10 GiB of bandwidth a month, metered beyond, read
+  from GitHub's documentation on 2026-09-23 (the date is on the page), about 0.3% per full
+  fetch; every byte figure is read from `assets/manifest.json` (viewer 27,561,668,
+  `textures/` 10,040,783 over 36 files, `previews/` 9,754,946 over 22, `illustrations/good/`
+  15,137,724 over 11; LFS total 32,281,033). `testing.md`'s suite table describes the six
+  files S01 and S03 committed, read from the tests themselves.
+- **The `check-assets` messages** on `troubleshooting.md` and `asset-manifest.md` are quoted
+  from `scripts/check_assets.py`, not from this ticket, which paraphrased them. The ticket's
+  `check-assets: <path>: not in assets/manifest.json` is really
+  `<path>: present but not listed; run just assets-manifest`; `sha256 differs` is
+  `<path>: sha256 differs from the manifest; run just assets-manifest and read the diff`;
+  `carries GPS EXIF` is `<path>: carries EXIF (GPSInfo); strip every metadata field before
+  committing`; and the storage finding is `<path>: storage 'lfs' but .gitattributes says
+  'blob'` (either way round). The script prints no `check-assets:` prefix, so the headings
+  read "`just check-assets` prints ...". `asset-manifest.md` quotes all sixteen reasons.
+- **The storage-drift claim is false; handed to S09.** The ticket's entry "storage lfs but
+  filter is unset (a file landed as a blob because `git lfs install` had not run)" describes
+  something the checker cannot see, and CONVENTIONS.md §11 ("`check-assets`'s `git
+  check-attr` comparison reports `storage` drift") and decision 0006 (S05: "the checker's
+  comparison with `git check-attr` reports it only once it is already in the index") say the
+  same. `git check-attr` reads `.gitattributes`, not whether the filter is installed, and a
+  raw `.blend` hashes to the oid the entry records. Proved in a throwaway repository in the
+  session scratchpad, with `GIT_CONFIG_GLOBAL=/dev/null` so no LFS filter was configured:
+
+  ```text
+  no lfs filter configured
+  check_assets write: ok
+  index blob size: 5000                      (a raw blob, not a pointer)
+  assets/models/scene.blend: filter: lfs
+  check_assets check: ok
+  rc=0
+  (then, with .gitattributes emptied)
+  assets/models/scene.blend: storage 'lfs' but .gitattributes says 'blob'
+  check_assets check: 1 finding(s)
+  ```
+
+  So the pages say the truth: nothing in the gate notices a `.blend` committed as a blob
+  (`large-files.md`, `asset-manifest.md`), `troubleshooting.md` has an entry for spotting it
+  (`git lfs ls-files` omits the path; `git cat-file -s HEAD:<path>` prints the full size
+  rather than 133), and the storage message is filed under its real cause, a path moved
+  into or out of a pattern without `just assets-manifest`. For S09: correct the §11 bullet
+  and decision 0006's sentence; and, if the maintainer wants the gap closed, a checker change
+  that reads each `lfs` entry's index blob (`git cat-file`) and refuses one that is not a
+  pointer.
+- **Other items for S09** (addressed to done tickets, CONVENTIONS.md or a reserved file):
+  - *The Codex review's two code-side findings* (below): `check_assets.py` could validate the
+    three `source` forms with self-test cases, and `write` could run `self-test` before its
+    comparison. The pages now describe the script as it is.
+  - *S09 step 4 changes a sentence here.* `documentation-contract.md` says the model's README
+    "is linted by markdownlint and the offline link checker only", which is true today
+    because `pyproject.toml`'s typos exclude still names `assets/`. When S09 narrows that
+    exclude, add `docs/reference/documentation-contract.md` to its table and make the sentence
+    name `typos` too; `quality-gates.md`'s "(for `typos` and Ruff)" and
+    `configuration.md`'s `pyproject.toml` row stay true.
+  - *S09 step 5* adds `sync-python` to `commands.md` "in that page's form": a row in the Setup
+    table. The `assets` bullet on `quality-gates.md` ("runs `just sync` and `check-assets`")
+    and its `NODE_AUTH_TOKEN` sentence ("sits on the `just sync` step of each job") then need
+    the same change; add the page to S09's table.
+  - *§11 "per machine"*, repeating S05's note: `scripts/initialize.sh` runs
+    `git lfs install --local`, so the pages here say git-lfs is installed once per machine and
+    `git lfs install --local` runs in each clone.
+  - *The pointer is 133 bytes* (`git cat-file -s HEAD:assets/models/biscuit/model/biscuit-poseable.blend`),
+    not the ticket's "130".
+- **Deviations from this ticket**, each with the reason:
+  - *No ticket ids*, by the maintainer's decision above; "C02 is the ledger" and the like are
+    written as the work they name.
+  - *`https://` and template delimiters.* The pages never write the scheme, so the
+    documentation contract's external-link rule is "any absolute URL, and any `mailto:`", the
+    LFS pointer's first line is "the LFS specification's version line", and the committed
+    `.npmrc` is described rather than quoted. `pages.yml`'s base-path expression and the token
+    expression are written in words, because the validator refuses brace-brace.
+  - *`testing.md` lists six files, not "five".* Step 4 says "the five files" and names six
+    (`setup.ts` and five `*.test.ts`); the page lists all six and the fixture.
+  - *`agent-contract.md`'s example skill* is `asset-change` rather than H's `component-change`,
+    which does not exist here; the frontmatter is copied from the real file.
+  - *Two fragments retargeted.* H's troubleshooting and commands pages link
+    `develop-locally.md#do-not-install-the-hook-from-a-secondary-worktree`; S05's
+    `develop-locally.md` has no such heading, so `commands.md` links the page and
+    `troubleshooting.md` links `commands.md`'s own heading of that name.
+  - *`maintenance.md`'s link section* says that not even `just check-links-online` follows the
+    three links from the viewer and the model page to this repository's GitHub files, because
+    lychee reads Markdown only; the ticket did not ask for it, and a reader would otherwise
+    assume the monthly run covered them.
+  - *`troubleshooting.md`'s `npm ci` entry* names both `404 Not Found` (H's consume page: the
+    registry lies) and `401 Unauthorized` (what S05's `develop-locally.md` quotes).
+  - *Added entries* beyond Step 6's list: "`listed in the manifest but absent`" folded into the
+    unlisted-file entry, and "A `.blend` was committed as an ordinary blob" (above).
+- **Codex adversarial review** (`--base main`, 2026-09-24): verdict `needs-attention`, two
+  medium findings, both confirmed against the script and fixed in the pages with the
+  maintainer's agreement (fourth commit); the code changes go to S09 above.
+  - *`source` forms documented as enforced* (`asset-manifest.md`): the checker only refuses a
+    missing or empty `source`. The page now says the three forms are a convention review
+    holds, and `security-model.md` says the tool never checks the field beyond its presence.
+  - *`just assets-manifest` said to run the self-test* (`asset-manifest.md`, `commands.md`):
+    `write` compares the tree without `self-test`. Both pages now say so and point at
+    `just check-assets`.
+- **Open points.**
+  - *The checker's messages*: settled; the pages follow the script (above).
+  - *TypeScript*: `typescript-eslint` 8.66.0 declares `typescript >=4.8.4 <6.1.0` (its
+    `peerDependencies` and `SUPPORTED_TYPESCRIPT_VERSIONS`), and the pin 6.0.3 is inside it.
+    S00's hand-back names no hold, so H's "held back a major version" sentence was dropped and
+    replaced by the checkable one: a TypeScript release at or past 6.1 waits for a linter that
+    accepts it.
+  - *The viewer and reduced motion*: settled by reading `static/pose-studio/viewer.html`. It
+    creates `matchMedia('(prefers-reduced-motion: reduce)')`, starts with auto-rotate off
+    (`spin=false`), toggles it by a checkbox and the Space key, and stops it when the query
+    changes to `reduce`; it does not refuse a reader who turns it back on. `accessibility.md`
+    says exactly that, so the sentence was sharpened rather than weakened. It also says, from
+    the same file, that a browser without WebGL 2 gets an error message and disabled controls.
+    The `accessibility-review` skill's step 7 still speaks of `data-animations` for the viewer,
+    which the embedded page never reads; true of the port that replaces it, not of the file
+    today.
+  - *Hashes on `large-files.md`*: confirmed; the three large files' sha256 stay in the
+    manifest only, and the page gives bytes, storage and reason.
 
 ## Open points
 
