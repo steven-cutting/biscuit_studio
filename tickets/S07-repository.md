@@ -531,7 +531,7 @@ session on 2026-09-24 (local):
 | 2026-09-24 | `git push -u origin main` and `git lfs push --all origin main` | yes |
 | 2026-09-24 | `--apply`, twice (the second as the idempotency check) | yes, as one action with the second run stated |
 | 2026-09-24 | `--apply --hygiene`, twice | yes, as one action with the second run stated |
-| 2026-09-24 | pushing this branch and opening the pull request | asked after the commit; see below |
+| 2026-09-24 | pushing `S07-repository` and opening the pull request against `main` | yes, asked after the notes were committed |
 
 Not authorised because not needed: a `PUT /pages` (`409`), a `422` body with `source`,
 `https://` in place of SSH, `gh run rerun`.
