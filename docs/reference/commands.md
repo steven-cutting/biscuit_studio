@@ -88,7 +88,7 @@ That is the guarantee worth relying on, and it is the one the other pages cite.
 | Recipe | Purpose |
 | --- | --- |
 | `just check-assets` | Every file under `assets/` and `static/pose-studio/` against `assets/manifest.json`: listed, present, and byte-identical to its recorded sha256, an LFS pointer verified from the oid it carries. Refuses an image with EXIF beyond its resolution, and any TIFF. Runs the checker's own self-test first. Offline, and never fetches an LFS object. |
-| `just assets-manifest` | Rewrite `assets/manifest.json` from the worktree, then check it. The one recipe that writes the manifest: it keeps every entry's `source`, `licence` and `patched`, reads the viewer's `source_sha256` from its build record, and recomputes the rest. Read its diff before committing. Offline. |
+| `just assets-manifest` | Rewrite `assets/manifest.json` from the worktree, then compare the tree with it — without the self-test, which only `just check-assets` runs. The one recipe that writes the manifest: it keeps every entry's `source`, `licence` and `patched`, reads the viewer's `source_sha256` from its build record, and recomputes the rest. Read its diff before committing. Offline. |
 | `just model-rebuild <biscuit_pics>` | Rebuild the approved model from its sources, given a checkout of the source repository. Needs Blender and that checkout; never part of `just check` and never run in CI. See [Rebuild the model](../how-to/rebuild-the-model.md). |
 
 [Asset manifest](asset-manifest.md) is the format and what the checker refuses, message by

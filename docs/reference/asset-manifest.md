@@ -42,7 +42,9 @@ Six fields are required, in this order:
 | `source` | string | Where the file came from, in one of three forms below. |
 | `licence` | string | `unsettled` until the licence question is answered. |
 
-`source` takes one of three forms:
+`source` is written in one of three forms. The checker requires the field to be present and
+not empty and reads nothing else in it, so the form is a convention that review holds, not
+one the gate enforces; `"source": "unknown"` would pass `just check-assets`:
 
 - `<repository>@<commit>:<path>` — imported, from that path in that repository at that
   commit. Every entry today reads `biscuit_pics@1d9d358:` followed by its path there.
@@ -121,8 +123,10 @@ same directory and metadata cannot be told from structure.
 and rewrites the file. It keeps `source`, `licence`, `source_sha256` and `patched` from the
 existing entry where there is one, writes `source: "studio"` and `licence: "unsettled"` for a
 new file, and reads the viewer's `source_sha256` from its build record whenever that record
-is present. Then it runs `check` and exits with its status, printing `check_assets write: ok`
-on success. It never deletes a `source`.
+is present. Then it compares the tree with the manifest it has just written, as `check` does,
+and exits with that status, printing `check_assets write: ok` on success. It does not run
+the self-test first, so a clean `write` is not proof that the checker is live; run
+`just check-assets` for that. It never deletes a `source`.
 
 **`self-test`** builds a temporary Git repository and proves the checker is live against it:
 a blob, a hand-written LFS pointer and a clean PNG pass; `tests/fixtures/exif-gps.jpg` is
@@ -155,7 +159,8 @@ dog passes. [Content policy](../explanation/content-policy.md) is enforced by re
 
 - `just check-assets` — `check`, with the self-test first. Part of `just check` and the
   `assets` job in CI.
-- `just assets-manifest` — `write`, then `check`. The one recipe that writes the manifest.
+- `just assets-manifest` — `write`, then the same tree comparison, without the self-test. The
+  one recipe that writes the manifest.
   Read its diff before committing.
 
 ## Related pages
