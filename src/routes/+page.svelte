@@ -10,16 +10,17 @@
    * sentence, and the two places to go. `HeaderBar` carries the page's `h1`,
    * so there is no heading here.
    *
-   * `home` is the site's root wherever it is served: `/biscuit_studio/` when
-   * pages.yml builds the site, `/` locally, and `./` in the prerendered markup,
-   * which SvelteKit writes relative so the page works from any address. The two
-   * links hang off it. `base` would say the same and is deprecated in this
-   * SvelteKit, and `resolve('/model/')` is typed against the routes that exist,
-   * which until S03 lands is only `/`. Every selector below names an element,
-   * because `svelte-check --fail-on-warnings` turns an unused selector into a
-   * failed gate and an element selector cannot go stale.
+   * The two links are resolved against the routes that exist, so a route that
+   * moves fails the type check rather than the reader. `resolve` prefixes the
+   * base path wherever the site is served: `/biscuit_studio/` when pages.yml
+   * builds it, `/` locally, and `./` in the prerendered markup, which SvelteKit
+   * writes relative so the page works from any address. `base` would say the
+   * same and is deprecated in this SvelteKit. Every selector below names an
+   * element, because `svelte-check --fail-on-warnings` turns an unused selector
+   * into a failed gate and an element selector cannot go stale.
    */
-  const home = resolve('/');
+  const model = resolve('/model/');
+  const gallery = resolve('/gallery/');
 </script>
 
 <svelte:head>
@@ -41,8 +42,8 @@
     </p>
 
     <ul role="list">
-      <li><a href="{home}model/">The model</a></li>
-      <li><a href="{home}gallery/">The gallery</a></li>
+      <li><a href={model}>The model</a></li>
+      <li><a href={gallery}>The gallery</a></li>
     </ul>
   </main>
 </div>
