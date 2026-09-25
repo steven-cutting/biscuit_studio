@@ -15,6 +15,11 @@ sync:
     test -f package-lock.json || { printf '%s\n' 'package-lock.json is missing; run just initialize first' >&2; exit 2; }
     npm ci --no-audit
 
+# The Python half of `sync`, for a job that runs only Python recipes. It needs
+# no registry token and installs no node_modules.
+sync-python:
+    uv sync --frozen
+
 lock:
     uv lock
     npm install --package-lock-only --ignore-scripts --no-audit

@@ -114,10 +114,12 @@ pinned to the commit its `v0.3.0` tag names, with no input overridden.
 - **`documents`** runs `just sync`, then `lint`, `check-docs` and `check-agents`. The last two
   repeat what `lint` already ran, so a documentation or agent-contract regression names
   itself in the step list rather than inside `lint`.
-- **`assets`** checks out with `lfs: false`, then runs `just sync` and `check-assets`.
+- **`assets`** checks out with `lfs: false`, then runs `just sync-python` and `check-assets`.
+  The checker needs only the Python environment, so the job installs no `node_modules` and
+  carries no registry token.
 
-`NODE_AUTH_TOKEN`, set to the run's own token, sits on the `just sync` step of each job and
-on nothing else: a step with no use for the credential should not carry one. The workflow
+`NODE_AUTH_TOKEN`, set to the run's own token, sits on the `just sync` step of the `frontend`
+and `documents` jobs and on nothing else: a step with no use for the credential should not carry one. The workflow
 holds `contents: read` and `packages: read` and nothing more.
 
 `lfs: false` is the checkout's default, and it is written out in the `assets` job because

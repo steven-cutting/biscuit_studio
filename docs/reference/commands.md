@@ -19,6 +19,7 @@ twice, it belongs there rather than in a shell history.
 | --- | --- |
 | `just initialize` | One explicit first run. Creates both lockfiles, installs both toolchains, runs `git lfs install --local` for this clone, normalises formatting, and installs the hook when the checkout is the primary one. Needs the network and the registry token. Never stages, commits, tags or pushes. Safe in any worktree: it skips the hook rather than installing a shared one from the wrong place. |
 | `just sync` | Install exactly what the lockfiles say: the Python environment, then `node_modules`. Run after pulling. Needs the network and the registry token. |
+| `just sync-python` | The Python half of `just sync`: the environment `uv.lock` describes and nothing else. For a job that runs only Python recipes, such as the `assets` job in CI; it needs no registry token and installs no `node_modules`. |
 | `just install-hooks` | Install the read-only pre-commit gate. Primary checkout only — see the warning below. |
 
 ### Do not install the hook from a secondary worktree

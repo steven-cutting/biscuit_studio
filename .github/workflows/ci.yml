@@ -78,11 +78,8 @@ jobs:
           persist-credentials: false
           lfs: false
       - uses: steven-cutting/biscuit_games_tooling/actions/setup-toolchain@6c5c07f6bec86e86b3930dfa41392e4b440e8c85 # v0.3.0
-      # The checker runs under `uv run --frozen`, and `just sync` is the one
-      # recipe that provides that environment; it installs node_modules too,
-      # which this job never reads, at the cost of the same token the other
-      # jobs carry.
-      - run: just sync
-        env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+      # The checker runs under `uv run --frozen`, and `just sync-python` provides
+      # that environment alone: no node_modules, which this job never reads, and
+      # no registry token, which only an npm install needs.
+      - run: just sync-python
       - run: just check-assets
