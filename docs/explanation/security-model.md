@@ -43,8 +43,8 @@ committed at all.
 A project site on GitHub Pages, served beneath the repository's name. `pages.yml` is the
 one workflow that publishes, and it holds the two publishing scopes, `pages: write` and
 `id-token: write`; nothing else here holds either. It runs only after CI has passed for a
-push to `main` that is still `main`'s head, so what it publishes is a commit the three
-checks have passed.
+push to `main` that was `main`'s head when CI finished, so what it publishes is a commit
+the three checks have passed.
 
 Inside the shared workflow it calls, the scopes are split by job. The build job holds
 `contents: read` and `packages: read`, installs the platform package with the run's own

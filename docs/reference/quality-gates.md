@@ -130,7 +130,7 @@ in the `Justfile`, no job carries a `paths` filter or a `name:`, and the job ids
 names.
 
 The deploy is a separate workflow, `pages.yml`, which runs after `CI` completes and publishes
-only a push to `main` that passed and is still `main`'s head; see
+only a push to `main` that passed and was `main`'s head when CI finished; see
 [Deploy to GitHub Pages](../how-to/deploy-to-github-pages.md).
 
 ## On `main`

@@ -69,8 +69,9 @@ Everything beneath `/biscuit_studio/`:
 
 - Waits for CI. It runs on `workflow_run` when the workflow named `CI` completes on
   `main`, and its job runs only when that run succeeded, was triggered by a push, and
-  tested the commit that is still the head of `main`. Branch protection does not bind
-  administrators, so without this a direct push would publish a commit nothing checked.
+  tested the commit that was the head of `main` when CI finished. Branch protection does
+  not bind administrators, so without this a direct push would publish a commit nothing
+  checked.
 - Passes a slash and the repository name, read from the event, to the shared workflow as
   its `base_path` input, and the shared workflow sets `BASE_PATH` from it, so the build
   cannot drift from where Pages serves it.

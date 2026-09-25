@@ -64,11 +64,12 @@ published as pointer text, and the build would not notice. See
 [Decision 0006](0006-sources-in-lfs-served-files-as-blobs.md).
 
 **The deploy runs after CI, not beside it.** `pages.yml` runs on `workflow_run` when `CI`
-completes, and publishes only a push to `main` that CI passed and that is still the head of
-`main`. This is a deliberate deviation from the template, whose workflow deploys on every
-push: branch protection does not bind administrators, so a direct push would otherwise
-publish a commit nothing had checked. It costs a manual deploy — a redeploy is a rerun of
-a gated run — and renaming the workflow `CI` stops every deploy without an error.
+completes, and publishes only a push to `main` that CI passed and that was the head of
+`main` when CI finished. This is a deliberate deviation from the template, whose workflow
+deploys on every push: branch protection does not bind administrators, so a direct push
+would otherwise publish a commit nothing had checked. It costs a manual deploy — a redeploy
+is a rerun of a gated run — and renaming the workflow `CI` stops every deploy without an
+error.
 
 ## What would reopen this
 
