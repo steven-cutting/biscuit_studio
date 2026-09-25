@@ -1,7 +1,7 @@
 ---
 id: S07
 title: "Repository: create it, bootstrap its settings, first push, first deploy"
-status: open
+status: done
 depends_on: [S01, S02, S03, S04, S05, S06, S09]
 parallel_with: [S11]
 branch: ticket/s07-repository
@@ -368,30 +368,190 @@ would change)`.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Executed on 2026-09-24 (local; the run timestamps below are UTC, 2026-09-25) on the
+Supacode worktree branch `S07-repository`, not the `ticket/s07-repository` the `branch:`
+field names, as every ticket since S00 has been (nothing in the checks reads the branch
+name). Every GitHub action was asked for and given before it ran; the table is at the end.
+The maintainer chose, before any step: ask before each action rather than pre-authorise
+the sequence; apply `--hygiene`; record the §10 outcomes here and leave
+`tickets/CONVENTIONS.md` untouched. No tracked file other than this one changed;
+`.git/config` gained `origin`. The worktree was fresh, so `just sync` ran before step 1.
 
-- The output of steps 1, 2, 5, 7 (both runs and the read-backs), 8 and 9, quoted, with
-  elisions in square brackets.
-- Which of the §10 claims assigned to this ticket held: `POST /pages` on an empty
-  repository; `gh repo create` without `--source`; `github.event.repository.name` with
-  the underscore; Pages serving the two large files unchanged; `lfs: false` checking out
-  pointers (read the `assets` job's log for the checker's summary line); the LFS objects
-  travelling with the first push; `--checks` with plain names.
-- Any fallback taken: the `409`/`422` Pages branches, `https://` instead of SSH, a
-  deploy re-run.
-- Whether `--hygiene` was wanted, and the run that applied it.
-- How long the first `CI` run took per job.
-- Which authorisations were asked for and given, as a table of date, action, given.
+**Step 1.** `S07-repository` at `663a6b4`, the same commit as `main`; `0` changed files;
+`git log` `663a6b4 pages: say github.sha is main's head when CI finished, as the template
+does`, `e387c97 docs: two pages say what the checker and typos now do; S09 notes
+re-quoted`, `dfea715 tickets: S09 hand-back notes and status done`; `0` remotes;
+`GraphQL: Could not resolve to a Repository with the name 'steven-cutting/biscuit_studio'.
+(repository)`; `git lfs ls-files --long` listed the three paths with their oids
+(`95d16473…` `biscuit-poseable.blend`, `927bf1ee…` `rigged.json`, `863cf74e…`
+`native-samples.json`); `git-lfs/3.8.0 (GitHub; darwin arm64; go 1.27.0)` and no
+`Endpoint` line; `just check` ended `All checks passed and the worktree is unchanged.`
+S00 to S06 and S09 all read `status: done`. `gh auth status`: `steven-cutting`, protocol
+`ssh`, scopes `admin:public_key`, `gist`, `read:org`, `repo`, `workflow`.
+
+**Step 2.** The dry run against the absent repository aborted, `rc=1`. Steps 1 and 2 read
+their `404`s as states, as T C03 says: `state: no Pages site (HTTP 404)` with the `POST`
+it would make, and `state: not protected (HTTP 404)`, `wanted: false
+assets,documents,frontend false false false false false`, with the `PUT` body. Step 3
+then printed `failed to get secrets: HTTP 404: Not Found
+(https://api.github.com/repos/steven-cutting/biscuit_studio/actions/secrets?per_page=100)`
+and `gh secret list failed`, and the script exited: `gh secret list` is the one read the
+script does not treat `404` as a state for. So `changed:` was never printed. The real dry
+run is step 5.
+
+**Step 3.** `gh repo create` printed `https://github.com/steven-cutting/biscuit_studio`;
+the read-back printed `biscuit_studio PUBLIC` with an empty third field, the default
+branch not existing yet. `origin` is `git@github.com:steven-cutting/biscuit_studio.git`.
+
+**Step 4.** The `POST` was accepted on the repository with no commits, no `409`, no `422`
+(`"build_type":"workflow","source":{"branch":"main","path":"/"}` in the body it returned).
+**Finding:** the read-back printed `workflow http://stevencutting.com/biscuit_studio/`, not
+`https://steven-cutting.github.io/biscuit_studio/`. The maintainer's user site carries the
+custom domain `stevencutting.com` (the body's `https_certificate.domains` lists it and
+`www.stevencutting.com`), and GitHub serves every project site of that account under the
+user site's domain. The github.io address still resolves: it answers `HTTP/2 301` with
+`location: https://stevencutting.com/biscuit_studio/` (step 8). Every content check below
+was run at both addresses and gave the same digests. CONVENTIONS.md §1 decision 6, decision
+0004, `docs/how-to/deploy-to-github-pages.md` and the acceptance criteria that say the
+github.io address answers `200` describe the address before the redirect; what to write
+there is a product decision for the maintainer and is under Open points. `https_enforced`
+read `false` on the new site.
+
+**Step 5.** `rc=0`: `1. Pages source`, `state: workflow`, `already`; `2.`, `state: not
+protected (HTTP 404)`, `wanted: false assets,documents,frontend false false false false
+false`, `would: gh api -X PUT repos/steven-cutting/biscuit_studio/branches/main/protection
+--input -` with the body; `3. CHROMATIC_PROJECT_TOKEN`, `state: not set`, `skipped: no
+token supplied; chromatic.yml notes the absence and skips the publish`; `4.`, `state:
+false`, `would: gh api -X PUT
+repos/steven-cutting/biscuit_studio/private-vulnerability-reporting`; `5.` the package
+note (`state: cannot be read: no REST endpoint, and the package needs a read:packages
+scope`); `6. Hygiene`, `skipped: --hygiene not given`; `changed: 0 (dry run; 2 would
+change)`.
+
+**Step 6.** At `2026-09-25T05:12:33Z`: `Uploading LFS objects: 100% (3/3), 32 MB | 15
+MB/s, done.` before the git objects, then `* [new branch] main -> main` and `branch 'main'
+set up to track 'origin/main'`, `rc=0`. `git lfs push --all origin main` printed
+`Uploading LFS objects: 100% (3/3), 32 MB | 0 B/s, done.` (nothing left to send), `rc=0`;
+`git lfs ls-files --long` listed the same three. No LFS error, no key refusal, no
+`https://` fallback; `.has_lfs` was not read.
+
+**Step 7, first `--apply`:** `1.` `already`; `2.` `+ gh api -X PUT
+repos/steven-cutting/biscuit_studio/branches/main/protection --input -` with the body;
+`3.` skipped; `4.` `+ gh api -X PUT
+repos/steven-cutting/biscuit_studio/private-vulnerability-reporting`; `5.` the note;
+`6.` skipped; `changed: 2`, `rc=0`. **Second:** `2.` `state: false
+assets,documents,frontend false false false false false`, `already`; `4.` `state: true`,
+`already`; no line beginning `+`; `changed: 0`, `rc=0`. **Third, `--hygiene`:** `6.`
+`state: false true true`, `wanted: true false false`, `+ gh repo edit
+steven-cutting/biscuit_studio --delete-branch-on-merge --enable-wiki=false
+--enable-projects=false`; `changed: 1`. **Fourth:** `6.` `state: true false false`,
+`already`; `changed: 0`. **Read-backs:** protection `false assets,documents,frontend false
+false false false false`; each check's `app_id`, read while CI was still running:
+`frontend:15368 documents:null assets:15368`, the two jobs that had finished already bound
+to GitHub Actions and `documents` not yet, exactly T C03's observation; vulnerability
+reporting `true`; `gh secret list` printed nothing; `delete_branch_on_merge`, `has_wiki`,
+`has_projects` read `true false false`.
+
+**Step 8, the runs.** `gh run list` (tabs replaced by spaces; `gh` cut the commit title
+one letter short of "template" before its ellipsis, and the typos hook put the letter
+back, so the first line reads one character longer than what `gh` printed):
+
+```text
+completed  success  pages: say github.sha is main's head when CI finished, as the template…  CI  main  push  36097622400  1m52s  2026-09-25T05:12:58Z
+completed  success  Deploy to GitHub Pages  Deploy to GitHub Pages  main  workflow_run  36097753484  50s  2026-09-25T05:14:52Z
+```
+
+`CI` run `36097622400`: `success`; per job, `assets` 22 s (`05:13:01Z` to `05:13:23Z`),
+`frontend` 45 s (to `05:13:46Z`), `documents` 1 min 48 s (to `05:14:49Z`). The `assets`
+job's log, checked out with `lfs: false`, prints `uv run --frozen python
+scripts/check_assets.py check` then `check_assets check: ok`: the checker verified the
+three LFS paths from their pointers and fetched no object. `Deploy to GitHub Pages` run
+`36097753484`, started by `workflow_run` at `05:14:52Z`, three seconds after CI finished:
+`success`; `pages / build` 28 s, `pages / deploy` 13 s. Its log carries `base_path:
+/biscuit_studio` and `BASE_PATH: /biscuit_studio` (twice). Environments: `github-pages`.
+The deploy did not race step 4 and no re-run was needed.
+
+**Step 8, what Pages serves** (at `https://stevencutting.com/biscuit_studio/`; the
+github.io address gave the same after its `301`): root `HTTP/2 200`; `<title>Biscuit
+Studio</title>`; the model page contains `pose-studio/viewer.html` once; the viewer's
+digest `ec1e9d32399191de2593e9737d5242c10ca8b6a41dc0029680f710065fe3c6e8` and the GLB's
+`51d16c1826b2c3ad6ad85fcb176a73e0d1c7a0ac3665ad10f1b6700e9e9be716`, which are the two the
+manifest prints, in that order; `pose-overview.jpg` `HTTP/2 200`. No retry was needed: the
+site served the new content on the first `curl`, about two minutes after the deploy
+finished.
+
+**Step 8, the blob links.** The model page prints one URL, the `.blend`; the viewer prints
+the `.blend` and the README; no third URL. Both answer `HTTP/2 200`:
+`https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/model/biscuit-poseable.blend`
+and `https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/README.md`.
+S03's "To S07" item is closed.
+
+**Step 9.** The clone printed `Filtering content: 100% (3/3), 30.79 MiB | 8.42 MiB/s,
+done.`; `lfs ls-files --long` listed the three; the `.blend` digest is
+`95d164730e9354ab3d9bd561a73180690bbb055fffa9bf230c735f735234b4c3` and its size
+`12004899`. `ai_tmp/clone` was removed. Bandwidth: the clone downloaded 30.79 MiB (32.3 MB)
+of LFS objects, and the push uploaded the same; against the 10 GiB a month S02 recorded
+and decision 0006 states, one clone is about 0.3% of the month.
+
+**Verification block**, run last: `biscuit_studio PUBLIC`; `workflow
+http://stevencutting.com/biscuit_studio/`; `["frontend","documents","assets"]`; `true`;
+the two runs above, both `success`; `HTTP/2 301` for the github.io root and `HTTP/2 200`
+for the custom-domain root; the dry run ended `changed: 0 (dry run; 0 would change)`;
+`git remote get-url origin` printed `git@github.com:steven-cutting/biscuit_studio.git`;
+`git status --short` and `git diff main --stat` were empty before this file was edited.
+
+**The §10 claims assigned here.**
+
+- `POST /pages` with `build_type=workflow` on a repository with no commits: **held**
+  (step 4, no `409`, no `422`).
+- `gh repo create` without `--source` on a name whose local clone has commits, then a
+  plain push: **held** (steps 3 and 6).
+- `github.event.repository.name` keeps the underscore, so `BASE_PATH` is
+  `/biscuit_studio`: **held** (the deploy log).
+- The Pages actions accept the 26 MB GLB and the 16 MB viewer and serve them unchanged:
+  **held** (the two digests equal the manifest's).
+- `lfs: false` checks out pointers and the checker verifies from them: **held**
+  (`check_assets check: ok` in a job that fetched no object).
+- The LFS objects travel with the first push and a fresh clone receives real files:
+  **held** (steps 6 and 9).
+- `--checks` with plain job names writes them as the required contexts: **held**
+  (`["frontend","documents","assets"]`, and two of them bound to app `15368` before the
+  first run had finished).
+
+**Fallbacks taken:** none. **`--hygiene`:** wanted; applied in the third `--apply`
+(`changed: 1`), proved in the fourth (`changed: 0`).
+
+**Authorisations**, each asked for before the action and given by the maintainer in this
+session on 2026-09-24 (local):
+
+| Date | Action | Given |
+| --- | --- | --- |
+| 2026-09-24 | `gh repo create steven-cutting/biscuit_studio --public`, and `git remote add origin` | yes |
+| 2026-09-24 | `POST repos/steven-cutting/biscuit_studio/pages` with `build_type=workflow` | yes |
+| 2026-09-24 | `git push -u origin main` and `git lfs push --all origin main` | yes |
+| 2026-09-24 | `--apply`, twice (the second as the idempotency check) | yes, as one action with the second run stated |
+| 2026-09-24 | `--apply --hygiene`, twice | yes, as one action with the second run stated |
+| 2026-09-24 | pushing this branch and opening the pull request | asked after the commit; see below |
+
+Not authorised because not needed: a `PUT /pages` (`409`), a `422` body with `source`,
+`https://` in place of SSH, `gh run rerun`.
 
 ## Open points
 
-- **Whether the first deploy races step 4.** The source is set before the push, so the
-  deploy job should find it; if it still answers `404`, the cause is elsewhere and the
-  re-run is the remedy. Record which.
-- **`gh api repos/{owner}/{repo} --jq .has_lfs`** may not be a field the API exposes;
-  the fresh clone is the real test, and the field is read only if the push fails.
-- **The `app_id` on the required checks** is `null` until each job has reported once;
-  confirm after the first pull request that the three contexts matched their runs, as T
-  C03 found.
-- **Bandwidth spent.** The clone in step 9 fetches 32.3 MB of LFS objects; note it
-  against the quota figure S02 recorded.
+- **The site's address.** Pages serves the site at
+  `https://stevencutting.com/biscuit_studio/` because the account's user site carries that
+  custom domain, and `https://steven-cutting.github.io/biscuit_studio/` answers `301` to
+  it. CONVENTIONS.md §1 decision 6, decision 0004, the deploy how-to and this ticket's
+  acceptance criteria name the github.io address. Whether the handbook should name the
+  served address, the redirecting one, or both is the maintainer's; the app itself is
+  unaffected, since `BASE_PATH` is the path and not the host. Also `https_enforced` read
+  `false` on the new site: whether to enforce HTTPS is a repository setting no file
+  carries and no script applies.
+- **Whether the first deploy races step 4.** It did not: the source was set before the
+  push, and the deploy found it.
+- **`.has_lfs`** was not read; the push and the fresh clone were the test.
+- **The `app_id` on the required checks** read `15368` on `frontend` and `assets` and
+  `null` on `documents` mid-run; the pull request that lands this ticket is where all three
+  contexts are confirmed to match.
+- **Bandwidth spent.** 30.79 MiB down for the clone and the same up for the push, against
+  10 GiB a month.
