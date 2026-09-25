@@ -68,13 +68,22 @@ of S00 to S06; `AGENTS.md`; the `code-review` and `fix-quality` skills.
 | `.agents/skills/accessibility-review/SKILL.md` | skill | S00 | the introductory paragraph (step 3) |
 | `.agents/skills/code-review/SKILL.md` | skill | S00 | step 1 of the procedure (step 3) |
 | `pyproject.toml` | repo (no lane) | S00 | `[tool.typos.files] extend-exclude` narrowed (step 4) |
-| `Justfile` | repo (no lane) | S00 | a `sync-python` recipe (step 5) |
+| `Justfile` | repo (no lane) | S00 | a `sync-python` recipe (step 5); the `assets-manifest` comment (step 1b) |
 | `.github/workflows/ci.yml` | workflow | S04 | the `assets` job runs `just sync-python` (step 5) |
-| `docs/reference/commands.md` | page | S06 | the new recipe (step 5) |
+| `docs/reference/commands.md` | page | S06 | the new recipe (step 5); the `assets-manifest` row (step 1b) |
 | `docs/how-to/develop-locally.md` | page | S05 | only what S05 did not land (step 7) |
 | `docs/how-to/rebuild-the-model.md` | page | S05 | only what S05 did not land (step 7) |
-| `docs/decisions/0006-sources-in-lfs-served-files-as-blobs.md` | page | S05 | only if it does not quote the figure S02 read (step 7) |
-| `tickets/CONVENTIONS.md` | tickets | shared | the corrections in step 6 |
+| `docs/decisions/0006-sources-in-lfs-served-files-as-blobs.md` | page | S05 | only if it does not quote the figure S02 read (step 7); the sentence about the checker and the index (step 1a) |
+| `scripts/check_assets.py` | repo (no lane) | S00 | the index-blob check, the `source` form check, and `write` running `self-test` first (steps 1a, 1b) |
+| `docs/reference/asset-manifest.md` | page | S06 | the checker as steps 1a and 1b leave it |
+| `docs/explanation/large-files.md` | page | S06 | the gate now refuses a `.blend` stored as a blob (step 1a) |
+| `docs/operations/troubleshooting.md` | page | S06 | the same (step 1a) |
+| `docs/how-to/import-an-asset.md` | page | S05 | the sentence about the checker and the index (step 1a) |
+| `docs/explanation/security-model.md` | page | S06 | the `source` field's form is checked (step 1b) |
+| `docs/reference/testing.md` | page | S06 | only if it says `write` skips the self-test (step 1b) |
+| `docs/reference/documentation-contract.md` | page | S06 | the README is read by `typos` too (step 1c) |
+| `docs/reference/quality-gates.md` | page | S06 | the `assets` job and the token's steps (step 1d) |
+| `tickets/CONVENTIONS.md` | tickets | shared | the corrections in step 6, and §4 and §11 for steps 1a, 1b and 1e |
 | `tickets/S09-follow-up-hand-backs.md` | tickets | this file | `status:` line, hand-back notes |
 
 Step 1 may add rows, for the files that S05's and S06's hand-back items need, before
@@ -88,6 +97,57 @@ anything else is edited.
    to the table above, in the ticket's first commit and before editing anything else.
    An item that needs a decision the maintainer has not made goes to Open points instead.
    Record in the hand-back notes what was taken and what was left.
+
+   Collected on 2026-09-24. S05 addresses nothing to a follow-up by name; S06 addresses
+   six items to S09. The maintainer decided the two that needed a decision (1a's checker
+   change and 1b) when this step was written: both are taken.
+
+   1. **1a. The raw `.blend` gap** (S06 hand-back, "The storage-drift claim is false;
+      handed to S09."). `git check-attr` reads `.gitattributes`, not how Git stored the
+      file, so a `.blend` committed on a machine without git-lfs passes `check-assets`.
+      Correct the CONVENTIONS.md §11 bullet (step 6). Close the gap, as the maintainer
+      chose: `check_tree` reads, for every path whose attribute storage is `lfs` and which
+      the index holds, the index blob through `git cat-file -p :<path>`, and refuses one
+      that is not an LFS pointer; an untracked path is skipped, since the index holds
+      nothing for it yet. The self-test proves it with `git hash-object -w` and
+      `git update-index --add --cacheinfo`, which bypass the filter, so the stage needs no
+      git-lfs. Then the pages that say nothing in the gate notices
+      (`docs/explanation/large-files.md`, `docs/operations/troubleshooting.md`,
+      `docs/reference/asset-manifest.md`), decision 0006's sentence about the index, and
+      `docs/how-to/import-an-asset.md`'s, say what the checker now does.
+   2. **1b. The Codex review's two code-side findings** (S06 hand-back, "Other items for
+      S09", "The Codex review's two code-side findings"). `check` requires `source` to be
+      one of the three forms `docs/reference/asset-manifest.md` gives
+      (`<repository>@<commit>:<path>`, `rebuilt:<date>`, `studio`), with self-test cases;
+      and `write` runs `self-test` before it writes. `docs/reference/asset-manifest.md`,
+      `docs/explanation/security-model.md`, `docs/reference/commands.md`'s
+      `assets-manifest` row, the `Justfile` comment above `assets-manifest`, and
+      `docs/reference/testing.md` if it says `write` skips the self-test, follow.
+   3. **1c. The documentation contract names `typos`** (S06 hand-back, "Other items for
+      S09", "S09 step 4 changes a sentence here."): once step 4 narrows the exclude,
+      `docs/reference/documentation-contract.md`'s sentence that the model's README "is
+      linted by markdownlint and the offline link checker only" names `typos` too.
+   4. **1d. Quality gates and the `assets` job** (S06 hand-back, "Other items for S09",
+      "S09 step 5"): `docs/reference/quality-gates.md`'s `assets` bullet says the job runs
+      `just sync-python`, and its `NODE_AUTH_TOKEN` sentence says the token sits on the
+      `just sync` step of the `frontend` and `documents` jobs.
+   5. **1e. Git LFS per clone** (S06 hand-back, "Other items for S09", "§11 per machine";
+      S05 hand-back, Deviations, "Git LFS per clone, not per machine."): CONVENTIONS.md
+      §11's bullet says git-lfs is installed once per machine and `git lfs install --local`
+      runs in each clone, as the pages already do (step 6, the same bullet as 1a).
+   6. **1f. The pointer is 133 bytes** (S06 hand-back, "Other items for S09", "The pointer
+      is 133 bytes"): `rg -n '\b130\b' tickets/CONVENTIONS.md docs/ AGENTS.md` finds
+      nothing, so only S06's own text says "130". Nothing to change; recorded.
+   7. **1g. The LFS figure in 0006** (S05 hand-back, Open points, "The LFS figure in
+      0006"): decision 0006 already says 10 GiB, 10 GiB and 0.3%; CONVENTIONS.md §3's 3%
+      is step 6's correction. Nothing beyond step 6.
+   8. **1h. Written as the design says** (S05 hand-back, "Written as the design says
+      rather than as the repository is"): S05's pages were written before S03's routes
+      merged. Check the three-route sentences and the model page's "look differs" sentence
+      against `src/routes/` and record; edit only if one is false.
+
+   Left, under Open points: the `accessibility-review` skill's step 7 (S06 hand-back, Open
+   points, "The viewer and reduced motion"), which the maintainer chose to leave.
 
 2. **Home page links** (S01 hand-back, "To S03": once the routes exist,
    `resolve('/model/')` and `resolve('/gallery/')` "are the form to use, here on the home
@@ -180,6 +240,12 @@ anything else is edited.
      reaching `base`. When this ticket was written, `grep -nw base tickets/CONVENTIONS.md`
      found `base` only in §0 and §2.5 (`paths.base`, which stays true). Check again and
      correct §2.7 only if it still describes `base`. Record which.
+   - Added on 2026-09-24 with the maintainer's authorisation, each marked "(corrected by
+     S09)": §2.2's `assets-manifest` comment reads as the `Justfile` has it since S05's
+     sixth commit (it keeps `patched` too and reads the viewer's `source_sha256` from its
+     build record); §4's `check`, `write` and `self-test` bullets say what steps 1a and 1b
+     add; §11's `git lfs install` bullet says per clone, and that the checker refuses a
+     `.blend` whose index blob is not a pointer (steps 1a and 1e).
 
 7. **S05's pages** (S00 hand-back, "`git lfs install --local` in a secondary worktree"
    and "The gate reads the index, not the worktree"; S02 hand-back, "`scripts/rebuild_model.sh`
@@ -276,6 +342,11 @@ Filled in by the agent that executes this ticket.
 - **The `workflow_run` gap in T and G** (S04 hand-back). Ask the maintainer whether a `G`
   or `T` ticket should be written. Recommend asking once S07 has proved the gate on the
   studio's first deploy.
+- **The `accessibility-review` skill's step 7** (S06 hand-back, Open points, "The viewer
+  and reduced motion") speaks of `data-animations` for the viewer, which the embedded page
+  never reads; it is true of the port that replaces it. The maintainer chose on
+  2026-09-24 to leave it, so step 3 changes nothing else in the file. For the next
+  follow-up if the viewer is ported before the port's own ticket rewrites the skill.
 - **Whether `just check-assets` needs a sync at all** in CI. `uv run --frozen` builds the
   environment on first use, so the job might run without `sync-python`. Keep the explicit
   recipe, because a job that names its setup is easier to read than one relying on
