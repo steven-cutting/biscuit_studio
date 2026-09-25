@@ -1,7 +1,7 @@
 ---
 id: S09
 title: "Follow-up: what S00 to S06 handed back to tickets that are done"
-status: open
+status: done
 depends_on: [S01, S02, S03, S04, S05, S06]
 parallel_with: []
 branch: ticket/s09-follow-up-hand-backs
@@ -322,18 +322,190 @@ ends green with the worktree unchanged.
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Executed on 2026-09-24 on the Supacode worktree branch `S09-follow-up-hand-backs`, not the
+`ticket/s09-follow-up-hand-backs` the `branch:` field names, as every ticket since S00 has
+been (nothing in the checks reads the branch name). Nine commits; the first touched only
+this file, as step 1 requires. Pushing and the pull request were not done and are asked
+for separately.
 
-- The items step 1 took from S05's and S06's notes, and the ones left, each with its
-  source.
-- For each step, what changed, or why nothing needed to. For step 7, which sentences
-  S05 had already landed.
-- Any word typos flagged in the README, and how it was answered.
-- The outcome of the §2.7 check.
-- The maintainer's answer on `just install-hooks`.
-- The output of every verification command, quoted, with no tab characters.
-- Anything found that belongs to a ticket that is done: written as an item for the next
-  follow-up (CONVENTIONS.md §9), not fixed outside this ticket's table.
+**Step 1, what was taken and what was left.** S05 addresses nothing to a follow-up by
+name; its Deviations bullet "Git LFS per clone, not per machine" and its Open point "The LFS
+figure in 0006" were taken as 1e and 1g. S06 addresses six items to S09: 1a, 1b, 1c, 1d, 1e
+and 1f, all taken; its Open point about the `accessibility-review` skill's step 7 was left,
+by the maintainer's choice, and is under Open points. The maintainer chose to take 1a's
+checker change and both of 1b's when asked at the start, so no item needed a decision
+afterwards. Item 1h was checked and needed no edit: `src/routes/` holds `/`, `/model/` and
+`/gallery/`, and the model page says beside the download that the GLB's PBR materials look
+different from the studio's cel shading, so `develop-locally.md`, `first-change.md`,
+`deploy-to-github-pages.md`, `rebuild-the-model.md` and decision 0008 are true as written.
+
+**Step 2.** `src/routes/+page.svelte` holds `const model = resolve('/model/')` and
+`const gallery = resolve('/gallery/')`, the two anchors take them whole, and the comment's
+second paragraph now says the links are resolved against the routes that exist; the
+sentence about element selectors is kept. `tests/route.test.ts` is unchanged and its
+`/model/` and `/gallery/` expectations pass. `svelte-check`, ESLint and Prettier accept the
+form. The build under `BASE_PATH=/biscuit_studio` carries `href="./model/"` and
+`href="./gallery/"`, quoted below.
+
+**Step 3.** The two lines only. `accessibility-review` line 8 now reads "The `@guarantee`
+clauses in the platform's Allium modules, installed with `@steven-cutting/biscuit-games`,
+are the acceptance criteria, not aspirations, and this studio inherits them, as every game
+does." `code-review` step 1 reads "the platform specification that governs the surface the
+change touches". The sixteen bridges are untouched; `check-agents` validated 8 skills.
+
+**Step 4.** `pyproject.toml`'s typos exclude names the six package directories and
+`assets/illustrations/`, keeps `static/pose-studio/` and the two lockfiles, and its comment
+says the README and the manifest are read. `just lint` passed. Proof: with the word "the"
+appended to the README with its last two letters swapped (spelled out here, the hook would
+rewrite it), `uv run --frozen prek run typos --files assets/models/biscuit/README.md`
+printed `typos ... Failed`, `- hook id: typos`, `- files were modified by this hook`, exit
+1, and `git diff --stat` showed the README with 2 insertions (the hook runs with
+`--write-changes`, so it rewrote the word rather than naming it). `git checkout --
+assets/models/biscuit/README.md` exited 0, `git status --short assets/` was empty, and
+`just check-assets` printed `check_assets check: ok`. Typos flagged no word in the README
+or in `assets/manifest.json` (both run through the hook: `Passed`), so no `extend-words`
+entry was needed. The other five §2.1 places and `.editorconfig` agree with the §2.1 table
+as it stood, and `.pre-commit-fix.yaml` carries the same `(?x)` block as the gate.
+
+**Step 5.** `sync-python` sits after `sync` in the `Justfile` with the ticket's comment.
+The `assets` job runs it with no `env:`; its comment says the job needs no node_modules
+and no registry token, without naming the variable, so `NODE_AUTH_TOKEN` occurs twice in
+`ci.yml`. The two SHAs and their `# v…` comments are unchanged. `commands.md` has a
+`just sync-python` row under Setup. For 1d, `quality-gates.md`'s `assets` bullet names
+`sync-python`, and its token sentence names the `frontend` and `documents` jobs. actionlint
+and check-yaml passed in the hook run; `npx prettier --check .github/workflows/` printed
+"All matched files use Prettier code style!".
+
+**Steps 1a and 1b, the checker.** `scripts/check_assets.py`: `index_findings` runs
+`git ls-files -z` over every path whose attribute storage is `lfs` and `git cat-file blob
+:<path>` over each the index holds, and refuses one whose blob is not an LFS pointer with
+"the index holds the file itself, not an LFS pointer; run git lfs install --local, then git
+rm --cached and git add it"; `entry_findings` refuses a `source` outside the three forms
+(`SOURCE`, a regex; the message names the forms); `main` runs `self_test` before `write`
+as well as before `check`, and writes nothing if it fails. The self-test gained
+`self_test_index` (a raw blob and then the pointer bytes put into the index through
+`git hash-object -w --stdin` and `git update-index --add --cacheinfo`, so no LFS filter is
+involved and the outcome does not depend on the machine) and `self_test_source` (`unknown`
+refused; the import, `rebuilt:` and `studio` forms accepted, ending on `studio` so the
+stage is left as `write` wrote it). `just check-assets` and `check_assets.py write` both
+print `ok` on the real tree, and `write` left `assets/manifest.json` unchanged. Ruff lint
+and format pass. The pages now say what the checker does: `asset-manifest.md` (the
+`source` forms, the `check` and `write` paragraphs, two new reasons in the table, the
+self-test list, and "It sees how a file was stored only once it is in the index" in place
+of "It does not see how a file was stored"), `large-files.md` and `troubleshooting.md`
+(the gate refuses a raw `.blend` from the first run after `git add`; the `git lfs
+ls-files` and `git cat-file -s` diagnostics and the repair are kept), `security-model.md`
+(`source` checked for form, not truth), `commands.md`'s `assets-manifest` row and the
+`Justfile` comment above it (the self-test runs first), `testing.md` (the two new
+self-test cases; both subcommands self-test first), `import-an-asset.md` step 4, and
+decision 0006's sentence about the index. CONVENTIONS.md §4 says the same.
+
+**Step 6.** Every correction in the list, each marked "(corrected by S09)" or citing S09,
+plus the three the maintainer authorised on the day (§2.2's `assets-manifest` comment, §4
+for the checker, §11 for 1a and 1e). The §3 figures were read from `assets/manifest.json`
+again on the day: viewer 27,561,668; `textures/*.png` 36 files, 10,040,783; `previews/**`
+22 files, 9,754,946 (the ticket's "about 9.1 MB" replaced by the manifest's total);
+`illustrations/good/*.png` 11 files, 15,137,724; LFS objects 32,281,033 in all. §10: one
+outcome clause after each claim assigned to S00 to S04, citing the hand-back; the four S07
+claims are untouched. **§2.7 check:** `grep -nw base tickets/CONVENTIONS.md` finds `base`
+at lines 67 (§0), 495 and 506 (§2.5, `paths.base`), 662 (§3, `miami-angular-base`) and 938
+(§9, `--base main`); none in §2.7, so §2.7 is unchanged and S01's note described a
+sentence that was not there. `git diff main -- tickets/CONVENTIONS.md` holds only these
+hunks.
+
+**Step 7, what S05 had already landed.** All of it. `develop-locally.md` carries "The gate
+reads the index, not the worktree" with `git ls-files` and the staging sentence, and "The
+hook is installed only from the primary checkout" with the shared `.git/hooks` and the
+`git lfs install --local` writing to the shared `.git/config`. `rebuild-the-model.md`
+carries the clean-tree precondition ("What it needs" and step 1), the restore on failure
+or interruption, and the `__pycache__` and `.blend1` purge (step 4). Decision 0006 quotes
+10 GiB and 10 GiB with the date 2026-09-23. Nothing was added for step 7; 0006's one edit
+is 1a's.
+
+**Step 8.** Asked at the start; the maintainer said they would run `just install-hooks`
+from `~/projects/biscuit_studio` and did so during this ticket: the first commit here
+already ran the gate as a hook. `ls ~/projects/biscuit_studio/.git/hooks`, samples
+omitted, afterwards:
+
+```text
+post-checkout
+post-commit
+post-merge
+pre-commit
+pre-push
+```
+
+**Verification output**, run in order after the last content commit:
+
+```text
+$ just frontend-static
+1790307411204 COMPLETED 426 FILES 0 ERRORS 0 WARNINGS 0 FILES_WITH_PROBLEMS
+rc=0
+$ just frontend-unit
+ Test Files  5 passed (5)
+      Tests  20 passed (20)
+$ BASE_PATH=/biscuit_studio just frontend-build
+  Wrote site to "build"
+  done
+$ grep -o 'href="\./\(model\|gallery\)/"' build/index.html
+href="./model/"
+href="./gallery/"
+$ just check-agents
+Validated AGENTS.md, 2 adapters, and 8 skills.
+$ uv run --frozen prek run typos --files assets/models/biscuit/README.md; echo "rc=$?"
+typos....................................................................Passed
+rc=0
+$ git status --short assets/
+(no output)
+$ just --summary | tr ' ' '\n' | grep -x sync-python
+sync-python
+$ grep -c NODE_AUTH_TOKEN .github/workflows/ci.yml
+2
+$ just check-assets
+check_assets check: ok
+$ just check-docs
+Validated 39 pages and 40 canonical topics.
+$ git diff main --stat
+ .agents/skills/accessibility-review/SKILL.md       |   2 +-
+ .agents/skills/code-review/SKILL.md                |   2 +-
+ .github/workflows/ci.yml                           |  11 +-
+ Justfile                                           |  14 ++-
+ .../0006-sources-in-lfs-served-files-as-blobs.md   |   6 +-
+ docs/explanation/large-files.md                    |  11 +-
+ docs/explanation/security-model.md                 |   4 +-
+ docs/how-to/import-an-asset.md                     |   6 +-
+ docs/operations/troubleshooting.md                 |  17 +--
+ docs/reference/asset-manifest.md                   |  50 ++++----
+ docs/reference/commands.md                         |   3 +-
+ docs/reference/documentation-contract.md           |   4 +-
+ docs/reference/quality-gates.md                    |   8 +-
+ docs/reference/testing.md                          |  20 ++--
+ pyproject.toml                                     |  13 ++-
+ scripts/check_assets.py                            | 126 +++++++++++++++++++--
+ src/routes/+page.svelte                            |  23 ++--
+ tickets/CONVENTIONS.md                             | 116 +++++++++++++------
+ tickets/S09-follow-up-hand-backs.md                |  79 ++++++++++++-
+ 19 files changed, 385 insertions(+), 130 deletions(-)
+$ git diff main --stat -- 'tickets/S0*' 'tickets/C0*'
+ tickets/S09-follow-up-hand-backs.md | 79 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 75 insertions(+), 4 deletions(-)
+```
+
+Every file in the first stat is in the table.
+
+**For the next follow-up** (found here, belonging to tickets that are done, not fixed
+outside this table):
+
+- S03's ticket file ends with leftover template bullets under its Hand-back notes (one
+  says "The three CONVENTIONS.md §10 claims assigned here" while the executed notes cover
+  four). A record, not a defect; noted so nobody reads them as findings.
+- `docs/how-to/develop-locally.md` has no heading
+  `do-not-install-the-hook-from-a-secondary-worktree`; S06 retargeted the two links that
+  named it (S06 hand-back, Deviations, "Two fragments retargeted"). Nothing is broken; if
+  the page ever grows that heading, the links can point at it again.
+
+**`just check`:** run after the notes were written, before the final commit: every recipe
+passed and it ended with `All checks passed and the worktree is unchanged.`
 
 ## Open points
 
