@@ -5,7 +5,7 @@ description: Review a component, token, or specification change against the plat
 
 # Review a change for accessibility
 
-The `@guarantee` clauses in `docs/specs/appearance.allium` are the acceptance criteria, not aspirations, and every game inherits them. Each one names an obligation a change can break silently.
+The `@guarantee` clauses in the platform's Allium modules, installed with `@steven-cutting/biscuit-games`, are the acceptance criteria, not aspirations, and this studio inherits them, as every game does. Each one names an obligation a change can break silently.
 
 1. Read `AGENTS.md` and `docs/explanation/accessibility.md`, then read the guarantees on the `Appearance` surface.
 2. Check the legibility floor in all four combinations of theme and high contrast, not the one the change was looked at in. Text on an operable control reaches `minimum_text_contrast` against what is behind it; a control that draws a boundary reaches `minimum_boundary_contrast` against the page; a control that draws none is identified by its own words.

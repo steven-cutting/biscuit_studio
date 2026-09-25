@@ -5,7 +5,7 @@ description: Review a change in this repository against its invariants, specific
 
 # Review a change
 
-1. Read `AGENTS.md` and the specification module the change touches. Review the whole diff, not the summary of it.
+1. Read `AGENTS.md` and the platform specification that governs the surface the change touches. Review the whole diff, not the summary of it.
 2. Check the invariants in `AGENTS.md` one at a time. The hub decides shared behaviour and changes first, runes only, side effects behind a port with `document` reached only in `onMount` under `src/routes/`, exact version pins, no assumed server, colour never alone, the coverage floor intact, and every asset listed in `assets/manifest.json` with nothing under `assets/` or `static/pose-studio/` edited by hand.
 3. Check the change against the platform's specifications, which arrive with the package under `node_modules/@steven-cutting/biscuit-games/specs/`. A rule, guard or threshold decided in code here that the platform states differently is a finding even when the behaviour looks right.
 4. Check the test evidence. A test that only asserts a function was called is not evidence; a component test that queries by class or test id rather than by accessible role is not evidence either.
