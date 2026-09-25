@@ -112,13 +112,16 @@ Read first: CONVENTIONS.md §1 decision 6 and §9; this repository's decision 00
 
 - [ ] A hub decision record names the shape, and this repository cites it.
 - [ ] `gh api repos/steven-cutting/biscuit_studio/pages --jq '[.cname, .html_url,
-      .https_enforced] | join(" ")'` prints the decided domain, the decided address, and
-      `true`.
+      .https_enforced] | map(tostring) | join(" ")'` prints the decided address and
+      `true`; `.cname` is the decided domain under shape 1 and `null` under shape 2, where
+      the domain sits on the user site's repository.
 - [ ] `curl -sI` of the decided address answers `200`; of
       `https://stevencutting.com/biscuit_studio/` answers a redirect or `200`, recorded
       either way.
-- [ ] No file names the old address except this ticket, S07 and CONVENTIONS.md's record
-      of the correction.
+- [ ] `AGENTS.md`, `README.md`, CONVENTIONS.md decision 6 and every page under `docs/`
+      name the decided address; a former address appears there only where a page records
+      its redirect. Tickets are records of their own time and keep the addresses they were
+      written with (§9: a done ticket is not edited).
 
 ## Verification
 

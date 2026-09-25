@@ -532,6 +532,8 @@ session on 2026-09-24 (local):
 | 2026-09-24 | `--apply`, twice (the second as the idempotency check) | yes, as one action with the second run stated |
 | 2026-09-24 | `--apply --hygiene`, twice | yes, as one action with the second run stated |
 | 2026-09-24 | pushing `S07-repository` and opening the pull request against `main` | yes, asked after the notes were committed |
+| 2026-09-24 | `gh api -X PUT repos/steven-cutting/biscuit_studio/pages -F https_enforced=true` | yes, asked after the address decision |
+| 2026-09-24 | pushing the address-correction commit (`4bf2091`) to `S07-repository` | yes |
 
 Not authorised because not needed: a `PUT /pages` (`409`), a `422` body with `source`,
 `https://` in place of SSH, `gh run rerun`.
