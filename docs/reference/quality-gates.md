@@ -74,7 +74,7 @@ it until it is staged.
 | Builtin `check-*` | Large files, case conflicts, merge markers, JSON, TOML, YAML, private keys, shebangs. |
 | `editorconfig-checker` | Whitespace, line endings, final newlines. |
 | `markdownlint-cli2` | Markdown structure. Prettier does not touch Markdown, so they cannot disagree. |
-| `typos` | Spelling, excluding the lockfiles and the asset roots. |
+| `typos` | Spelling, excluding the lockfiles and the imported assets; the model's README and the manifest are read. |
 | `lychee` | Link targets, offline. |
 | `shellcheck` | Every shell script under `scripts/`. |
 | `actionlint` | Every GitHub Actions workflow, its structure only — see below. |

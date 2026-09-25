@@ -125,6 +125,9 @@ It refuses:
   so a checkout without the LFS objects is still verified, and the object is hashed
   instead when it is present;
 - an entry whose `storage` disagrees with what `git check-attr` says for its path;
+- a path `.gitattributes` gives to LFS whose blob in the index is the file itself rather
+  than a pointer, which is what an add without git-lfs leaves;
+- a `source` that is not `<repository>@<commit>:<path>`, `rebuilt:<date>` or `studio`;
 - an image carrying any EXIF beyond its resolution: GPS, camera, date, software, anything
   in the Exif or GPS directories, each tag named;
 - a TIFF, outright, and an image with a raster suffix Pillow cannot open.

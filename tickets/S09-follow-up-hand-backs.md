@@ -372,7 +372,9 @@ The `assets` job runs it with no `env:`; its comment says the job needs no node_
 and no registry token, without naming the variable, so `NODE_AUTH_TOKEN` occurs twice in
 `ci.yml`. The two SHAs and their `# v…` comments are unchanged. `commands.md` has a
 `just sync-python` row under Setup. For 1d, `quality-gates.md`'s `assets` bullet names
-`sync-python`, and its token sentence names the `frontend` and `documents` jobs. actionlint
+`sync-python`, its token sentence names the `frontend` and `documents` jobs, and its
+`typos` row says the model's README and the manifest are read (step 4's consequence,
+found at the final review). actionlint
 and check-yaml passed in the hook run; `npx prettier --check .github/workflows/` printed
 "All matched files use Prettier code style!".
 
@@ -397,8 +399,9 @@ of "It does not see how a file was stored"), `large-files.md` and `troubleshooti
 ls-files` and `git cat-file -s` diagnostics and the repair are kept), `security-model.md`
 (`source` checked for form, not truth), `commands.md`'s `assets-manifest` row and the
 `Justfile` comment above it (the self-test runs first), `testing.md` (the two new
-self-test cases; both subcommands self-test first), `import-an-asset.md` step 4, and
-decision 0006's sentence about the index. CONVENTIONS.md §4 says the same.
+self-test cases; both subcommands self-test first), `import-an-asset.md` step 4 and its
+list of what the checker refuses (two bullets added at the final review), and decision
+0006's sentence about the index. CONVENTIONS.md §4 says the same.
 
 **Step 6.** Every correction in the list, each marked "(corrected by S09)" or citing S09,
 plus the three the maintainer authorised on the day (§2.2's `assets-manifest` comment, §4
@@ -469,26 +472,26 @@ $ git diff main --stat
  .agents/skills/accessibility-review/SKILL.md       |   2 +-
  .agents/skills/code-review/SKILL.md                |   2 +-
  .github/workflows/ci.yml                           |  11 +-
- Justfile                                           |  14 ++-
+ Justfile                                           |  14 +-
  .../0006-sources-in-lfs-served-files-as-blobs.md   |   6 +-
  docs/explanation/large-files.md                    |  11 +-
  docs/explanation/security-model.md                 |   4 +-
- docs/how-to/import-an-asset.md                     |   6 +-
- docs/operations/troubleshooting.md                 |  17 +--
- docs/reference/asset-manifest.md                   |  50 ++++----
+ docs/how-to/import-an-asset.md                     |   9 +-
+ docs/operations/troubleshooting.md                 |  17 +-
+ docs/reference/asset-manifest.md                   |  50 ++--
  docs/reference/commands.md                         |   3 +-
  docs/reference/documentation-contract.md           |   4 +-
- docs/reference/quality-gates.md                    |   8 +-
- docs/reference/testing.md                          |  20 ++--
- pyproject.toml                                     |  13 ++-
- scripts/check_assets.py                            | 126 +++++++++++++++++++--
- src/routes/+page.svelte                            |  23 ++--
- tickets/CONVENTIONS.md                             | 116 +++++++++++++------
- tickets/S09-follow-up-hand-backs.md                |  79 ++++++++++++-
- 19 files changed, 385 insertions(+), 130 deletions(-)
+ docs/reference/quality-gates.md                    |  10 +-
+ docs/reference/testing.md                          |  20 +-
+ pyproject.toml                                     |  13 +-
+ scripts/check_assets.py                            | 126 ++++++++-
+ src/routes/+page.svelte                            |  23 +-
+ tickets/CONVENTIONS.md                             | 116 ++++++---
+ tickets/S09-follow-up-hand-backs.md                | 282 +++++++++++++++++++--
+ 19 files changed, 580 insertions(+), 143 deletions(-)
 $ git diff main --stat -- 'tickets/S0*' 'tickets/C0*'
- tickets/S09-follow-up-hand-backs.md | 79 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 75 insertions(+), 4 deletions(-)
+ tickets/S09-follow-up-hand-backs.md | 282 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 266 insertions(+), 16 deletions(-)
 ```
 
 Every file in the first stat is in the table.
@@ -499,6 +502,10 @@ outside this table):
 - S03's ticket file ends with leftover template bullets under its Hand-back notes (one
   says "The three CONVENTIONS.md §10 claims assigned here" while the executed notes cover
   four). A record, not a defect; noted so nobody reads them as findings.
+- `docs/reference/configuration.md`'s `NODE_AUTH_TOKEN` row says the token is "set on the
+  one step that runs `just sync` in each job". Since step 5 the `assets` job has no such
+  step; the row should name the `frontend` and `documents` jobs. The page is outside this
+  table and this ticket had started, so it is recorded here, not edited.
 - `docs/how-to/develop-locally.md` has no heading
   `do-not-install-the-hook-from-a-secondary-worktree`; S06 retargeted the two links that
   named it (S06 hand-back, Deviations, "Two fragments retargeted"). Nothing is broken; if
