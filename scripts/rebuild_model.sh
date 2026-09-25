@@ -106,6 +106,12 @@ mv "$package/viewer.html" "$served/viewer.html"
 mv "$package/model/biscuit-poseable.glb" "$served/model/biscuit-poseable.glb"
 mv "$package/previews/pose-overview.jpg" "$served/previews/pose-overview.jpg"
 
+# The viewer as viewer.py wrote it exists only here, before the rewrites below.
+# viewer.py recorded its digest in qa/viewer-package.json, which is where the
+# manifest's source_sha256 comes from; hashing it again proves the record names
+# the page that was patched.
+built_digest=$(shasum -a 256 "$served/viewer.html" | cut -d' ' -f1)
+
 # The viewer links two files the site does not serve; the same three rewrites
 # the first import made, asserted the same way. assets/manifest.json records
 # them under `patched`.
@@ -123,9 +129,17 @@ for old, new, n in pairs:
 p.write_bytes(s)
 PYEOF
 
+recorded_digest=$(uv run --frozen python -c \
+  'import json,sys; print(json.load(open(sys.argv[1]))["sha256"])' "$package/qa/viewer-package.json")
+[ "$built_digest" = "$recorded_digest" ] || {
+  printf '%s\n' "$package/qa/viewer-package.json records $recorded_digest but the viewer hashed $built_digest before its rewrite" >&2
+  exit 1
+}
+
 just assets-manifest
 finished=1
 
 printf '\n%s\n' 'Rebuilt. Read the assets/manifest.json diff, then set each changed entry'
-printf '%s\n' 'source to rebuilt:<date> and its source_sha256 to the new viewer digest.'
+printf '%s\n' 'source to rebuilt:<date>. The viewer entry source_sha256 was written from'
+printf '%s\n' 'qa/viewer-package.json and just check proves it.'
 printf '%s\n' 'Nothing has been staged, committed, tagged, or pushed.'
