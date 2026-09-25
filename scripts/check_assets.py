@@ -5,8 +5,8 @@ with its size, its sha256, whether Git LFS holds it, where it came from and unde
 what licence. `check` proves the worktree agrees with the manifest, after proving
 itself with `self-test`; `write` rewrites the manifest from the worktree, keeping the
 fields only a person can know; `self-test` builds a small tree and asserts the pointer
-read, the sha256 comparison and the EXIF refusal are all live. The format is owned by
-docs/reference/asset-manifest.md.
+read, the sha256 comparison, the EXIF refusal and the provenance checks are all live.
+The format is owned by docs/reference/asset-manifest.md.
 """
 
 from __future__ import annotations
@@ -55,6 +55,14 @@ RESOLUTION_TAGS = frozenset({0x011A, 0x011B, 0x0128})  # XResolution, YResolutio
 REQUIRED_FIELDS = ("path", "bytes", "sha256", "storage", "source", "licence")
 OPTIONAL_FIELDS = ("source_sha256", "patched")
 STORAGES = frozenset({"blob", "lfs"})
+HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# A served file patched after its build, mapped to the record its build writes with
+# the unpatched digest under "sha256": viewer.py writes qa/viewer-package.json before
+# scripts/rebuild_model.sh rewrites the viewer's links. The entry's source_sha256 is
+# therefore derived from the worktree by `write` and proved by `check`, never copied.
+PROVENANCE = {
+    "static/pose-studio/viewer.html": Path("assets/models/biscuit/qa/viewer-package.json"),
+}
 
 
 def repository_root() -> Path:
@@ -187,6 +195,61 @@ def entry_findings(
         findings.append(
             f"{name}: storage {entry.get('storage')!r} but .gitattributes says {storage!r}"
         )
+    findings.extend(f"{name}: {reason}" for reason in provenance_findings(entry))
+    return findings
+
+
+def provenance_findings(entry: dict[str, object]) -> list[str]:
+    """Why the optional fields, present only where true, are not true: shape, or one without the other."""
+    findings: list[str] = []
+    if ("source_sha256" in entry) != ("patched" in entry):
+        findings.append("source_sha256 and patched go together")
+    if "source_sha256" in entry:
+        source = entry["source_sha256"]
+        if not isinstance(source, str) or not HEX_SHA256.match(source):
+            findings.append("source_sha256 must be 64 lowercase hex digits")
+        elif source == entry.get("sha256"):
+            findings.append(
+                "source_sha256 equals sha256, so nothing was patched; remove both fields"
+            )
+    if "patched" in entry:
+        patched = entry["patched"]
+        if (
+            not isinstance(patched, list)
+            or not patched
+            or not all(isinstance(item, str) and item for item in patched)
+        ):
+            findings.append("patched must be a non-empty list of non-empty strings")
+    return findings
+
+
+def recorded_source_sha256(root: Path, name: str) -> str | None:
+    """The unpatched digest the build recorded for `name`, or None when no record is present."""
+    record = PROVENANCE.get(name)
+    if record is None or not (root / record).is_file():
+        return None
+    try:
+        data = json.loads((root / record).read_text(encoding="utf-8"))
+    except OSError, ValueError:
+        return None
+    sha = data.get("sha256") if isinstance(data, dict) else None
+    return sha if isinstance(sha, str) and HEX_SHA256.match(sha) else None
+
+
+def record_findings(root: Path, entries: dict[str, dict[str, object]]) -> list[str]:
+    """Every patched file whose source_sha256 is not what its build recorded."""
+    findings: list[str] = []
+    for name, record in PROVENANCE.items():
+        entry = entries.get(name)
+        if entry is None or not (root / record).is_file():
+            continue
+        recorded = recorded_source_sha256(root, name)
+        if recorded is None:
+            findings.append(f"{record.as_posix()}: carries no readable sha256 for {name}")
+        elif entry.get("source_sha256") != recorded:
+            findings.append(
+                f"{name}: source_sha256 must equal the sha256 in {record.as_posix()}; run just assets-manifest"
+            )
     return findings
 
 
@@ -211,6 +274,7 @@ def check_tree(root: Path) -> list[str]:
             continue
         findings.extend(entry_findings(name, entry, measure(root / relative), storage[relative]))
         findings.extend(f"{name}: {reason}" for reason in exif_findings(root / relative))
+    findings.extend(record_findings(root, entries))
     return findings
 
 
@@ -222,7 +286,11 @@ def render(assets: list[dict[str, object]]) -> str:
 
 
 def write_tree(root: Path) -> list[str]:
-    """Rewrite the manifest from the worktree, keeping what only a person can know."""
+    """Rewrite the manifest from the worktree, keeping what only a person can know.
+
+    A patched file's source_sha256 is not that: its build recorded it, so it is read
+    from the record (PROVENANCE) rather than carried forward.
+    """
     try:
         existing = load_manifest(root)
     except OSError, TypeError, ValueError:
@@ -245,6 +313,8 @@ def write_tree(root: Path) -> list[str]:
         for field in OPTIONAL_FIELDS:
             if field in old:
                 entry[field] = old[field]
+        if (recorded := recorded_source_sha256(root, name)) is not None:
+            entry["source_sha256"] = recorded
         assets.append(entry)
     (root / MANIFEST).write_text(render(assets), encoding="utf-8")
     return check_tree(root)
@@ -311,11 +381,60 @@ def self_test(root: Path) -> list[str]:
         expect("tagged.webp", "EXIF", tagged)
         expect("clean.webp", None)
         expect("flat.tif", "TIFF")
+        problems.extend(self_test_provenance(stage))
         with (models / "blob.bin").open("r+b") as stream:
             stream.seek(0)
             stream.write(b"B")
         if not any("sha256" in found for found in check_tree(stage)):
             problems.append("a changed byte was not refused")
+    return problems
+
+
+def self_test_provenance(stage: Path) -> list[str]:
+    """Prove the optional fields are checked for shape and, for the viewer, against its build record."""
+    problems: list[str] = []
+    viewer = "static/pose-studio/viewer.html"
+    record = PROVENANCE[viewer]
+    built = b"<html>biscuit</html>"
+    (stage / viewer).parent.mkdir(parents=True)
+    (stage / viewer).write_bytes(built.replace(b"biscuit", b"biscuit, patched"))
+    (stage / record).parent.mkdir(parents=True)
+    (stage / record).write_text(json.dumps({"sha256": hashlib.sha256(built).hexdigest()}))
+    # write derives source_sha256 from the record; patched stays a person's to write, and
+    # check says so until they do.
+    if not any("go together" in found for found in write_tree(stage)):
+        problems.append("a derived source_sha256 without patched was not refused")
+    if load_manifest(stage)[viewer].get("source_sha256") != hashlib.sha256(built).hexdigest():
+        problems.append("write did not take the viewer's source_sha256 from its build record")
+
+    def expect(marker: str | None, **fields: object) -> None:
+        """Rewrite the manifest with the viewer entry changed; assert `check` names `marker`, or passes when None."""
+        entries = load_manifest(stage)
+        entries[viewer] = {**entries[viewer], **fields}
+        (stage / MANIFEST).write_text(render(list(entries.values())), encoding="utf-8")
+        found = check_tree(stage)
+        if marker is None and found:
+            problems.append(f"a viewer entry with {fields} was refused: {found}")
+        if marker is not None and not any(marker in item for item in found):
+            problems.append(f"a viewer entry with {fields} was not refused naming {marker}")
+
+    recorded = hashlib.sha256(built).hexdigest()
+    expect(None, source_sha256=recorded, patched=["one link"])
+    expect("64 lowercase hex", source_sha256="ABC", patched=["one link"])
+    expect("must equal", source_sha256="0" * 64, patched=["one link"])
+    expect("non-empty list", source_sha256=recorded, patched=[""])
+    (stage / viewer).write_bytes(built)
+    expect(
+        "nothing was patched",
+        source_sha256=recorded,
+        sha256=recorded,
+        bytes=len(built),
+        patched=["x"],
+    )
+    (stage / viewer).unlink()
+    (stage / record).unlink()
+    if leftover := write_tree(stage):
+        problems.append(f"the tree was refused after the viewer and its record left: {leftover}")
     return problems
 
 

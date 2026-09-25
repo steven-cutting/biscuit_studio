@@ -76,8 +76,10 @@ makes it absolute first. In order, it:
 6. Hashes the viewer as `viewer.py` wrote it, then rewrites its three links to files the
    site does not serve — two to the `.blend` and one to the README — to their pages on
    GitHub, asserting that each old link occurs exactly as often as the first import found
-   it. The digest taken before the rewrites is printed at the end.
-7. Runs `just assets-manifest`, which rehashes every file and runs the checker.
+   it. The digest taken before the rewrites must equal the `sha256` that `viewer.py`
+   recorded in `qa/viewer-package.json`, or the run fails.
+7. Runs `just assets-manifest`, which rehashes every file, writes the viewer entry's
+   `source_sha256` from `qa/viewer-package.json`, and runs the checker.
 
 If any step fails, or the run is interrupted, a trap removes the link, restores
 `assets/` and `static/pose-studio/` to `HEAD` and deletes what the run created, and says
@@ -89,10 +91,11 @@ A successful run stages, commits and pushes nothing. What is left is yours:
 1. Read the whole `assets/manifest.json` diff. Every regenerated file's hash moved;
    anything else that moved is a question.
 2. Set `source` to `rebuilt:<date>` on every regenerated entry, by hand, because the tool
-   never rewrites a source. On the viewer's entry, set `source_sha256` to the digest the
-   script printed: the page as `viewer.py` wrote it, before the three rewrites. The tool
-   keeps the old value otherwise, and a `source_sha256` that names a page which no longer
-   exists makes `patched` a claim nothing can check.
+   never rewrites a source. The viewer entry's `source_sha256` is not yours to set: the
+   tool reads it from `qa/viewer-package.json`, the digest of the page as `viewer.py`
+   wrote it before the three rewrites, and `just check` refuses the manifest when the
+   two differ or the field is malformed — so `patched` names a difference from bytes
+   that can still be checked. Leave `patched` as it is unless the rewrites changed.
 3. Open the viewer and look at her, in the four poses, before asking the maintainer to
    approve the result.
 4. Run `just check`.

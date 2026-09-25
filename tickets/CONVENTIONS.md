@@ -680,11 +680,13 @@ Fields, all required, in this order: `path` (repository-relative, forward slashe
 pointer), `storage` (`blob` or `lfs`), `source` (`<repository>@<commit>:<path>` for an
 import, or `rebuilt:<date>` for a regenerated file, or `studio` for one made here), and
 `licence` (`unsettled` until §5's open question is answered; the field exists so that
-answering it is a diff). Two optional fields, present only where true: `source_sha256`
-(when the committed bytes differ from the source's; for a `rebuilt:` entry the source is
-the build output, so it is the digest of the file before any patch the rebuild script
-applies, which `scripts/rebuild_model.sh` prints at the end of a run) and `patched` (a
-list of short strings saying what changed).
+answering it is a diff). Two optional fields, present only where true and always
+together: `source_sha256` (64 lowercase hex digits, never equal to `sha256`; when the
+committed bytes differ from the source's; for a `rebuilt:` entry the source is the build
+output, so it is the digest of the file before any patch the rebuild script applies —
+for the viewer, the `sha256` that `viewer.py` records in `qa/viewer-package.json`, which
+`write` copies and `check` proves) and `patched` (a non-empty list of non-empty strings
+saying what changed).
 
 `scripts/check_assets.py` (S00, final; ruff-clean under §2.4; Pillow is its one import
 beyond the standard library; the ledger keys it prints are its interface). Subcommands:
@@ -702,19 +704,30 @@ beyond the standard library; the ledger keys it prints are its interface). Subco
   refuse a `.tif` or `.tiff` outright, because a TIFF stores its structure as IFD0 tags,
   and refuse a raster suffix Pillow cannot open as unreadable; assert `storage` agrees
   with `git check-attr
-  filter <path>` (`lfs` ↔ `filter: lfs`). Exit 0 and print one summary line; on any
-  refusal print every finding, one per line as `<path>: <reason>`, and exit 1.
+  filter <path>` (`lfs` ↔ `filter: lfs`); refuse `source_sha256` or `patched` present
+  without the other, a `source_sha256` that is not 64 lowercase hex digits or equals
+  `sha256`, and a `patched` that is not a non-empty list of non-empty strings; and for
+  `static/pose-studio/viewer.html`, when `assets/models/biscuit/qa/viewer-package.json`
+  is present, refuse a `source_sha256` that differs from that record's `sha256`. Exit 0
+  and print one summary line; on any refusal print every finding, one per line as
+  `<path>: <reason>`, and exit 1.
 - `write` (what `just assets-manifest` runs): recompute every entry from the worktree,
   keeping `source`, `licence`, `source_sha256` and `patched` from the existing entry
   where one exists and writing `source: "studio"`, `licence: "unsettled"` for a new
-  file; then run `check` and exit with its status. It never deletes a `source` field.
+  file, except that the viewer's `source_sha256` is read from `qa/viewer-package.json`
+  whenever that record is present; then run `check` and exit with its status. It never
+  deletes a `source` field.
 - `self-test`: build a temporary tree with one blob, one hand-written LFS pointer, one
   clean PNG and `tests/fixtures/exif-gps.jpg`; assert `check` passes on the first three
   and refuses the fourth with `GPS`; then, each generated in the temporary tree, assert a
   JPEG carrying only `DateTimeOriginal` and a WebP carrying only `Software` are refused
   with `EXIF`, a PNG carrying only `XResolution` and `YResolution` and a clean WebP pass,
-  and a clean TIFF is refused with `TIFF`; assert a tampered byte is refused; exit 0 on
-  success. The `check` subcommand runs `self-test` first, so `just check-assets` proves its
+  and a clean TIFF is refused with `TIFF`; then, with a patched viewer and a
+  `qa/viewer-package.json` recording the unpatched digest in the temporary tree, assert
+  `write` takes `source_sha256` from the record and refuses it until `patched` is
+  written, a well-formed pair passes, and a malformed digest, a digest the record does
+  not name, an empty `patched` item and a digest equal to `sha256` are each refused;
+  assert a tampered byte is refused; exit 0 on success. The `check` subcommand runs `self-test` first, so `just check-assets` proves its
   own checker is live on every run and §2.2's recipe stays one command.
 
 The fixture `tests/fixtures/exif-gps.jpg` is generated once by S00 with Pillow — a 1×1

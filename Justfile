@@ -100,8 +100,9 @@ check-assets:
     uv run --frozen python scripts/check_assets.py check
 
 # Rewrites assets/manifest.json from the worktree. The one recipe that writes
-# it; it keeps every entry's `source` and `licence` fields and recomputes the
-# rest. Run it after an import, then read the diff before committing.
+# it; it keeps every entry's `source`, `licence` and `patched` fields, reads the
+# viewer's `source_sha256` from its build record and recomputes the rest. Run it
+# after an import, then read the diff before committing.
 assets-manifest:
     uv run --frozen python scripts/check_assets.py write
 
