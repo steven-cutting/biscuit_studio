@@ -4,8 +4,9 @@
 with its size, its sha256, whether Git LFS holds it, where it came from and under
 what licence. `check` proves the worktree agrees with the manifest, after proving
 itself with `self-test`; `write` rewrites the manifest from the worktree, keeping the
-fields only a person can know; `self-test` builds a small tree and asserts the pointer
-read, the sha256 comparison, the EXIF refusal and the provenance checks are all live.
+fields only a person can know, after the same self-test; `self-test` builds a small
+tree and asserts the pointer read, the index read, the sha256 comparison, the EXIF
+refusal, the `source` forms and the provenance checks are all live.
 The format is owned by docs/reference/asset-manifest.md.
 """
 
@@ -56,6 +57,10 @@ REQUIRED_FIELDS = ("path", "bytes", "sha256", "storage", "source", "licence")
 OPTIONAL_FIELDS = ("source_sha256", "patched")
 STORAGES = frozenset({"blob", "lfs"})
 HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# The three forms of `source` that docs/reference/asset-manifest.md gives: imported
+# from a repository at a commit, regenerated here on a date, or made here.
+SOURCE = re.compile(r"^(?:[A-Za-z0-9._-]+@[0-9a-f]{7,40}:.+|rebuilt:\d{4}-\d{2}-\d{2}|studio)$")
+SOURCE_FORMS = "<repository>@<commit>:<path>, rebuilt:<date> or studio"
 # A served file patched after its build, mapped to the record its build writes with
 # the unpatched digest under "sha256": viewer.py writes qa/viewer-package.json before
 # scripts/rebuild_model.sh rewrites the viewer's links. The entry's source_sha256 is
@@ -105,13 +110,48 @@ def attribute_storage(root: Path, paths: list[Path]) -> dict[Path, str]:
 def pointer(path: Path) -> tuple[str, int] | None:
     """The oid and size an LFS pointer carries, or None for any other file."""
     try:
-        head = path.read_bytes()[:512]
+        return parse_pointer(path.read_bytes()[:512])
     except OSError:
         return None
+
+
+def parse_pointer(head: bytes) -> tuple[str, int] | None:
+    """The oid and size the first bytes of an LFS pointer carry, or None for any other bytes."""
     if not head.startswith(POINTER_HEAD):
         return None
     match = POINTER.match(head.decode("ascii", errors="replace"))
     return (match.group(1), int(match.group(2))) if match else None
+
+
+def index_findings(root: Path, paths: list[Path], storage: dict[Path, str]) -> list[str]:
+    """Every LFS path the index holds as the file itself rather than as a pointer.
+
+    `.gitattributes` says what should be in LFS; only the index says what Git stored. A
+    `.blend` added on a machine without git-lfs is a full blob whose bytes still hash to
+    the recorded oid, so nothing else here would notice. A path not yet in the index is
+    skipped: there is nothing to read until it is added.
+    """
+    tracked = [p.as_posix() for p in paths if storage.get(p) == "lfs"]
+    if not tracked:
+        return []
+    listed = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "-z", "--", *tracked],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    findings: list[str] = []
+    for name in filter(None, listed.split("\0")):
+        blob = subprocess.run(
+            ["git", "-C", str(root), "cat-file", "blob", f":{name}"],
+            check=True,
+            capture_output=True,
+        ).stdout
+        if parse_pointer(blob[:512]) is None:
+            findings.append(
+                f"{name}: the index holds the file itself, not an LFS pointer; run git lfs install --local, then git rm --cached and git add it"
+            )
+    return findings
 
 
 def digest(path: Path) -> tuple[str, int]:
@@ -182,6 +222,9 @@ def entry_findings(
         for field in REQUIRED_FIELDS
         if not entry.get(field)
     )
+    source = entry.get("source")
+    if source and not (isinstance(source, str) and SOURCE.match(source)):
+        findings.append(f"{name}: source must be {SOURCE_FORMS}")
     sha, size = measured
     if entry.get("sha256") != sha:
         findings.append(
@@ -274,6 +317,7 @@ def check_tree(root: Path) -> list[str]:
             continue
         findings.extend(entry_findings(name, entry, measure(root / relative), storage[relative]))
         findings.extend(f"{name}: {reason}" for reason in exif_findings(root / relative))
+    findings.extend(index_findings(root, files, storage))
     findings.extend(record_findings(root, entries))
     return findings
 
@@ -347,6 +391,8 @@ def self_test(root: Path) -> list[str]:
             or listed.get("bytes") != 18
         ):
             problems.append("the LFS pointer was not read for its oid, size and storage")
+        problems.extend(self_test_index(stage, models / "model.blend"))
+        problems.extend(self_test_source(stage))
         shutil.copy(fixture, models / "photo.jpg")
         if not any("GPS" in found for found in write_tree(stage)):
             problems.append("an image carrying GPS EXIF was not refused")
@@ -387,6 +433,71 @@ def self_test(root: Path) -> list[str]:
             stream.write(b"B")
         if not any("sha256" in found for found in check_tree(stage)):
             problems.append("a changed byte was not refused")
+    return problems
+
+
+def self_test_index(stage: Path, blend: Path) -> list[str]:
+    """Prove a `.blend` the index holds as the file itself is refused, and a pointer is not.
+
+    `hash-object --stdin` and `update-index --cacheinfo` put the blob in the index without
+    the LFS filter, so the stage needs no git-lfs and the outcome does not depend on the
+    machine's configuration.
+    """
+    problems: list[str] = []
+    name = blend.relative_to(stage).as_posix()
+
+    def stage_blob(content: bytes) -> None:
+        oid = (
+            subprocess.run(
+                ["git", "-C", str(stage), "hash-object", "-w", "--stdin"],
+                input=content,
+                check=True,
+                capture_output=True,
+            )
+            .stdout.decode("ascii")
+            .strip()
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(stage),
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"100644,{oid},{name}",
+            ],
+            check=True,
+        )
+
+    stage_blob(b"not really a blend")
+    if not any("not an LFS pointer" in found for found in check_tree(stage)):
+        problems.append("a .blend the index holds as the file itself was not refused")
+    stage_blob(blend.read_bytes())
+    if found := check_tree(stage):
+        problems.append(f"a .blend the index holds as a pointer was refused: {found}")
+    return problems
+
+
+def self_test_source(stage: Path) -> list[str]:
+    """Prove `source` is held to its three forms; ends with the entry as `write` left it."""
+    problems: list[str] = []
+    name = "assets/models/blob.bin"
+    cases = (
+        ("unknown", False),
+        ("biscuit_pics@1d9d358:models/blob.bin", True),
+        ("rebuilt:2026-09-24", True),
+        ("studio", True),
+    )
+    for source, accepted in cases:
+        entries = load_manifest(stage)
+        entries[name] = {**entries[name], "source": source}
+        (stage / MANIFEST).write_text(render(list(entries.values())), encoding="utf-8")
+        found = [item for item in check_tree(stage) if "source must be" in item]
+        if accepted and found:
+            problems.append(f"source {source!r} was refused: {found}")
+        if not accepted and not found:
+            problems.append(f"source {source!r} was not refused")
     return problems
 
 
@@ -443,12 +554,11 @@ def main() -> int:
     parser.add_argument("command", choices=("check", "write", "self-test"))
     command = parser.parse_args().command
     root = repository_root()
-    if command == "write":
+    findings = self_test(root)
+    if not findings and command == "write":
         findings = write_tree(root)
-    else:
-        findings = self_test(root)
-        if command == "check" and not findings:
-            findings = check_tree(root)
+    elif not findings and command == "check":
+        findings = check_tree(root)
     for finding in findings:
         print(finding, file=sys.stderr)
     if findings:

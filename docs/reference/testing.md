@@ -106,15 +106,17 @@ Vitest 4's text reporter prints the per-file table empty; the figures are in
 The asset checker is Python and has no pytest; it carries its own test instead.
 `uv run --frozen python scripts/check_assets.py self-test` builds a temporary Git
 repository with a blob, a hand-written LFS pointer and a clean PNG, and asserts that the
-checker passes it; that it refuses `tests/fixtures/exif-gps.jpg` naming `GPS`; that a JPEG
-carrying only a capture date and a WebP carrying only a software tag are refused naming
-`EXIF`; that a PNG carrying only its resolution and a clean WebP pass; that a TIFF is refused;
-that the viewer's `source_sha256` and `patched` are checked for shape and against the build
-record; and that one changed byte is refused.
+checker passes it; that it refuses the pointer's path once the index holds the file itself
+and passes it once the index holds the pointer; that `source` passes in each of its three
+forms and `unknown` is refused; that it refuses `tests/fixtures/exif-gps.jpg` naming `GPS`;
+that a JPEG carrying only a capture date and a WebP carrying only a software tag are refused
+naming `EXIF`; that a PNG carrying only its resolution and a clean WebP pass; that a TIFF is
+refused; that the viewer's `source_sha256` and `patched` are checked for shape and against
+the build record; and that one changed byte is refused.
 
-`just check-assets` runs `check`, and `check` runs the self-test before it reads the real
-tree, so a checker that had stopped refusing anything fails the gate on every run rather than
-passing everything quietly. [Asset manifest](asset-manifest.md) lists what it refuses.
+`just check-assets` runs `check`, and `just assets-manifest` runs `write`; both run the
+self-test before they read the real tree, so a checker that had stopped refusing anything
+fails the gate on every run rather than passing everything quietly. [Asset manifest](asset-manifest.md) lists what it refuses.
 
 ## Related pages
 

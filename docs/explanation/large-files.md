@@ -106,11 +106,12 @@ everything, which would leave one served file instead of two.
 
 **Setup.** git-lfs is installed once per machine, and `git lfs install --local` runs in each
 clone; `scripts/initialize.sh` does the second. A clone made without git-lfs sees 133 bytes
-of pointer text where the `.blend` should be. A contributor without it who commits a changed
-`.blend` stores the real file as an ordinary blob, and nothing in the gate notices: the
-checker compares the manifest with `.gitattributes`, which still names the path, and hashes
-the file's bytes, which are the right ones. [Troubleshooting](../operations/troubleshooting.md)
-says how to see it.
+of pointer text where the `.blend` should be. A contributor without it who adds a changed
+`.blend` stores the real file as an ordinary blob, whose bytes still hash to the digest the
+manifest records; the checker catches it by reading the index, where a path
+`.gitattributes` gives to LFS must hold a pointer, so `just check-assets` refuses the add
+before it is pushed. [Troubleshooting](../operations/troubleshooting.md) says how to see and
+repair it.
 
 **CI.** Every checkout in CI is `lfs: false`. The asset checker verifies an LFS-tracked file
 from its pointer, which carries the object's sha256 and size, so no job fetches an object

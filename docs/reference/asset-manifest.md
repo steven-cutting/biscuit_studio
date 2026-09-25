@@ -42,9 +42,10 @@ Six fields are required, in this order:
 | `source` | string | Where the file came from, in one of three forms below. |
 | `licence` | string | `unsettled` until the licence question is answered. |
 
-`source` is written in one of three forms. The checker requires the field to be present and
-not empty and reads nothing else in it, so the form is a convention that review holds, not
-one the gate enforces; `"source": "unknown"` would pass `just check-assets`:
+`source` is written in one of three forms, and the checker refuses any other; whether the
+repository, commit and path it names are real is for the reviewer to see, so
+`"source": "biscuit_pics@0000000:nowhere"` passes `just check-assets` and `"unknown"` does
+not:
 
 - `<repository>@<commit>:<path>` — imported, from that path in that repository at that
   commit. Every entry today reads `biscuit_pics@1d9d358:` followed by its path there.
@@ -75,7 +76,8 @@ provenance section were adapted to this repository.
 outside one, it prints `check_assets: run this from inside a Git worktree` and exits 2.
 
 **`check`** is what `just check-assets` runs. It runs `self-test` first, then walks
-`assets/` and `static/pose-studio/` and compares them with the manifest. Each finding is one
+`assets/` and `static/pose-studio/` and compares them with the manifest, and reads from the
+index the blob of every path `.gitattributes` gives to LFS. Each finding is one
 line on standard error, `<path>: <reason>`; after the last it prints
 `check_assets check: <n> finding(s)` and exits 1. With no finding it prints
 `check_assets check: ok` and exits 0. The reasons, word for word:
@@ -89,6 +91,8 @@ line on standard error, `<path>: <reason>`; after the last it prints
 | `storage must be blob or lfs` | `storage` holds anything else. |
 | `storage 'lfs' but .gitattributes says 'blob'` | The entry and `.gitattributes` disagree, either way round. |
 | `manifest entry lacks <field>` | A required field is missing. |
+| `source must be <repository>@<commit>:<path>, rebuilt:<date> or studio` | `source` is in none of the three forms. |
+| `the index holds the file itself, not an LFS pointer; run git lfs install --local, then git rm --cached and git add it` | A path `.gitattributes` gives to LFS was added without the filter, so Git stored the whole file. A path not yet added is not read. |
 | `unknown manifest field(s) [...]` | A field outside the eight is present. |
 | `carries EXIF (<tags>); strip every metadata field before committing` | An image carries a tag beyond its resolution; every tag found is named, `GPSInfo` included. |
 | `a TIFF, whose structure is stored as EXIF tags and cannot be told from metadata; export it as PNG` | A `.tif` or `.tiff`, whatever it holds. |
@@ -127,17 +131,18 @@ same directory and metadata cannot be told from structure.
 and rewrites the file. It keeps `source`, `licence`, `source_sha256` and `patched` from the
 existing entry where there is one, writes `source: "studio"` and `licence: "unsettled"` for a
 new file, and reads the viewer's `source_sha256` from its build record whenever that record
-is present. Then it compares the tree with the manifest it has just written, as `check` does,
-and exits with that status, printing `check_assets write: ok` on success. It does not run
-the self-test first, so a clean `write` is not proof that the checker is live; run
-`just check-assets` for that. It never deletes a `source`.
+is present. Like `check`, it runs the self-test first and writes nothing if that fails. Then
+it compares the tree with the manifest it has just written, as `check` does, and exits with
+that status, printing `check_assets write: ok` on success. It never deletes a `source`.
 
 **`self-test`** builds a temporary Git repository and proves the checker is live against it:
-a blob, a hand-written LFS pointer and a clean PNG pass; `tests/fixtures/exif-gps.jpg` is
-refused naming `GPS`; a JPEG with only a capture date and a WebP with only a software tag are
-refused naming `EXIF`; a PNG with only its resolution and a clean WebP pass; a TIFF is refused;
-the optional fields are checked for shape and against a build record; and one changed byte
-is refused. [Testing](testing.md) says why this is the checker's test rather than a pytest
+a blob, a hand-written LFS pointer and a clean PNG pass; the pointer's path is refused once
+the index holds the file itself and passes again once it holds the pointer; `source` in each
+of its three forms passes and `unknown` is refused; `tests/fixtures/exif-gps.jpg` is refused
+naming `GPS`; a JPEG with only a capture date and a WebP with only a software tag are refused
+naming `EXIF`; a PNG with only its resolution and a clean WebP pass; a TIFF is refused; the
+optional fields are checked for shape and against a build record; and one changed byte is
+refused. [Testing](testing.md) says why this is the checker's test rather than a pytest
 suite.
 
 ## What it does not prove
@@ -149,12 +154,14 @@ review. The guard is a person reading the diff of `assets/manifest.json` on ever
 every rebuild — a changed `sha256` on a file nobody meant to change is the finding — and the
 `source` field, which the tool never rewrites.
 
-**It does not see how a file was stored.** It compares `storage` with what `.gitattributes`
-says, not with what Git actually stored. A contributor on a machine without git-lfs who
-commits a changed `.blend` stores the real file as an ordinary blob; `.gitattributes` still
-names the path and the bytes still hash to the oid, so the check passes. git-lfs is installed
-once per machine and `git lfs install --local` runs in each clone;
-[Troubleshooting](../operations/troubleshooting.md) says how to spot the slip.
+**It sees how a file was stored only once it is in the index.** A contributor on a machine
+without git-lfs who saves a changed `.blend` has, until `git add`, a worktree file whose bytes
+hash to the oid the manifest will record, and nothing to read in the index; the refusal comes
+at the first `just check-assets` after the add, before the commit is pushed if the hook gate
+is installed and at the `assets` job otherwise. A blob that reached history before the
+checker read it stays there. git-lfs is installed once per machine and
+`git lfs install --local` runs in each clone;
+[Troubleshooting](../operations/troubleshooting.md) says how to spot and repair the slip.
 
 **It cannot tell a permitted image from a forbidden one.** A stripped photograph of the real
 dog passes. [Content policy](../explanation/content-policy.md) is enforced by review.
@@ -163,9 +170,8 @@ dog passes. [Content policy](../explanation/content-policy.md) is enforced by re
 
 - `just check-assets` — `check`, with the self-test first. Part of `just check` and the
   `assets` job in CI.
-- `just assets-manifest` — `write`, then the same tree comparison, without the self-test. The
-  one recipe that writes the manifest.
-  Read its diff before committing.
+- `just assets-manifest` — the self-test, then `write`, then the same tree comparison. The one
+  recipe that writes the manifest. Read its diff before committing.
 
 ## Related pages
 

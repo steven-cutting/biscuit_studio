@@ -65,9 +65,9 @@ import.
 
    `filter: lfs` means LFS; `filter: unspecified` means an ordinary blob. Git LFS itself
    must be installed on the machine, and `git lfs install --local` run in this clone —
-   `just initialize` does it. Without it a path LFS should hold is committed as an
-   ordinary blob, and the checker reports the disagreement only once it is already in the
-   index.
+   `just initialize` does it. Without it a path LFS should hold is added as an ordinary
+   blob, which the checker reports by reading the index: nothing is visible before
+   `git add`, and after it `just check-assets` refuses the path.
 4. **Watch the checker refuse it.**
 
    ```console

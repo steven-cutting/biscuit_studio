@@ -60,9 +60,9 @@ the GLB rather than inlining everything; see
 
 **Git LFS has to be set up before the first commit that touches the model.** git-lfs is
 installed once per machine and `git lfs install --local` runs in each clone;
-`just initialize` does the second. A contributor without it commits a real `.blend` as an
-ordinary blob, and the checker's comparison with `git check-attr` reports it only once it
-is already in the index.
+`just initialize` does the second. A contributor without it adds a real `.blend` as an
+ordinary blob, which nothing can see before `git add`; from then on the checker reads the
+index and refuses a path LFS should hold that is not a pointer.
 
 **A served path moved into LFS silently breaks the site.** The patterns name sources by
 path, so a rename that put a served file under one would deploy pointer text, and no build

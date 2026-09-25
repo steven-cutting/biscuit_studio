@@ -77,8 +77,8 @@ with it, so there is no stored credential anywhere to leak or rotate.
 The manifest is only as honest as its review. `just assets-manifest` recomputes every hash
 from the worktree, so a tampered file and a rewritten manifest pass together. The guard is
 a person reading the manifest's diff on every import and rebuild, and the `source` field,
-which the tool never rewrites and never checks beyond its being there: whether it names a
-real commit and path is for the reviewer to see.
+which the tool never rewrites and checks only for form: whether the repository, commit and
+path it names are real is for the reviewer to see.
 
 ## What a copy does not defend
 

@@ -184,13 +184,16 @@ verifies an LFS file from its pointer.
 
 ## A `.blend` was committed as an ordinary blob
 
-Nothing in the gate notices. On a machine without git-lfs, Git stores a `.blend` the patterns
-name as a plain blob; `.gitattributes` still says `lfs`, the bytes still hash to the recorded
-digest, and `just check-assets` passes. Two things show it: `git lfs ls-files` does not list
-the path, and `git cat-file -s HEAD:<path>` prints the full size rather than a pointer's
-133 bytes. Before pushing, install git-lfs, run `git lfs install --local`, remove the file from
-the index with `git rm --cached <path>` and add it again so the filter stores it, and amend
-the commit. Once it is pushed, the blob is in history for good.
+On a machine without git-lfs, Git stores a `.blend` the patterns name as a plain blob;
+`.gitattributes` still says `lfs` and the bytes still hash to the recorded digest, so the
+only witness is the index, and that is what `just check-assets` reads: it refuses the path
+with `the index holds the file itself, not an LFS pointer` from the first run after the add,
+in the hook gate if it is installed and in the `assets` job otherwise. Two things show it
+by hand: `git lfs ls-files` does not list the path, and `git cat-file -s HEAD:<path>` prints
+the full size rather than a pointer's 133 bytes. Before pushing, install git-lfs, run
+`git lfs install --local`, remove the file from the index with `git rm --cached <path>` and
+add it again so the filter stores it, and amend the commit. Once it is pushed, the blob is
+in history for good.
 
 ## The deploy fails with `Failed to create deployment (status: 404)`
 
