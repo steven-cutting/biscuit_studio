@@ -73,8 +73,8 @@ Beyond the fields:
 
 Only `docs/**/*.md` is in scope. `assets/models/biscuit/README.md`, the model's own guide,
 sits outside `docs/` and so outside the contract: it carries no frontmatter, is not in the
-manifest, and is linted by markdownlint and the offline link checker only. It is an asset,
-listed in `assets/manifest.json`, and is not edited by hand.
+manifest, and is linted by markdownlint, `typos` and the offline link checker only. It is an
+asset, listed in `assets/manifest.json`, and is not edited by hand.
 
 ## Outside the contract
 
