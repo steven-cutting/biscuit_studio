@@ -73,6 +73,12 @@ brand rule permits it. None is decided here, and none is offered until the hub a
   approved model in one of its four poses is the kind of thing that trigger was waiting for,
   if the hub decides a render may stand in for an illustration.
 
+- *An address under the platform's domain.* The studio is served beneath the account's
+  user-site domain, at `stevencutting.com/biscuit_studio/`, because the platform's domain
+  sits on Poodl's repository and the hub deferred moving it. When that move happens, where
+  the studio sits under the new root is the hub's to say, and the studio's deployment page
+  and its address decision change to follow.
+
 ## What the studio owes the hub
 
 Nothing, until the brand rule changes. The studio holds nothing the hub has asked for, and

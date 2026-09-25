@@ -26,7 +26,7 @@ serves three files larger than anything a game serves.
 
 ## Decision
 
-The studio is a project Pages site at `steven-cutting.github.io/biscuit_studio/`.
+The studio is a project Pages site at `stevencutting.com/biscuit_studio/`.
 
 `.github/workflows/pages.yml` calls the tooling repository's `game-pages.yml` with
 `base_path` set to a slash and the repository name, read from the workflow event as
@@ -35,8 +35,12 @@ uploads `build/`. The file never carries the name. `svelte.config.js` reads `BAS
 into `paths.base`, and it is empty locally. `static/.nojekyll` rides along so that Pages
 serves `_app/`.
 
-There is no custom domain. Adding one later is a change to the repository settings and to
-`base_path` in the workflow, and to nothing else.
+There is no custom domain on this repository. The host is the account's: a project site is
+served beneath the user site's domain, which is `stevencutting.com`, so the first deploy
+landed there and `steven-cutting.github.io/biscuit_studio/` redirects to it. Adding a
+domain of this repository's own later is a change to the repository settings and to
+`base_path` in the workflow, and to nothing else. Moving the whole platform to `pnut.fans`
+is the hub's move, deferred by its decision 0012, and the studio follows it when it comes.
 
 ## Consequences
 

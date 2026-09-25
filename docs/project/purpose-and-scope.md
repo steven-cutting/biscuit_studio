@@ -31,7 +31,7 @@ see [Decision 0001](../decisions/0001-static-site-no-backend.md).
 - **Proves every file is what it claims to be.** `assets/manifest.json` records the size,
   the sha256, the storage and the source of every file under `assets/` and
   `static/pose-studio/`, and `just check-assets` refuses anything that disagrees with it.
-- **Shows them.** A static site on GitHub Pages at `steven-cutting.github.io/biscuit_studio/`
+- **Shows them.** A static site on GitHub Pages at `stevencutting.com/biscuit_studio/`
   presents the model and the gallery, wearing the platform's header, wordmark and
   stylesheet so it reads as the same product as every game. The model page links out to
   the pose studio, the viewer that lets a reader turn and pose her in the browser.
