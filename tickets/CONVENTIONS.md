@@ -79,9 +79,13 @@ Decisions, taken on 2026-09-23:
    toggle), and a render whose handbook pages were deleted breaks on its next
    `copier update` because `docs/manifest.yml` is re-rendered.
 6. **Address.** A public repository and a project Pages site at
-   `https://steven-cutting.github.io/biscuit_studio/`, built with
-   `BASE_PATH=/biscuit_studio`. The custom domain `pnut.fans` stays with Poodl (H decision
-   0012) and nothing here touches it.
+   `https://stevencutting.com/biscuit_studio/`, built with `BASE_PATH=/biscuit_studio`. A
+   project site is served beneath the account's user-site domain, which is
+   `stevencutting.com`, and `https://steven-cutting.github.io/biscuit_studio/` redirects
+   there; S07 measured it on the first deploy, and this decision was corrected on
+   2026-09-24 with the maintainer's authorisation (it had named the github.io address).
+   HTTPS is enforced. The custom domain `pnut.fans` stays with Poodl (H decision 0012) and
+   nothing here touches it; the platform-wide move to that domain is S12.
 7. **What CI checks.** The site (`frontend`), the handbook and the agent contract
    (`documents`), and a sha256 manifest over every asset (`assets`). The Blender pipeline
    is a documented local recipe and is never run in CI.

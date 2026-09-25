@@ -546,7 +546,18 @@ Not authorised because not needed: a `PUT /pages` (`409`), a `422` body with `so
   served address, the redirecting one, or both is the maintainer's; the app itself is
   unaffected, since `BASE_PATH` is the path and not the host. Also `https_enforced` read
   `false` on the new site: whether to enforce HTTPS is a repository setting no file
-  carries and no script applies.
+  carries and no script applies. **Decided on 2026-09-24, after hand-back:** the maintainer
+  first asked for `pnut.fans` to match Poodl, and on the facts (the domain sits on Poodl's
+  repository, one domain per repository, a project site nests only under the user site's
+  domain, H decision 0012 defers the move) chose to keep the address as served: the
+  handbook, decision 0004, `AGENTS.md`, CONVENTIONS.md decision 6, S08 and C04 now name
+  `stevencutting.com/biscuit_studio/`, the hub-handover page records what the move owes,
+  and S12 holds the platform-wide switch. HTTPS enforcement was authorised and applied:
+  `gh api -X PUT repos/steven-cutting/biscuit_studio/pages -F https_enforced=true`, and
+  the read-back is `workflow null https://stevencutting.com/biscuit_studio/ true approved`
+  (`build_type`, `cname`, `html_url`, `https_enforced`, certificate state). Those edits
+  are a second commit on this branch, outside S07's Files-touched table, made at the
+  maintainer's direction.
 - **Whether the first deploy races step 4.** It did not: the source was set before the
   push, and the deploy found it.
 - **`.has_lfs`** was not read; the push and the fresh clone were the test.

@@ -68,7 +68,7 @@ does not tag: it writes the changelog entry the tag will name and stops.
 ## Steps
 
 1. Read the S07 hand-back notes and copy out: the deployed address (expected
-   `https://steven-cutting.github.io/biscuit_studio/`), the three required contexts
+   `https://stevencutting.com/biscuit_studio/`), the three required contexts
    (`frontend`, `documents`, `assets`), whether `--hygiene` was applied, and whether
    private vulnerability reporting is on. These are the facts the README states; do not
    state one the notes do not carry.
@@ -212,5 +212,5 @@ Filled in by the agent that executes this ticket.
   the release notes describe assets that cannot leave the studio. Recommend: tag anyway;
   the changelog says what the studio holds, not what the hub accepts.
 - Whether `README.md` should carry the pose-studio address
-  (`https://steven-cutting.github.io/biscuit_studio/pose-studio/viewer.html`) beside the
+  (`https://stevencutting.com/biscuit_studio/pose-studio/viewer.html`) beside the
   site address, given the 26 MB download behind it. Recommend: name it, with the size.

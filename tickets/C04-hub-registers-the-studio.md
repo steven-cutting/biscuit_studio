@@ -105,7 +105,7 @@ A hub pull request, authorised before it is pushed, that:
    | Biscuit Games (this one) | The hub: the design system, the character's rules, every cross-cutting decision. | — |
    | Poodl | An unlimited-play, Wordle-style word game. | <https://pnut.fans/poodl/> |
    | Pawjong | A tile game. Intended, not yet built. | — |
-   | Biscuit Studio | Where Biscuit is made: the poseable model, the renders and the illustrations, and a site that shows them. It consumes this repository's package and nothing depends on it. | <https://steven-cutting.github.io/biscuit_studio/> |
+   | Biscuit Studio | Where Biscuit is made: the poseable model, the renders and the illustrations, and a site that shows them. It consumes this repository's package and nothing depends on it. | <https://stevencutting.com/biscuit_studio/> |
    | biscuit_games_template | The Copier template a new game is rendered from. | — |
    | biscuit_games_tooling | The reusable workflows, the toolchain action and the `biscuit-games-tooling` checkers every repository here runs. | — |
    ```

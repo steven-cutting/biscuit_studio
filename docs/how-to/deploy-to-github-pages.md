@@ -13,9 +13,13 @@ passed on a push to `main`. Its one job calls `game-pages.yml` in
 `steven-cutting/biscuit_games_tooling`, at a pinned release, which builds the static site
 and hands `build/` to the Pages deployment action; nothing is committed to a branch.
 
-The site is a project site, served at `steven-cutting.github.io/biscuit_studio/`: the
-repository `steven-cutting/biscuit_studio`, beneath `/biscuit_studio/` on its owner's
-Pages host.
+The site is a project site, served at `stevencutting.com/biscuit_studio/`: the repository
+`steven-cutting/biscuit_studio`, beneath `/biscuit_studio/` on its owner's Pages host. That
+host is `stevencutting.com` rather than `steven-cutting.github.io` because the account's
+user site carries that custom domain, and GitHub serves every project site of the account
+beneath the user site's domain; `steven-cutting.github.io/biscuit_studio/` answers with a
+redirect to it. HTTPS is enforced in the repository's Pages settings, which the bootstrap
+script does not apply.
 
 ## One-time setup
 

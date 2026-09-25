@@ -11,7 +11,7 @@ Biscuit Studio is the Biscuit Games repository where the platform's graphical
 assets are developed — the poseable 3D model of Biscuit, the renders and exports
 made from it, and the 2D illustrations — and a static site on GitHub Pages that
 shows them, built on the platform package `@steven-cutting/biscuit-games` and
-deployed at <https://steven-cutting.github.io/biscuit_studio/>. It consumes the
+deployed at <https://stevencutting.com/biscuit_studio/>. It consumes the
 hub exactly as a game does; nothing depends on it.
 
 This repository has no `docs/specs/` of its own. How its surfaces look, how they

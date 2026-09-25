@@ -29,6 +29,7 @@ authoritative; this table is a snapshot.
 | S08 | Maintainer docs: `README.md`, `CHANGELOG.md` 0.1.0, `AGENTS.md` provenance | `S08-maintainer-docs.md` | S07 | S11 | open |
 | S10 | Gallery thumbnails: WebP copies of the cel set, made by a recipe and listed in the manifest | `S10-gallery-thumbnails.md` | S08 | S11 | open |
 | S11 | The rebuild, run end to end: the success and interrupted paths of `scripts/rebuild_model.sh` | `S11-rebuild-success-path.md` | S09 | S07, S08, S10 | open |
+| S12 | Domain: the studio's address when the platform moves to `pnut.fans` | `S12-platform-domain.md` | S07, the hub's decision | S08, S10, S11 | open |
 
 Cross-repository and design tickets. Each is a recommendation written to be picked up on
 its own; C01 is the one that gates anything leaving the studio.
