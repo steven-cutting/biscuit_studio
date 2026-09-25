@@ -99,6 +99,10 @@ line on standard error, `<path>: <reason>`; after the last it prints
 | `patched must be a non-empty list of non-empty strings` | An empty list or an empty item. |
 | `source_sha256 must equal the sha256 in assets/models/biscuit/qa/viewer-package.json; run just assets-manifest` | The viewer's digest disagrees with its build record. |
 
+One finding names the build record rather than an asset:
+`assets/models/biscuit/qa/viewer-package.json: carries no readable sha256 for
+static/pose-studio/viewer.html`, when the record is present but holds no usable digest.
+
 A manifest that cannot be read at all is one finding against `assets/manifest.json` itself,
 naming the error — `schema_version must be 1`, a path listed twice, or the JSON parser's
 message.

@@ -520,7 +520,7 @@ green.
 ## Hand-back notes
 
 Filled in by the agent that executed this ticket, on branch `S06-handbook-b` in a Supacode
-worktree, 2026-09-24. Five commits on the branch, this one included; nothing pushed. As agreed
+worktree, 2026-09-24. Six commits on the branch, the fifth being these notes; nothing pushed. As agreed
 on S00, the work stays on the worktree's branch rather than `ticket/s06-handbook-b`; no check
 reads the branch name. Decided with the maintainer before writing: `just sync` and prek's hook
 clones authorised; no ticket ids on handbook pages (future work described in words, as S05
@@ -590,7 +590,7 @@ review before hand-back; and the §11 error below handed to S09 rather than corr
   `carries GPS EXIF` is `<path>: carries EXIF (GPSInfo); strip every metadata field before
   committing`; and the storage finding is `<path>: storage 'lfs' but .gitattributes says
   'blob'` (either way round). The script prints no `check-assets:` prefix, so the headings
-  read "`just check-assets` prints ...". `asset-manifest.md` quotes all sixteen reasons.
+  read "`just check-assets` prints ...". `asset-manifest.md` quotes all seventeen reasons (sixteen in its table, one against the viewer's build record).
 - **The storage-drift claim is false; handed to S09.** The ticket's entry "storage lfs but
   filter is unset (a file landed as a blob because `git lfs install` had not run)" describes
   something the checker cannot see, and CONVENTIONS.md §11 ("`check-assets`'s `git
