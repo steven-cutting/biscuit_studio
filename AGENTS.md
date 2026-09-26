@@ -176,20 +176,43 @@ confirmation at the time.
 
 ## Provenance
 
-Assembled by hand, not rendered from a template, from four repositories at the
-commits `tickets/CONVENTIONS.md` pins: the hub `steven-cutting/biscuit_games`
-at `575e3dd` (the toolchain configuration, the hook gate, the skills, the
-handbook shape), the Copier template `steven-cutting/biscuit_games_template`
-at `2283589` (the agent contract's shape, the app shell, the Pages workflow, the
-bootstrap script), the tooling repository `steven-cutting/biscuit_games_tooling`
-at `v0.3.0` (the validators, the composite action, the shared Pages workflow),
-and Poodl at `a2860fc`. The approved model and the cel illustrations came from
-the `biscuit_pics` worktree `very_nice_three_deeez` at `1d9d358`. What this
-repository decides for itself is recorded in
-[the decision records](docs/decisions/README.md).
+Assembled by hand, not rendered from the template, on 2026-09-23, by the
+tickets under `tickets/`, from five sources at the commits
+`tickets/CONVENTIONS.md` pins:
 
-Deliberate deviations from a game rendered by the template: no `docs/specs/`
-and no specification gates, because every rule here is the platform's; no
-component workshop; an `assets` gate and Git LFS, because this repository
-holds what a game only links to; `pillow` in the Python toolchain, for the
-checker's EXIF read.
+- the hub `steven-cutting/biscuit_games` at `575e3dd`: the toolchain
+  configuration, the hook gate, the skills, the handbook's shape;
+- Poodl `steven-cutting/poodl` at `a2860fc`;
+- the Copier template `steven-cutting/biscuit_games_template` at `2283589`: the
+  agent contract's shape, the app shell, the Pages workflow, the bootstrap
+  script;
+- the tooling package `steven-cutting/biscuit_games_tooling` at `v0.3.0`: the
+  validators, the composite action, the shared Pages workflow;
+- the `biscuit_pics` worktree `very_nice_three_deeez` at `1d9d358`: the approved
+  model and the cel illustrations.
+
+What this repository decides for itself is recorded in
+[the decision records](docs/decisions/README.md), `docs/decisions/`:
+
+- 0001 A static site with no backend
+- 0002 The hub is upstream
+- 0003 A Python toolchain in a frontend repository
+- 0004 A project Pages site
+- 0005 Assembled by hand, not rendered from the template
+- 0006 Sources in LFS, served files as blobs
+- 0007 Assets travel by copy and ledger
+- 0008 The viewer is embedded as-is
+- 0009 No component workshop yet
+
+Deliberate deviations from a game rendered by the template, each with its
+decision:
+
+- No `docs/specs/` and no specification gates, because every rule here is the
+  platform's: `check-specs` and `analyse-specs` are absent (0002).
+- No component workshop: Storybook and Chromatic are not installed (0009).
+- An `assets` gate over `assets/manifest.json`, because this repository holds
+  what a game only links to (0007), and `pillow` in the Python toolchain for the
+  checker's EXIF read.
+- The model's native sources in Git LFS, and everything served as a blob (0006).
+- Assembled by hand rather than linked to the template by Copier (0005).
+- The pose studio's viewer served as-is under `static/pose-studio/` (0008).
