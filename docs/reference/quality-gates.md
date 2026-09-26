@@ -43,7 +43,7 @@ static/pose-studio/
 ```
 
 They hold Blender's own build scripts, generated textures and renders, the drawings, and a
-26 MB page of inlined base64. None was written to this repository's rules, none is edited by
+29 MB page of inlined base64. None was written to this repository's rules, none is edited by
 hand, and the size and spelling hooks would refuse them for reasons that say nothing about
 their quality. What guards them instead is `check-assets`. The set is written once in each
 tool's own form, in six places: the `exclude` of both pre-commit files, `.prettierignore`,
@@ -83,7 +83,7 @@ it until it is staged.
 Third-party hooks are pinned to commit SHAs with a version comment beside each.
 
 `check-added-large-files` runs with `--maxkb=768`, and that limit is why the exclusion set
-has to exist rather than being a convenience: the GLB is 16 MB, the viewer 26 MB, and the
+has to exist rather than being a convenience: the GLB is 16 MB, the viewer 29 MB, and the
 largest texture over 2 MB. The limit still stands everywhere else, so a large file added
 outside the asset roots — a screenshot in `docs/`, a build output committed by mistake — is
 refused. An asset belongs under `assets/`, where the manifest lists it, not under a raised

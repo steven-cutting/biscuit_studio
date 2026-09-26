@@ -6,7 +6,7 @@
 
   /*
    * The model, and the three ways to have it. The viewer is a whole page of its
-   * own rather than a frame here: it is 26 MB with its textures inlined, and it
+   * own rather than a frame here: it is 29 MB with its textures inlined, and it
    * carries its own light palette, which would sit inside the platform's dark
    * ground as a second break. The .blend is not served — it is an LFS object,
    * and Pages would serve its pointer as text — so that link goes to GitHub.
@@ -43,14 +43,15 @@
     <img
       src={asset('/pose-studio/previews/pose-overview.jpg')}
       alt="Biscuit in the four preset poses, each in the cream sweater: standing, sitting, lying down and with a paw raised."
-      width="1920"
-      height="2070"
+      width="1800"
+      height="1510"
     />
 
     <p>
       The approved model: the Soft Charm face, the Full Soft ears, the Longer Drape tail and the
-      fitted cream sweater, on a rig of thirty-three deform bones with four preset poses. It is a
-      rig for still posing. There is no facial rig, no cloth simulation and no animation.
+      fitted cream sweater, with refined hind legs and soft charcoal toe beans on all four paws, on
+      a rig of thirty-three deform bones with four preset poses. It is a rig for still posing. There
+      is no facial rig, no cloth simulation and no animation.
     </p>
 
     <ul role="list">

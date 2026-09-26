@@ -7,16 +7,17 @@ import sys
 import bpy
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = ROOT.parents[1]
+REPO_ROOT = next(p for p in ROOT.parents if (p/'biscuit_pics/generated/3d/miami-cinematic-eyes-refined').is_dir())
 BASE = REPO_ROOT / 'biscuit_pics/generated/3d/miami-cinematic-eyes-refined'
-SOURCE = BASE / 'model/biscuit-eyes-refined.blend'
+BASELINE = REPO_ROOT / 'biscuit_pics/generated/3d/miami-cinematic-hindquarters-refined'
+SOURCE = BASELINE / 'model/biscuit-poseable.blend'
 spec = importlib.util.spec_from_file_location('approved_eyes', BASE / 'src/common.py')
 approved_eyes = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(approved_eyes)
 legacy = approved_eyes.approved
 legacy.c.ROOT = ROOT
 MODEL_ID = 'biscuit-miami-soft-charm-poseable'
-RIG_VERSION = 1
+RIG_VERSION = 2
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()

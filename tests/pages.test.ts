@@ -42,6 +42,12 @@ describe('the model page', () => {
 
     expect(screen.getByRole('img').getAttribute('alt')).toMatch(/four preset poses/);
   });
+
+  it('names the toe beans the current model carries', () => {
+    render(Model);
+
+    expect(screen.getByText(/charcoal toe beans on all four paws/)).toBeInTheDocument();
+  });
 });
 
 describe('the gallery page', () => {

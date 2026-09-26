@@ -5,7 +5,7 @@ from pathlib import Path
 import bpy
 from mathutils import Matrix, Vector, Quaternion
 MODEL_ID = "biscuit-miami-soft-charm-poseable"
-RIG_VERSION = 1
+RIG_VERSION = 2
 ARMATURE = "Biscuit.Rig"
 
 IDENTITY = dict(location=[0,0,0],rotation=[1,0,0,0],scale=[1,1,1])

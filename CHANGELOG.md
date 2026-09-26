@@ -8,6 +8,16 @@ the entry below was written before the tag existed and says what the tag will na
 
 ## [Unreleased]
 
+### Changed
+
+- The approved model re-imported from `biscuit_pics` at `891c44c`: refined hind legs on
+  rig version 2, and twenty sculpted charcoal toe beans. The pose studio, GLB, overview
+  and native sources are replaced; rig-version-1 saved poses no longer open. The toe bean
+  comparison renders are not imported, and the viewer's link to them is removed. The
+  model page names the toe beans, and `just model-rebuild` follows the new build: the
+  hindquarters study as its input, `src/verify_anatomy.py` as a sixth command, and the
+  comparison renders deleted after the run.
+
 ## [0.1.0] - 2026-09-25
 
 ### Added

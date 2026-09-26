@@ -1,4 +1,4 @@
-"""Rebuild the poseable derivative without modifying the approved source."""
+"""Build the approved toe-bean model from the immutable rig-2 source."""
 import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -10,6 +10,7 @@ from mathutils import Vector, Matrix
 from common import *
 import rig as rigging
 import pose_io
+import toe_beans
 
 def binary(values,fmt='f'):
     return base64.b64encode(struct.pack('<'+str(len(values))+fmt,*values)).decode()
@@ -46,18 +47,6 @@ def packed_geometry(all_parts,spec):
         packed.append(dict(name=ob.name,group=ob['part_group'],owner='garment' if ob.name.startswith('Sweater.') else 'shared',outline=bool(ob.get('outline',False)),batches=batches,edges=binary(edges),edge_count=len(edge_vis),edgeJoints=binary([i for vi in edge_vis for i,w in weights[vi]],'H'),edgeWeights=binary([w for vi in edge_vis for i,w in weights[vi]]),edgeMorphs={k:binary([c for vi in edge_vis for c in morphs[k][vi]]) for k in morphs}))
     return packed
 
-def presets(spec):
-    # All values are relative to the final approved standing model.
-    recipes={'standing':('Standing',{}),'sitting':('Sitting',dict(height=-.88,body_pitch=-38,back_bend=12,neck=26)),
-      'lying':('Lying down',dict(height=-.87,body_pitch=0,back_bend=0,neck=0)),
-      'paw-raised':('Paw raised',dict(front_upper_L=35,front_lower_L=-100,front_paw_L=65,head_tilt=-6))}
-    for side in ('L','R'):
-        recipes['sitting'][1].update({f'hind_thigh_{side}':-1.4,f'hind_shin_{side}':61.5,f'hind_hock_{side}':-100.8,f'hind_paw_{side}':78.7,f'hind_spread_{side}':9,
-            f'front_upper_{side}':43.3,f'front_lower_{side}':-25.6,f'front_paw_{side}':8.3})
-        recipes['lying'][1].update({f'front_upper_{side}':10,f'front_lower_{side}':-99,f'front_paw_{side}':89,
-            f'hind_thigh_{side}':-24.7,f'hind_shin_{side}':60.9,f'hind_hock_{side}':-112.5,f'hind_paw_{side}':76.3,f'hind_spread_{side}':12})
-    return {k:pose_io.from_controls(spec,values,name) for k,(name,values) in recipes.items()}
-
 def export_glb(all_parts,rig,path):
     saved={};portable={}
     for ob in all_parts:
@@ -81,20 +70,25 @@ def export_glb(all_parts,rig,path):
 def main():
     digest=sha(SOURCE);bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
     for directory in ('model','textures','qa/geometry','poses','previews'):(ROOT/directory).mkdir(parents=True,exist_ok=True)
-    for file in (BASE/'textures').glob('*.png'):shutil.copy2(file,ROOT/'textures'/file.name)
-    spec=rigging.make_spec();all_parts=parts()
-    original={ob.name:dict(vertices=len(ob.data.vertices),matrix=flat(ob.matrix_world)) for ob in all_parts}
-    rigging.prepare_meshes(all_parts)
-    rig=rigging.create_armature(spec);rigging.bind(all_parts,rig,spec);rigging.garment_correctives(spec);rigging.native_controls(rig,spec)
-    bpy.context.scene['look']='Catherine / Persona-inspired Biscuit; poseable Soft Charm derivative'
+    for file in (BASELINE/'textures').glob('*.png'):shutil.copy2(file,ROOT/'textures'/file.name)
+    original={ob.name:dict(vertices=len(ob.data.vertices),matrix=flat(ob.matrix_world)) for ob in parts()}
+    spec=json.loads((BASELINE/'model/rig.json').read_text())
+    spec['rigVersion']=RIG_VERSION
+    rig=bpy.data.objects['Biscuit.Rig']
+    pose_io.apply(spec,pose_io.load(spec,BASELINE/'poses/standing.json'))
+    toe_beans.add(rig,spec)
+    all_parts=parts()
+    bpy.context.scene['look']='Biscuit — approved toe beans, rig version 2'
+    bpy.context.preferences.filepaths.save_version=0
     rig['correctives']='Sweater morph weights follow rig.json corrective rules; pose JSON contains evaluated values.'
-    pose_set=presets(spec);pose_io.apply(spec,pose_set['standing'])
-    write_json(ROOT/'model/rig.json',spec)
-    for key,doc in pose_set.items():write_json(ROOT/'poses'/f'{key}.json',doc)
+    pose_set={p.stem:json.loads(p.read_text()) for p in sorted((BASELINE/'poses').glob('*.json'))}
+    pose_io.apply(spec,pose_set['standing'])
+    shutil.copy2(BASELINE/'model/rig.json',ROOT/'model/rig.json')
+    for key in pose_set:shutil.copy2(BASELINE/'poses'/f'{key}.json',ROOT/'poses'/f'{key}.json')
     packed=packed_geometry(all_parts,spec)
     stats=lambda owner:dict(parts=sum(p['owner']==owner for p in packed),triangles=sum(b['count']//3 for p in packed if p['owner']==owner for b in p['batches']))
     write_json(ROOT/'qa/geometry/rigged.json',dict(parts=packed,rig=spec,presets=pose_set,character=stats('shared'),garment=stats('garment')))
-    write_json(ROOT/'qa/source-state.json',dict(source=str(SOURCE.relative_to(REPO_ROOT)),sha256=digest,original=original))
+    write_json(ROOT/'qa/source-state.json',dict(source=str(SOURCE.relative_to(REPO_ROOT)),sha256=digest,original=original,reviewStatus='approved',rigVersion=2))
     # Internal text copies make the native posing panel available without installation.
     for name in ('common.py','rig.py','pose_io.py','blender_pose_tools.py'):
         path=ROOT/'src'/name
@@ -102,7 +96,7 @@ def main():
             text=bpy.data.texts.get(name) or bpy.data.texts.new(name);text.clear();text.write(path.read_text())
     text=bpy.data.texts.get('rig.json') or bpy.data.texts.new('rig.json');text.clear();text.write(json.dumps(spec))
     for key,doc in pose_set.items():
-        text=bpy.data.texts.new('pose.'+key+'.json');text.write(json.dumps(doc))
+        name='pose.'+key+'.json';text=bpy.data.texts.get(name) or bpy.data.texts.new(name);text.clear();text.write(json.dumps(doc))
     for image in bpy.data.images:
         if image.packed_file:image.filepath='//../textures/'+Path(image.filepath).name
     bpy.ops.object.select_all(action='DESELECT');rig.select_set(True);bpy.context.view_layer.objects.active=rig

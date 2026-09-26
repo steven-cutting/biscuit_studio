@@ -3,7 +3,7 @@ from pathlib import Path
 import base64, hashlib, io, json
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-REPO_ROOT=ROOT.parents[1]
+REPO_ROOT=next(p for p in ROOT.parents if (p/'biscuit_pics/generated/3d/miami-cinematic-eyes-refined').is_dir())
 FRAME_SOURCE=REPO_ROOT/'biscuit_pics/generated/3d/miami-cinematic-sweater-foreleg-refined/qa/viewer-package.json'
 def main():
     payload=json.loads((ROOT/'qa/geometry/rigged.json').read_text())

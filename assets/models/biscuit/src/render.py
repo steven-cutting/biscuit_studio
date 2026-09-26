@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 import pose_io
 
 
-def main():
+def pose_renders():
     path = ROOT / 'model/biscuit-poseable.blend'
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     bpy.ops.wm.open_mainfile(filepath=str(path))
@@ -56,5 +56,61 @@ def main():
     print('Four native pose renders complete; saved scene unchanged.', flush=True)
 
 
+def review_renders():
+    from common import SOURCE
+    candidate = ROOT/'model/biscuit-poseable.blend'
+    hashes = {p:hashlib.sha256(p.read_bytes()).hexdigest() for p in (SOURCE,candidate)}
+    output = ROOT/'previews/comparison'
+    output.mkdir(parents=True,exist_ok=True)
+    spec = json.loads((ROOT/'model/rig.json').read_text())
+    review = pose_io.from_controls(spec,dict(front_upper_L=35,front_lower_L=-100,
+                                            front_paw_L=-25,head_tilt=-6),'Toe bean review')
+    review['viewer'].update(yaw=.25,pitch=.12,zoom=3.4)
+    (ROOT/'qa/toe-bean-review-pose.json').write_text(json.dumps(review,indent=2)+'\n')
+    for version,path in (('before',SOURCE),('after',candidate)):
+        bpy.ops.wm.open_mainfile(filepath=str(path))
+        scene = bpy.context.scene
+        camera = bpy.data.objects.new('PadReview.Camera',bpy.data.cameras.new('PadReview.Camera'))
+        scene.collection.objects.link(camera)
+        scene.camera = camera
+        camera.data.type = 'ORTHO'
+        scene.render.resolution_x = scene.render.resolution_y = 1000
+        scene.render.resolution_percentage = 100
+        scene.render.image_settings.file_format = 'PNG'
+        scene.render.image_settings.color_mode = 'RGBA'
+        scene.view_layers[0].material_override = None
+        # A broad underside fill makes the matte relief legible in the study.
+        # It is identical for the two versions and is never saved to the model.
+        fill = bpy.data.objects.new('PadReview.Fill',bpy.data.lights.new('PadReview.Fill','AREA'))
+        scene.collection.objects.link(fill)
+        fill.location = (-1,-2,-3)
+        fill.rotation_euler = (Vector((0,0,.3))-fill.location).to_track_quat('-Z','Y').to_euler()
+        fill.data.energy = 160
+        fill.data.shape = 'DISK'
+        fill.data.size = 3
+        visible = {ob.name:ob.hide_render for ob in scene.objects}
+        views = [
+            ('front-sole','Front',Vector((.275,-.725,.05)),Vector((.13,-.20,-1)),.43),
+            ('hind-sole','Hind',Vector((.30,1.142,.05)),Vector((.13,-.20,-1)),.43),
+            ('all-soles',None,Vector((0,.20,1.0)),Vector((.08,-.05,-1)),2.60),
+            ('paw-presented',None,Vector((0,.05,1.4)),Vector((.25,-1,.13)),3.70),
+        ]
+        for key,limb,target,direction,scale in views:
+            pose_io.apply(spec,review if key=='paw-presented' else pose_io.load(spec,ROOT/'poses/standing.json'))
+            for ob in scene.objects:
+                ob.hide_render = visible.get(ob.name,False)
+                if limb and ob.type=='MESH' and (ob.get('base_part') or ob.name.endswith('.Contour')):
+                    ob.hide_render = f'.{limb}.L' not in ob.name
+            camera.location = target + direction.normalized()*8
+            camera.rotation_euler = (target-camera.location).to_track_quat('-Z','Y').to_euler()
+            camera.data.ortho_scale = scale
+            scene.render.filepath = str(output/f'{version}-{key}.png')
+            bpy.ops.render.render(write_still=True)
+    assert all(hashlib.sha256(p.read_bytes()).hexdigest()==digest for p,digest in hashes.items())
+    print('Eight matched toe-bean comparison renders complete.',flush=True)
+
+
 if __name__ == '__main__':
-    main()
+    if '--review-only' not in sys.argv:
+        pose_renders()
+    review_renders()

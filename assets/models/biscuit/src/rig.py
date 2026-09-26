@@ -124,10 +124,10 @@ def weights_for(name,p,lookup):
     if name.startswith(('Eye','Head.','Topknot.','Nose.','Mouth.')):return {'head':1}
     if name=='Neck':
         return mix({'chest':1},mix({'neck':1},{'head':1},smooth(1.89,2.16,z)),smooth(1.35,1.66,z))
-    if name.startswith(('Foreleg','Hindleg','Paw.','Claw.','Cuff.','Joint.')):
+    if name.startswith(('Foreleg','Hindleg','Paw.','PawPad.','Claw.','Cuff.','Joint.')):
         side='L' if 'L' in name.split('.') else 'R'
         front=name.startswith('Foreleg') or '.Front.' in name
-        if name.startswith(('Paw.','Claw.')): return {('front' if front else 'hind')+'.paw.'+side:1}
+        if name.startswith(('Paw.','PawPad.','Claw.')): return {('front' if front else 'hind')+'.paw.'+side:1}
         names=[f'front.{s}.{side}' for s in ('upper','lower','paw')] if front else [f'hind.{s}.{side}' for s in ('thigh','shin','hock','paw')]
         if name.startswith('Cuff.'):
             # The ankle fur belongs to the lower leg, above the wrist. Blending it
