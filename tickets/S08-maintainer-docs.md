@@ -1,7 +1,7 @@
 ---
 id: S08
 title: "Maintainer docs: README.md, CHANGELOG.md 0.1.0, AGENTS.md provenance"
-status: open
+status: done
 depends_on: [S07]
 parallel_with: [S11]
 branch: ticket/s08-maintainer-docs
@@ -197,14 +197,70 @@ Expected: the first two exit 0; six counts, each at least 1; three files in the 
 
 ## Hand-back notes
 
-Filled in by the agent that executes this ticket.
+Executed on 2026-09-25 on the Supacode worktree branch `S08-maintainer-docs`, not the
+`ticket/s08-maintainer-docs` the `branch:` field names, as every ticket since S00 has been
+(nothing in the checks reads the branch name). The worktree was fresh, so `just sync` ran
+first.
 
-- The three files' final line counts, and the date written into the `0.1.0` entry.
-- The verification output, quoted.
-- Any fact the README wanted and no page or hand-back note supplied, handed to a
-  follow-up ticket for the page's owner (CONVENTIONS.md §9); S05's and S06's files are
-  not edited here.
-- A reminder that `v0.1.0` is untagged and that tagging is the maintainer's call.
+**Line counts and date.** `README.md` 115 lines, `CHANGELOG.md` 36, `AGENTS.md` 218. The
+`0.1.0` entry is dated `2026-09-25`, the UTC date of S07's successful deploy run
+`36097753484` (S07 ran on 2026-09-24 local time); the maintainer chose the UTC date.
+
+**Decisions taken with the maintainer before writing.**
+
+- The handbook is described as thirty-nine pages, not the forty step 3 names:
+  `docs/manifest.yml` registers thirty-nine (`bg-validate-docs` prints `Validated 39
+  pages`), as CONVENTIONS.md §6 says.
+- Open point 2: the README names the pose studio as `pose-studio/viewer.html` under the
+  site, with its size (27.6 MB, the manifest's 27,561,668 bytes), as a path rather than a
+  second URL, so the site address stays the one bare URL.
+- Open point 1 is not this ticket's to settle: whether `v0.1.0` waits for C01 is decided
+  when the tag is authorised.
+
+**Facts checked against the source rather than the ticket.** The model page links to the
+pose studio rather than embedding it, so the README says "offers it three ways". The
+appearance wiring writes `data-animations` and `data-high-contrast` only (the studio's
+theme is fixed), so the changelog says "motion and contrast preferences". Every repository
+setting the README's last section states is in S07's hand-back notes: the three contexts
+in one round, the Pages source, vulnerability reporting `true`, `--hygiene` applied, and
+HTTPS enforced by a separate call.
+
+**Verification**, run with the three files staged:
+
+```text
+$ just check-docs
+markdownlint.............................................................Passed
+typos....................................................................Passed
+lychee...................................................................Passed
+Validated 39 pages and 40 canonical topics.
+$ just check-agents
+Validated AGENTS.md, 2 adapters, and 8 skills.
+$ for p in ...; do ...; done
+untrusted: 1
+just check: 5
+explicit authorization: 1
+ai_tmp/: 1
+docs/specs/: 2
+runes: 1
+$ git diff main --stat -- AGENTS.md README.md CHANGELOG.md
+ AGENTS.md    |  57 +++++++++++++++++++++---------
+ CHANGELOG.md |  32 +++++++++++++----
+ README.md    | 114 +++++++++++++++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 170 insertions(+), 33 deletions(-)
+$ git tag --list
+$ just check
+All checks passed and the worktree is unchanged.
+```
+
+`git diff main -- AGENTS.md` has one hunk, `@@ -176,20 +176,43 @@`, whose only changed
+lines sit below `## Provenance` (line 177). The site address appears once in angle
+brackets in `README.md` and is its only `https://` string.
+
+**Handed on:** nothing. Every fact the README states was found on a handbook page, in a
+workflow or script, or in S07's notes.
+
+**Not done, by design.** `v0.1.0` is untagged: tagging is the maintainer's call and a
+separately authorised action. Nothing was pushed and no pull request was opened.
 
 ## Open points
 
