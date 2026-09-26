@@ -1,0 +1,520 @@
+{
+  "pads": {
+    "PawPad.Front.L.Central": {
+      "bone": "front.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.2090422511100769,
+          -0.7522440552711487,
+          0.0
+        ],
+        [
+          0.3409577012062073,
+          -0.6341784596443176,
+          0.03999999910593033
+        ]
+      ]
+    },
+    "PawPad.Front.L.Toe.1": {
+      "bone": "front.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.18530116975307465,
+          -0.7952069640159607,
+          0.0
+        ],
+        [
+          0.22805874049663544,
+          -0.7387930750846863,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.L.Toe.2": {
+      "bone": "front.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.2278868705034256,
+          -0.8403496742248535,
+          0.0
+        ],
+        [
+          0.2705930471420288,
+          -0.7804504632949829,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.L.Toe.3": {
+      "bone": "front.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.279406875371933,
+          -0.8403496742248535,
+          0.0
+        ],
+        [
+          0.3221130669116974,
+          -0.7804504632949829,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.L.Toe.4": {
+      "bone": "front.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.32194119691848755,
+          -0.7952069640159607,
+          0.0
+        ],
+        [
+          0.36469876766204834,
+          -0.7387930750846863,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.R.Central": {
+      "bone": "front.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.34095773100852966,
+          -0.7522440552711487,
+          0.0
+        ],
+        [
+          -0.2090422809123993,
+          -0.6341784596443176,
+          0.03999999910593033
+        ]
+      ]
+    },
+    "PawPad.Front.R.Toe.1": {
+      "bone": "front.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.22805877029895782,
+          -0.7952069640159607,
+          0.0
+        ],
+        [
+          -0.18530122935771942,
+          -0.7387930750846863,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.R.Toe.2": {
+      "bone": "front.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.2705930769443512,
+          -0.8403496742248535,
+          0.0
+        ],
+        [
+          -0.22788691520690918,
+          -0.7804504632949829,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.R.Toe.3": {
+      "bone": "front.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.3221130967140198,
+          -0.8403496742248535,
+          0.0
+        ],
+        [
+          -0.27940690517425537,
+          -0.7804504632949829,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Front.R.Toe.4": {
+      "bone": "front.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.3646987974643707,
+          -0.7952069640159607,
+          0.0
+        ],
+        [
+          -0.32194122672080994,
+          -0.7387930750846863,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.L.Central": {
+      "bone": "hind.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.24483361840248108,
+          1.1145145893096924,
+          0.0
+        ],
+        [
+          0.3551664650440216,
+          1.233182430267334,
+          0.03999999910593033
+        ]
+      ]
+    },
+    "PawPad.Hind.L.Toe.1": {
+      "bone": "hind.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.22448256611824036,
+          1.071514368057251,
+          0.0
+        ],
+        [
+          0.26123306155204773,
+          1.127852201461792,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.L.Toe.2": {
+      "bone": "hind.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.2604961693286896,
+          1.0259596109390259,
+          0.0
+        ],
+        [
+          0.29641303420066833,
+          1.0861643552780151,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.L.Toe.3": {
+      "bone": "hind.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.30358704924583435,
+          1.0259596109390259,
+          0.0
+        ],
+        [
+          0.3395039141178131,
+          1.0861643552780151,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.L.Toe.4": {
+      "bone": "hind.paw.L",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          0.33876702189445496,
+          1.071514368057251,
+          0.0
+        ],
+        [
+          0.37551751732826233,
+          1.127852201461792,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.R.Central": {
+      "bone": "hind.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.35516640543937683,
+          1.1145145893096924,
+          0.0
+        ],
+        [
+          -0.24483360350131989,
+          1.233182430267334,
+          0.03999999910593033
+        ]
+      ]
+    },
+    "PawPad.Hind.R.Toe.1": {
+      "bone": "hind.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.26123306155204773,
+          1.071514368057251,
+          0.0
+        ],
+        [
+          -0.22448256611824036,
+          1.127852201461792,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.R.Toe.2": {
+      "bone": "hind.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.29641303420066833,
+          1.0259596109390259,
+          0.0
+        ],
+        [
+          -0.2604961693286896,
+          1.0861643552780151,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.R.Toe.3": {
+      "bone": "hind.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.33950385451316833,
+          1.0259596109390259,
+          0.0
+        ],
+        [
+          -0.3035869896411896,
+          1.0861643552780151,
+          0.03400000184774399
+        ]
+      ]
+    },
+    "PawPad.Hind.R.Toe.4": {
+      "bone": "hind.paw.R",
+      "weight": 1,
+      "closed": true,
+      "vertices": 482,
+      "bounds": [
+        [
+          -0.37551745772361755,
+          1.071514368057251,
+          0.0
+        ],
+        [
+          -0.3387669622898102,
+          1.127852201461792,
+          0.03400000184774399
+        ]
+      ]
+    }
+  },
+  "paws": {
+    "Paw.Front.L": {
+      "originalVerticesExact": 40,
+      "exteriorFacesExact": 38
+    },
+    "Paw.Front.R": {
+      "originalVerticesExact": 40,
+      "exteriorFacesExact": 38
+    },
+    "Paw.Hind.L": {
+      "originalVerticesExact": 40,
+      "exteriorFacesExact": 38
+    },
+    "Paw.Hind.R": {
+      "originalVerticesExact": 40,
+      "exteriorFacesExact": 38
+    }
+  },
+  "ground": {
+    "standing": {
+      "Paw.Front.L": 0.0,
+      "Paw.Front.R": 0.0,
+      "Paw.Hind.L": -2.9802317058624794e-08,
+      "Paw.Hind.R": 2.9802322387695312e-08,
+      "PawPad.Front.L.Central": 0.0,
+      "PawPad.Front.L.Toe.1": 0.0,
+      "PawPad.Front.L.Toe.2": 0.0,
+      "PawPad.Front.L.Toe.3": 0.0,
+      "PawPad.Front.L.Toe.4": 0.0,
+      "PawPad.Front.R.Central": 0.0,
+      "PawPad.Front.R.Toe.1": 0.0,
+      "PawPad.Front.R.Toe.2": 0.0,
+      "PawPad.Front.R.Toe.3": 0.0,
+      "PawPad.Front.R.Toe.4": 0.0,
+      "PawPad.Hind.L.Central": -2.9802313505911115e-08,
+      "PawPad.Hind.L.Toe.1": -2.9802315282267955e-08,
+      "PawPad.Hind.L.Toe.2": -2.9802315282267955e-08,
+      "PawPad.Hind.L.Toe.3": -2.9802313505911115e-08,
+      "PawPad.Hind.L.Toe.4": -2.9802311729554276e-08,
+      "PawPad.Hind.R.Central": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.1": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.2": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.3": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.4": 2.9802322387695312e-08
+    },
+    "sitting": {
+      "Paw.Front.L": -0.05147550255060196,
+      "Paw.Front.R": -0.05147562175989151,
+      "Paw.Hind.L": 0.00016644224524497986,
+      "Paw.Hind.R": 0.0001666620373725891,
+      "PawPad.Front.L.Central": -0.05147549510002136,
+      "PawPad.Front.L.Toe.1": -0.051475487649440765,
+      "PawPad.Front.L.Toe.2": -0.05147548392415047,
+      "PawPad.Front.L.Toe.3": -0.05147548392415047,
+      "PawPad.Front.L.Toe.4": -0.051475487649440765,
+      "PawPad.Front.R.Central": -0.05147561430931091,
+      "PawPad.Front.R.Toe.1": -0.051475606858730316,
+      "PawPad.Front.R.Toe.2": -0.05147560313344002,
+      "PawPad.Front.R.Toe.3": -0.05147560313344002,
+      "PawPad.Front.R.Toe.4": -0.051475606858730316,
+      "PawPad.Hind.L.Central": 0.011431131511926651,
+      "PawPad.Hind.L.Toe.1": 0.006295403465628624,
+      "PawPad.Hind.L.Toe.2": 0.012293161824345589,
+      "PawPad.Hind.L.Toe.3": 0.018492473289370537,
+      "PawPad.Hind.L.Toe.4": 0.022749409079551697,
+      "PawPad.Hind.R.Central": 0.01143135130405426,
+      "PawPad.Hind.R.Toe.1": 0.006295610219240189,
+      "PawPad.Hind.R.Toe.2": 0.012293361127376556,
+      "PawPad.Hind.R.Toe.3": 0.018492668867111206,
+      "PawPad.Hind.R.Toe.4": 0.022749613970518112
+    },
+    "lying": {
+      "Paw.Front.L": 0.0035475073382258415,
+      "Paw.Front.R": 0.0035475073382258415,
+      "Paw.Hind.L": 0.0003186911344528198,
+      "Paw.Hind.R": 0.00031878799200057983,
+      "PawPad.Front.L.Central": 0.0035475282929837704,
+      "PawPad.Front.L.Toe.1": 0.003547545289620757,
+      "PawPad.Front.L.Toe.2": 0.0035475543700158596,
+      "PawPad.Front.L.Toe.3": 0.0035475543700158596,
+      "PawPad.Front.L.Toe.4": 0.003547545289620757,
+      "PawPad.Front.R.Central": 0.0035475282929837704,
+      "PawPad.Front.R.Toe.1": 0.003547545289620757,
+      "PawPad.Front.R.Toe.2": 0.0035475543700158596,
+      "PawPad.Front.R.Toe.3": 0.0035475543700158596,
+      "PawPad.Front.R.Toe.4": 0.003547545289620757,
+      "PawPad.Hind.L.Central": 0.015012715011835098,
+      "PawPad.Hind.L.Toe.1": 0.012994036078453064,
+      "PawPad.Hind.L.Toe.2": 0.023594407364726067,
+      "PawPad.Hind.L.Toe.3": 0.0324096605181694,
+      "PawPad.Hind.L.Toe.4": 0.036394231021404266,
+      "PawPad.Hind.R.Central": 0.015012804418802261,
+      "PawPad.Hind.R.Toe.1": 0.01299411803483963,
+      "PawPad.Hind.R.Toe.2": 0.023594481870532036,
+      "PawPad.Hind.R.Toe.3": 0.03240972012281418,
+      "PawPad.Hind.R.Toe.4": 0.03639429807662964
+    },
+    "paw-raised": {
+      "Paw.Front.L": 0.6060608625411987,
+      "Paw.Front.R": 0.0,
+      "Paw.Hind.L": -2.9802317058624794e-08,
+      "Paw.Hind.R": 2.9802322387695312e-08,
+      "PawPad.Front.L.Central": 0.6060608625411987,
+      "PawPad.Front.L.Toe.1": 0.6060608625411987,
+      "PawPad.Front.L.Toe.2": 0.6060608625411987,
+      "PawPad.Front.L.Toe.3": 0.6060608625411987,
+      "PawPad.Front.L.Toe.4": 0.6060608625411987,
+      "PawPad.Front.R.Central": 0.0,
+      "PawPad.Front.R.Toe.1": 0.0,
+      "PawPad.Front.R.Toe.2": 0.0,
+      "PawPad.Front.R.Toe.3": 0.0,
+      "PawPad.Front.R.Toe.4": 0.0,
+      "PawPad.Hind.L.Central": -2.9802313505911115e-08,
+      "PawPad.Hind.L.Toe.1": -2.9802315282267955e-08,
+      "PawPad.Hind.L.Toe.2": -2.9802315282267955e-08,
+      "PawPad.Hind.L.Toe.3": -2.9802313505911115e-08,
+      "PawPad.Hind.L.Toe.4": -2.9802311729554276e-08,
+      "PawPad.Hind.R.Central": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.1": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.2": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.3": 2.9802322387695312e-08,
+      "PawPad.Hind.R.Toe.4": 2.9802322387695312e-08
+    }
+  },
+  "approvedSourceGround": {
+    "standing": {
+      "Paw.Front.R": 0.0,
+      "Paw.Hind.L": -2.9802317058624794e-08,
+      "Paw.Hind.R": 2.9802322387695312e-08,
+      "Paw.Front.L": 0.0
+    },
+    "sitting": {
+      "Paw.Front.R": -0.05147562175989151,
+      "Paw.Hind.L": 0.00016644224524497986,
+      "Paw.Hind.R": 0.0001666620373725891,
+      "Paw.Front.L": -0.05147550255060196
+    },
+    "lying": {
+      "Paw.Front.R": 0.0035475073382258415,
+      "Paw.Hind.L": 0.0003186911344528198,
+      "Paw.Hind.R": 0.00031878799200057983,
+      "Paw.Front.L": 0.0035475073382258415
+    },
+    "paw-raised": {
+      "Paw.Front.R": 0.0,
+      "Paw.Hind.L": -2.9802317058624794e-08,
+      "Paw.Hind.R": 2.9802322387695312e-08,
+      "Paw.Front.L": 0.6060608625411987
+    }
+  },
+  "padCount": 20,
+  "padsDoNotIntersect": true,
+  "noAdditionalGroundPenetration": true,
+  "standingPadsClearFloor": true,
+  "exteriorPawVerticesExact": true,
+  "rigVersion": 2
+}

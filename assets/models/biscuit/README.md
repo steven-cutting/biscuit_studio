@@ -2,9 +2,12 @@
 
 **This directory is the canonical home of the approved Biscuit model in this repository.**
 Start all new posing, renders, exports and model work from this version: Soft Charm face,
-Full Soft ears, Longer Drape tail and fitted cream sweater, with the poseable rig.
+Full Soft ears, Longer Drape tail and fitted cream sweater, with the poseable rig, improved
+hind-leg proportions, original broad cream cuffs and softly sculpted charcoal toe beans on
+all four paws.
 
 [Open the pose studio](../../../static/pose-studio/viewer.html) ·
+[Toe bean close-ups](previews/toe-beans-review.jpg) ·
 [Preview the poses](../../../static/pose-studio/previews/pose-overview.jpg) ·
 [Blender scene](model/biscuit-poseable.blend) ·
 [Skinned GLB](../../../static/pose-studio/model/biscuit-poseable.glb)
@@ -22,17 +25,37 @@ only when the maintainer approves a new version.
 
 ## Provenance
 
-Imported on 2026-09-23 from the `biscuit_pics` repository, worktree branch
-`very_nice_three_deeez`, commit `1d9d3580f2037826feb6e05f39f5a777b52db86c`, path
-`models/biscuit/`. Every file is byte-identical to that commit except the viewer, whose
-three links to files this repository does not serve were rewritten to GitHub URLs;
-`assets/manifest.json` records the original digest as `source_sha256` and lists the three
-rewrites under `patched`.
+Imported on 2026-09-26 from the `biscuit_pics` repository, worktree branch
+`very_nice_three_deeez`, commit `891c44c7919d95e66cb10c0b4d2599c0a5e697d2`, path
+`models/biscuit/`, replacing the import of 2026-09-23 from `1d9d358`. Every file is
+byte-identical to that commit except this README and the viewer. Four of the viewer's
+links were changed: its three links to files this repository does not serve were
+rewritten to GitHub URLs, and its link to the toe bean comparison sheet was removed.
+`assets/manifest.json` records the original digest as `source_sha256` and lists the four
+changes under `patched`. The matched before / after comparison renders, `previews/comparison/`
+and `previews/comparison.jpg`, were not imported.
 
-In `biscuit_pics` the package had been moved intact from
-`biscuit_pics/generated/3d/miami-cinematic-poseable/`, and its rig was built from the
-`miami-cinematic-eyes-refined` model. That model, and the chain of earlier studies the
-build reads without writing —
+In `biscuit_pics` this version was approved on 2026-09-26 and promoted from the toe bean
+study, `biscuit_pics/generated/3d/miami-cinematic-toe-beans/`, at commit `80d1871`. The
+native model, GLB, rig, textures and four presets are byte-identical to that approved
+version.
+
+Each paw has four rounded toe pads and a larger, gently lobed central pad: **20 pads
+total**, in matte warm charcoal `#493F3C`. A shallow recess in each sole keeps the pads
+within the original foot envelope. The original paw vertices, exterior faces, claws and
+cream cuffs are preserved, along with all 144 other existing parts.
+
+**This model uses rig version 2.** Rig-version-2 poses from the hindquarters study remain
+compatible. Saved poses from the previous rig-version-1 standard, the one this repository
+imported first, are rejected because its rear joints had different rest positions; the
+archived rig-version-1 package is
+`biscuit_pics/generated/3d/miami-cinematic-poseable-rig-v1/`. The pose JSON schema remains
+version 1.
+
+The build reads the previous hindquarters standard,
+`biscuit_pics/generated/3d/miami-cinematic-hindquarters-refined/`, as an immutable input,
+and the `miami-cinematic-eyes-refined` helpers it was made from. Those, and the chain of
+earlier studies the helpers read without writing —
 `miami-cinematic-eyes-refined` → `miami-cinematic-sweater-foreleg-refined` →
 `miami-cinematic-tail-drape-studies` (variant D3) → `ear-profile-studies` → `ear-studies`
 → `cinematic-studies` → `miami-angular-base`, plus the studio camera frames `src/viewer.py`
@@ -59,15 +82,19 @@ Keyboard: Tab selects controls; arrow keys adjust a focused slider. On the canva
 keys orbit, +/− zoom, Home restores the view, and Space toggles rotation. On a phone, the
 controls appear below the model.
 
+To see all four soles, choose **Below** in **View & appearance**. For a presented paw,
+choose **Paw raised**, set **Left front leg → Paw angle** to **−25°**, then select
+**Front**. You can also open the supplied
+[toe bean review pose](qa/toe-bean-review-pose.json), which adds a slight head tilt.
+
 ## Pose her in Blender
 
 Open `model/biscuit-poseable.blend` (a clone made without git-lfs sees a pointer file
 here instead; `docs/how-to/develop-locally.md` says how to fetch it). The scene starts in
 the approved standing pose with `Biscuit.Rig` selected and all textures packed.
 
-The embedded textures work independently of their stored source paths, which still name
-the earlier study. If you unpack or relink textures for editing, use this package's
-`textures/` directory. The approved scene has been preserved byte for byte.
+Textures are packed and their relative paths point to this package's `textures/`
+directory. The approved scene has been preserved byte for byte.
 
 To enable the pose panel, open Blender's **Scripting** workspace, choose the embedded text
 **blender_pose_tools.py**, and press **Run Script**. Return to the 3D viewport, press
@@ -115,20 +142,27 @@ joints themselves should also update the five sweater morph weights according to
 
 There are 33 deform bones, with four optional paw targets and four bend controls in
 Blender. Every character part, eye, fur detail, paw cuff and native contour follows its
-assigned bones. The sweater uses the same skeleton and five driven corrections for the
-shoulders, hips and belly. The collar follows the lower neck and chest.
+assigned bones. All 20 pads follow their existing paw bones with full weight. The sweater
+uses the same skeleton and five driven corrections for the shoulders, hips and belly. The
+collar follows the lower neck and chest.
 
 This is a rig for still posing. The four supplied poses are checked from multiple views,
 dressed and undressed. Arbitrary extreme combinations can still need manual joint or
 garment adjustments. There is no cloth simulation, facial-expression rig, automatic ground
 contact or walk-cycle animation.
 
+**Inherited floor-contact limitation:** the sitting preset places the front paws
+approximately `0.0515` model units below the floor. The toe bean model preserves that
+preset exactly and adds no further penetration. Standing pads meet the floor.
+
 ## Rebuild and verification
 
-The build reads the historical eyes-refined model from a `biscuit_pics` checkout and never
-writes to it. `src/common.py` and `src/viewer.py` resolve that checkout two directories
-above this package, so `scripts/rebuild_model.sh` places a gitignored link at
-`assets/biscuit_pics` pointing at the checkout you give it. Rebuilding requires Blender
+The build reads the archived rig-version-2 model in
+`biscuit_pics/generated/3d/miami-cinematic-hindquarters-refined/` from a `biscuit_pics`
+checkout and never writes to it; it adds the sole recesses and pads once, starting from
+that immutable input. `src/common.py` and `src/viewer.py` find that checkout by searching
+the directories above this package, so `scripts/rebuild_model.sh` places a gitignored link
+at `assets/biscuit_pics` pointing at the checkout you give it. Rebuilding requires Blender
 (verified with 5.2.1), Python 3 and Pillow, and replaces the generated files in this
 package and under `static/pose-studio/`; keep design experiments elsewhere and promote a
 replacement here only after the maintainer approves it.
@@ -137,11 +171,12 @@ replacement here only after the maintainer approves it.
 just model-rebuild /path/to/biscuit_pics
 ```
 
-That runs, from this directory, the five commands the package's own tooling expects —
-`src/build.py` and `src/verify.py` and `src/render.py` under Blender, `src/viewer.py` and
-`src/proof_sheet.py` under Python — then moves the viewer, the GLB and the overview image
-to `static/pose-studio/`, re-applies the viewer's three link rewrites, and rewrites
-`assets/manifest.json`. Read the manifest diff before committing.
+That runs, from this directory, the six commands the package's own tooling expects —
+`src/build.py`, `src/verify.py`, `src/verify_anatomy.py` and `src/render.py` under
+Blender, `src/viewer.py` and `src/proof_sheet.py` under Python — then deletes the
+comparison renders this repository does not keep, moves the viewer, the GLB and the
+overview image to `static/pose-studio/`, re-applies the viewer's four link changes, and
+rewrites `assets/manifest.json`. Read the manifest diff before committing.
 
 `src/verify_browser.mjs` connects to an isolated Chrome remote-debugging profile supplied as
 its argument. It checks native/browser deformation agreement, offline operation,
@@ -154,3 +189,12 @@ browser checks have created `qa/browser-saved-pose.json`. Neither is part of
 Reports are in `qa/native-verification.json`, `qa/browser-verification.json` and
 `qa/interchange-verification.json`. Native renders are in `previews/native/`; browser views
 are in `previews/`, and the overview sheet is `static/pose-studio/previews/pose-overview.jpg`.
+
+The [style report](qa/style-verification.json) checks all 144 protected parts, the
+preserved paw exteriors and unchanged rig-version-2 specification, rest bones and
+controls. The [pad report](qa/pad-verification.json) checks the 20 closed pad meshes, their
+attachments, separation and floor contact relative to the source. The
+[anatomy report](qa/anatomy-verification.json) covers the inherited rear-joint layout and
+hind-paw contact. Browser checks cover the four presets, an articulated pose and eight
+individual paw rotations. [Promotion details](qa/promotion.json) record the source commit
+and hashes of all 47 copied model, pose and texture assets.

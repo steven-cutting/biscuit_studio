@@ -7,6 +7,8 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 from common import *
 import pose_io
+import toe_beans
+import verify_pads
 
 def floats(encoded):
     data=base64.b64decode(encoded)
@@ -18,23 +20,58 @@ def matrices(rig):
 def difference(a,b):
     return max(abs(a[k][r][c]-b[k][r][c]) for k in a for r in range(4) for c in range(4))
 
+def fingerprint(ob):
+    mesh=ob.data
+    return dict(vertices=[tuple(v.co) for v in mesh.vertices], faces=[tuple(p.vertices) for p in mesh.polygons],
+        uv=[[tuple(d.uv) for d in layer.data] for layer in mesh.uv_layers],
+        materials=[m.name for m in mesh.materials], materialIndices=[p.material_index for p in mesh.polygons],
+        smooth=[p.use_smooth for p in mesh.polygons],
+        weights=[[(ob.vertex_groups[g.group].name,g.weight) for g in v.groups] for v in mesh.vertices],
+        morphs={key.name:[tuple(p.co) for p in key.data] for key in mesh.shape_keys.key_blocks} if mesh.shape_keys else {},
+        transform=flat(ob.matrix_world))
+
 def main():
     source_hash=sha(SOURCE)
     bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
-    original={}
+    original={};fingerprints={};original_bones={b.name:(tuple(b.head_local),tuple(b.tail_local),flat(b.matrix_local),b.parent.name if b.parent else None) for b in bpy.data.objects["Biscuit.Rig"].data.bones}
     for ob in parts():
+        fingerprints[ob.name]=fingerprint(ob)
         ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=ev.to_mesh()
         positions=[ob.matrix_world@v.co for v in mesh.vertices]
         mesh.calc_loop_triangles()
         original[ob.name]=BVHTree.FromPolygons(positions,[list(t.vertices) for t in mesh.loop_triangles],all_triangles=True)
         ev.to_mesh_clear()
+    source_spec=json.loads((BASELINE/'model/rig.json').read_text())
+    source_floor={}
+    for key in ('standing','sitting','lying','paw-raised'):
+        pose_io.apply(source_spec,pose_io.load(source_spec,BASELINE/'poses'/f'{key}.json'))
+        source_floor[key]={}
+        for name in toe_beans.PAWS:
+            ob=bpy.data.objects[name];ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=ev.to_mesh()
+            source_floor[key][name]=min((ev.matrix_world@v.co).z for v in mesh.vertices)
+            ev.to_mesh_clear()
     bpy.ops.wm.open_mainfile(filepath=str(ROOT/'model/biscuit-poseable.blend'))
     spec=json.loads((ROOT/'model/rig.json').read_text());rig=bpy.data.objects['Biscuit.Rig'];all_parts=parts()
-    assert len(all_parts)==len(original)==148
+    assert {o.name for o in all_parts} == set(original) | toe_beans.PAD_NAMES
+    protected=set(original)-toe_beans.PAWS
+    for ob in all_parts:
+        if ob.name in protected:assert fingerprint(ob)==fingerprints[ob.name],('Protected mesh changed',ob.name)
+    for b in rig.data.bones:
+        assert (tuple(b.head_local),tuple(b.tail_local),flat(b.matrix_local),b.parent.name if b.parent else None)==original_bones[b.name],b.name
+    assert {b.name for b in rig.data.bones}==set(original_bones)
+    assert spec==json.loads((BASELINE/'model/rig.json').read_text()), 'Rig-2 specification changed'
+    for key in ('standing','sitting','lying','paw-raised'):
+        assert (ROOT/'poses'/f'{key}.json').read_bytes()==(BASELINE/'poses'/f'{key}.json').read_bytes()
+    pad_report=verify_pads.check(fingerprints,spec,source_floor)
+    write_json(ROOT/'qa/pad-verification.json',pad_report)
+    write_json(ROOT/'qa/style-verification.json',dict(
+        rig2SpecificationExact=True,restBonesAndControlsExact=True,
+        protectedPartsExact=len(protected),pawExteriorsPreserved=True,
+        soleOnlyEdits=sorted(toe_beans.PAWS),addedPads=len(toe_beans.PAD_NAMES)))
     max_rest_error=0.;vertices=0;max_influences=0;weight_error=0.;rest_errors={}
     for ob in all_parts:
         ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=ev.to_mesh()
-        for v in mesh.vertices:
+        for v in mesh.vertices if ob.name in protected else []:
             near=original[ob.name].find_nearest(ob.matrix_world@v.co)
             max_rest_error=max(max_rest_error,near[3])
             rest_errors[ob.name]=max(rest_errors.get(ob.name,0),near[3])
@@ -72,6 +109,11 @@ def main():
         selections[ob.name]=selection
     poses={k:pose_io.load(spec,ROOT/'poses'/f'{k}.json') for k in ('standing','sitting','lying','paw-raised')}
     poses['head-ears-tail']=pose_io.from_controls(spec,dict(head_turn=34,head_nod=-12,head_tilt=10,ear_droop_L=18,ear_spread_R=12,tail_sway=20,tail_curl=-8,tail_drape=14),'Head, ears and tail')
+    for limb in ('front','hind'):
+        for side in ('L','R'):
+            for angle in (-45,45):
+                key=f'{limb}-{side}-paw-{angle}'
+                poses[key]=pose_io.from_controls(spec,{f'{limb}_paw_{side}':angle},key)
     samples={};roundtrip_error=0.;driver_error=0.
     for key,doc in poses.items():
         pose_io.apply(spec,doc);before=matrices(rig)
@@ -105,6 +147,7 @@ def main():
     corrupt(lambda d:d['viewer'].update(zoom=False))
     corrupt(lambda d:d['controls'].update(head_turn=12))
     corrupt(lambda d:d['viewer'].update(display='arbitrary'))
+    corrupt(lambda d:d.update(rigVersion=1))
     before=matrices(rig)
     for doc in bad:
         try:pose_io.apply(spec,doc)
@@ -115,14 +158,14 @@ def main():
     namespace={'__name__':'__main__'}
     exec(compile(bpy.data.texts['blender_pose_tools.py'].as_string(),'blender_pose_tools.py','exec'),namespace)
     ik_results={}
-    for limb in ('front','hind'):
+    for limb,side in (('front','L'),('hind','L'),('hind','R')):
         pose_io.apply(spec,poses['standing'])
-        assert bpy.ops.biscuit.paw_ik(limb=limb,side='L')=={'FINISHED'}
-        target=rig.pose.bones[f'CTRL.{limb}.paw.L'];m=target.matrix.copy();m.translation+=Vector((.03,-.08,.08));target.matrix=m
+        assert bpy.ops.biscuit.paw_ik(limb=limb,side=side)=={'FINISHED'}
+        target=rig.pose.bones[f'CTRL.{limb}.paw.{side}'];m=target.matrix.copy();m.translation+=Vector((.03,-.08,.08));target.matrix=m
         bpy.context.view_layer.update();before=matrices(rig)
         saved=pose_io.export_current(spec,limb+' IK example');pose_io.apply(spec,saved)
         error=difference(before,matrices(rig));assert error<2e-5,error
-        ik_results[limb]=error
+        ik_results[limb+'.'+side]=error
         if limb=='front':write_json(ROOT/'qa/blender-ik-pose.json',saved)
 
     # The portable model really contains skinning and the same deformation joints.
@@ -132,13 +175,13 @@ def main():
     joint_names={gltf['nodes'][i]['name'] for s in gltf['skins'] for i in s['joints']}
     assert joint_names=={b['name'] for b in spec['bones']},joint_names
     mesh_nodes=[n for n in gltf['nodes'] if 'mesh' in n]
-    assert len(mesh_nodes)==148 and all('skin' in n for n in mesh_nodes)
+    assert len(mesh_nodes)==len(all_parts) and all('skin' in n for n in mesh_nodes)
     assert all('JOINTS_0' in p['attributes'] and 'WEIGHTS_0' in p['attributes'] for m in gltf['meshes'] for p in m['primitives'])
     assert any(len(p.get('targets',[]))==5 for m in gltf['meshes'] for p in m['primitives'])
     assert source_hash==sha(SOURCE)
     write_json(ROOT/'qa/native-samples.json',samples)
     write_json(ROOT/'qa/invalid-poses.json',bad[:3]+bad[4:]) # JSON cannot represent NaN portably.
-    write_json(ROOT/'qa/native-verification.json',dict(parts=len(all_parts),vertices=vertices,bones=len(spec['bones']),maxRestSurfaceError=max_rest_error,
+    write_json(ROOT/'qa/native-verification.json',dict(parts=len(all_parts),protectedPartsExact=len(protected),addedPads=len(toe_beans.PAD_NAMES),rigVersion=spec["rigVersion"],vertices=vertices,bones=len(spec['bones']),maxRestSurfaceError=max_rest_error,
         maxWeightSumError=weight_error,maxInfluences=max_influences,maxPoseRoundtripError=roundtrip_error,maxCorrectiveDriverError=driver_error,
         malformedPosesRejected=len(bad),ikRoundtripError=ik_results,glbSkinnedMeshes=len(mesh_nodes),glbJoints=len(joint_names),sourceUnchanged=True))
     print('Native rig checks passed',max_rest_error,roundtrip_error,driver_error,flush=True)

@@ -1,18 +1,22 @@
 {
-  "parts": 148,
-  "vertices": 43700,
+  "parts": 168,
+  "protectedPartsExact": 144,
+  "addedPads": 20,
+  "rigVersion": 2,
+  "vertices": 53384,
   "bones": 33,
-  "maxRestSurfaceError": 4.917383193969727e-07,
+  "maxRestSurfaceError": 0.0,
   "maxWeightSumError": 4.7963112592697144e-08,
   "maxInfluences": 4,
   "maxPoseRoundtripError": 1.1920928955078125e-06,
   "maxCorrectiveDriverError": 5.043469941679035e-08,
-  "malformedPosesRejected": 10,
+  "malformedPosesRejected": 11,
   "ikRoundtripError": {
-    "front": 4.76837158203125e-07,
-    "hind": 5.066394805908203e-07
+    "front.L": 4.76837158203125e-07,
+    "hind.L": 5.792826414108276e-07,
+    "hind.R": 4.76837158203125e-07
   },
-  "glbSkinnedMeshes": 148,
+  "glbSkinnedMeshes": 168,
   "glbJoints": 33,
   "sourceUnchanged": true
 }

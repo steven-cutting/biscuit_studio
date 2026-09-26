@@ -1,0 +1,57 @@
+{
+  "source": "biscuit_pics/generated/3d/miami-cinematic-hindquarters-refined/model/biscuit-poseable.blend",
+  "sourceSha256": "c70695da71e815c069d820ed12e4154c30a6cc95471c20660278fc810642f232",
+  "status": "approved",
+  "modified": {
+    "Paw.Front.L": {
+      "originalVertices": 40,
+      "retainedExteriorFaces": 38,
+      "removedSoleFaces": 8,
+      "recessDepth": 0.022
+    },
+    "Paw.Front.R": {
+      "originalVertices": 40,
+      "retainedExteriorFaces": 38,
+      "removedSoleFaces": 8,
+      "recessDepth": 0.022
+    },
+    "Paw.Hind.L": {
+      "originalVertices": 40,
+      "retainedExteriorFaces": 38,
+      "removedSoleFaces": 8,
+      "recessDepth": 0.022
+    },
+    "Paw.Hind.R": {
+      "originalVertices": 40,
+      "retainedExteriorFaces": 38,
+      "removedSoleFaces": 8,
+      "recessDepth": 0.022
+    }
+  },
+  "added": [
+    "PawPad.Front.L.Central",
+    "PawPad.Front.L.Toe.1",
+    "PawPad.Front.L.Toe.2",
+    "PawPad.Front.L.Toe.3",
+    "PawPad.Front.L.Toe.4",
+    "PawPad.Front.R.Central",
+    "PawPad.Front.R.Toe.1",
+    "PawPad.Front.R.Toe.2",
+    "PawPad.Front.R.Toe.3",
+    "PawPad.Front.R.Toe.4",
+    "PawPad.Hind.L.Central",
+    "PawPad.Hind.L.Toe.1",
+    "PawPad.Hind.L.Toe.2",
+    "PawPad.Hind.L.Toe.3",
+    "PawPad.Hind.L.Toe.4",
+    "PawPad.Hind.R.Central",
+    "PawPad.Hind.R.Toe.1",
+    "PawPad.Hind.R.Toe.2",
+    "PawPad.Hind.R.Toe.3",
+    "PawPad.Hind.R.Toe.4"
+  ],
+  "padColorSRGB": "#493f3c",
+  "roughness": 0.8509803921568627,
+  "restSkeletonChanged": false,
+  "savedPosesChanged": false
+}
