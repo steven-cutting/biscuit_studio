@@ -27,7 +27,7 @@ runner has.
 
 It is not a way to try things. The package's README says to keep design experiments
 elsewhere, and that rule is kept: a rebuild that is not going to be approved does not
-belong in this repository's history, where the viewer alone costs 26 MB each time.
+belong in this repository's history, where the viewer alone costs 29 MB each time.
 
 ## What it needs
 
@@ -38,7 +38,9 @@ belong in this repository's history, where the viewer alone costs 26 MB each tim
   steps run through `uv run --frozen`.
 - **A checkout of `biscuit_pics`** at the commit `assets/models/biscuit/README.md` names.
   The build reads the earlier studies under `biscuit_pics/generated/3d/` there and never
-  writes to them: `miami-cinematic-eyes-refined` → `miami-cinematic-sweater-foreleg-refined`
+  writes to them. It starts from the previous standard,
+  `miami-cinematic-hindquarters-refined`, and loads its helpers from the chain
+  `miami-cinematic-eyes-refined` → `miami-cinematic-sweater-foreleg-refined`
   → `miami-cinematic-tail-drape-studies` (variant D3) → `ear-profile-studies` →
   `ear-studies` → `cinematic-studies` → `miami-angular-base`. `viewer.py` also reads the
   studio camera frames from
@@ -62,22 +64,26 @@ makes it absolute first. In order, it:
    under it, Blender is not where it looks, `assets/` or `static/pose-studio/` differs from
    `HEAD`, or `assets/biscuit_pics` already exists.
 2. Places a gitignored symlink at `assets/biscuit_pics`, pointing into the checkout. The
-   model's `common.py` and `viewer.py` look for the studies two directories above the
-   package, which here is `assets/`; the link is what lets them run unchanged.
-3. Runs the package's five commands from `assets/models/biscuit/`: `src/build.py`,
-   `src/verify.py` and `src/render.py` under Blender with `--python-exit-code 1`, and
-   `src/viewer.py` and `src/proof_sheet.py` under Python, in the order the package's
-   README gives.
+   model's `common.py` and `viewer.py` look for the studies in the directories above the
+   package, the first of which here is `assets/`; the link is what lets them run
+   unchanged.
+3. Runs the package's six commands from `assets/models/biscuit/`: `src/build.py`,
+   `src/verify.py`, `src/verify_anatomy.py` and `src/render.py` under Blender with
+   `--python-exit-code 1`, and `src/viewer.py` and `src/proof_sheet.py` under Python, in
+   the order the package's README gives.
 4. Removes the link, and the by-products a manifest walk would otherwise list: Python's
    `__pycache__` directories, and the `.blend1` backup Blender keeps when it saves over
-   the `.blend`.
+   the `.blend`. It also deletes the toe bean comparison renders, `previews/comparison/`
+   and `previews/comparison.jpg`, which the build writes and this repository does not
+   keep.
 5. Moves the viewer, the GLB and the overview image to `static/pose-studio/`, where the
    site serves them.
 6. Hashes the viewer as `viewer.py` wrote it, then rewrites its three links to files the
    site does not serve — two to the `.blend` and one to the README — to their pages on
-   GitHub, asserting that each old link occurs exactly as often as the first import found
-   it. The digest taken before the rewrites must equal the `sha256` that `viewer.py`
-   recorded in `qa/viewer-package.json`, or the run fails.
+   GitHub, and removes the line holding its link to the comparison sheet, asserting that
+   each occurs exactly as often as the import found it. The digest taken before the
+   changes must equal the `sha256` that `viewer.py` recorded in `qa/viewer-package.json`,
+   or the run fails.
 7. Runs `just assets-manifest`, which rehashes every file, writes the viewer entry's
    `source_sha256` from `qa/viewer-package.json`, and runs the checker.
 
@@ -93,7 +99,7 @@ A successful run stages, commits and pushes nothing. What is left is yours:
 2. Set `source` to `rebuilt:<date>` on every regenerated entry, by hand, because the tool
    never rewrites a source. The viewer entry's `source_sha256` is not yours to set: the
    tool reads it from `qa/viewer-package.json`, the digest of the page as `viewer.py`
-   wrote it before the three rewrites, and `just check` refuses the manifest when the
+   wrote it before the four changes, and `just check` refuses the manifest when the
    two differ or the field is malformed — so `patched` names a difference from bytes
    that can still be checked. Leave `patched` as it is unless the rewrites changed.
 3. Open the viewer and look at her, in the four poses, before asking the maintainer to
@@ -114,9 +120,9 @@ changed report is part of the diff to read.
 
 ## What every rebuild costs
 
-- **26 MB of ordinary history.** The viewer is served, so it is an ordinary blob, and
+- **29 MB of ordinary history.** The viewer is served, so it is an ordinary blob, and
   every rebuild commits all of it again. The `.blend` and the two large QA records add
-  about 32 MB of LFS objects. That is why rebuilds are rare and approved, and why the
+  about 40 MB of LFS objects. That is why rebuilds are rare and approved, and why the
   port of the viewer to a maintained component is the way out; see
   [Decision 0006](../decisions/0006-sources-in-lfs-served-files-as-blobs.md).
 - **Two looks.** The viewer and the `.blend` carry the approved cel shading. The GLB

@@ -22,6 +22,9 @@ try{
  await browser.send('Emulation.setDeviceMetricsOverride',{width:1250,height:900,deviceScaleFactor:1,mobile:false});
  await browser.send('Page.navigate',{url:pathToFileURL(path.join(root,'viewer.html')).href});
  await browser.ready();
+ const pads=await browser.evaluate("biscuitPose.parts.filter(p=>p.name.startsWith('PawPad.')).map(p=>p.name)");
+ assert.equal(pads.length,20);
+ report.toeBeans={count:pads.length,pawGroups:4};
  const samples=await read('qa/native-samples.json');
  for(const [key,sample] of Object.entries(samples)){
   await loadPose(sample.pose);
@@ -71,13 +74,22 @@ try{
 
  for(const pose of ['standing','sitting','lying','paw-raised']){
   await browser.evaluate(`biscuitPose.setPreset('${pose}')`);
-  for(const angle of ['hero','left','front']){
+  for(const angle of ['hero','left','front','rear']){
    await browser.evaluate(`document.querySelector('[data-view="${angle}"]').click()`);await browser.frames();
    await browser.screenshot(path.join(root,`previews/${pose}-${angle}.png`),true);
   }
-  await browser.evaluate("document.querySelector('[data-display=\"biscuit\"]').click()");await browser.frames();
-  await browser.screenshot(path.join(root,`previews/${pose}-undressed.png`),true);
+  await browser.evaluate("document.querySelector('[data-display=\"biscuit\"]').click()");
+  for(const angle of ['front','left']){
+   await browser.evaluate(`document.querySelector('[data-view="${angle}"]').click()`);await browser.frames();
+   await browser.screenshot(path.join(root,`previews/${pose}-undressed-${angle}.png`),true);
+  }
  }
+ await browser.evaluate("biscuitPose.setPreset('standing');document.querySelector('[data-view=\"underside\"]').click()");
+ await browser.frames();
+ await browser.screenshot(path.join(root,'previews/browser-pads-below.png'),true);
+ await browser.evaluate("biscuitPose.setPreset('paw-raised');biscuitPose.setControl('front_paw_L',-25);document.querySelector('[data-view=\"front\"]').click()");
+ await browser.frames();
+ await browser.screenshot(path.join(root,'previews/browser-paw-presented.png'),true);
  await browser.evaluate("biscuitPose.setPreset('standing');document.querySelector('aside').scrollTop=0");await browser.frames();
  await browser.screenshot(path.join(root,'previews/studio-desktop.png'));
  await browser.send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:2,mobile:true});

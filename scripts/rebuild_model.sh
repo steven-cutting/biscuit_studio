@@ -31,10 +31,14 @@ package=assets/models/biscuit
 served=static/pose-studio
 studies=$checkout/biscuit_pics/generated/3d
 
-[ -d "$studies/miami-cinematic-eyes-refined" ] || {
-  printf '%s\n' "no study chain at $studies; see $package/README.md, Provenance" >&2
-  exit 2
-}
+# The build starts from the hindquarters model and reads the eyes-refined
+# helpers; src/common.py finds the checkout by the second.
+for study in miami-cinematic-hindquarters-refined miami-cinematic-eyes-refined; do
+  [ -d "$studies/$study" ] || {
+    printf '%s\n' "no $study at $studies; see $package/README.md, Provenance" >&2
+    exit 2
+  }
+done
 [ -x "$blender" ] || {
   printf '%s\n' "Blender not found at $blender; set BLENDER" >&2
   exit 2
@@ -47,9 +51,10 @@ git rev-parse --is-inside-work-tree >/dev/null
   exit 2
 }
 
-# src/common.py and src/viewer.py resolve the studies two directories above the
-# package, which is assets/ here. A link there, removed on exit, is what makes
-# assets/biscuit_pics/generated/3d/... resolve without editing either script.
+# src/common.py and src/viewer.py look for the studies in the directories above
+# the package, and assets/ is the first of them. A link there, removed on exit,
+# is what makes assets/biscuit_pics/generated/3d/... resolve without editing
+# either script.
 link=assets/biscuit_pics
 [ ! -e "$link" ] || { printf '%s\n' "$link already exists; remove it first" >&2; exit 2; }
 
@@ -81,16 +86,18 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 ln -s "$checkout/biscuit_pics" "$link"
 
-# The five commands the package's README gives, in its order, from inside it.
+# The six commands the package's README gives, in its order, from inside it.
 # build.py writes model/biscuit-poseable.blend and model/biscuit-poseable.glb;
-# viewer.py writes viewer.html and qa/viewer-package.json; verify.py writes the
-# qa records; render.py writes previews/native/; proof_sheet.py writes
-# previews/pose-overview.jpg.
+# viewer.py writes viewer.html and qa/viewer-package.json; verify.py and
+# verify_anatomy.py write the qa records; render.py writes previews/native/ and
+# previews/comparison/; proof_sheet.py writes previews/pose-overview.jpg,
+# previews/toe-beans-review.jpg and previews/comparison.jpg.
 (
   cd "$package"
   "$blender" --background --python-exit-code 1 --python src/build.py
   uv run --frozen python src/viewer.py
   "$blender" --background --python-exit-code 1 --python src/verify.py
+  "$blender" --background --python-exit-code 1 --python src/verify_anatomy.py
   "$blender" --background --python-exit-code 1 --python src/render.py
   uv run --frozen python src/proof_sheet.py
 )
@@ -100,6 +107,10 @@ ln -s "$checkout/biscuit_pics" "$link"
 # interrupted run.
 rm -f "$link"
 purge_debris
+
+# The before / after comparison is not kept here; see the README's Provenance.
+rm -rf "$package/previews/comparison"
+rm -f "$package/previews/comparison.jpg"
 
 # The three outputs the site serves live beside the viewer, not in the package.
 mv "$package/viewer.html" "$served/viewer.html"
@@ -112,9 +123,9 @@ mv "$package/previews/pose-overview.jpg" "$served/previews/pose-overview.jpg"
 # the page that was patched.
 built_digest=$(shasum -a 256 "$served/viewer.html" | cut -d' ' -f1)
 
-# The viewer links two files the site does not serve; the same three rewrites
-# the first import made, asserted the same way. assets/manifest.json records
-# them under `patched`.
+# The viewer links two files the site does not serve, and the comparison sheet
+# this repository does not keep: the same four changes the import made,
+# asserted the same way. assets/manifest.json records them under `patched`.
 uv run --frozen python - <<'PYEOF'
 from pathlib import Path
 p = Path("static/pose-studio/viewer.html")
@@ -122,6 +133,7 @@ s = p.read_bytes()
 pairs = [
     (b'href="model/biscuit-poseable.blend"', b'href="https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/model/biscuit-poseable.blend"', 2),
     (b'href="README.md"', b'href="https://github.com/steven-cutting/biscuit_studio/blob/main/assets/models/biscuit/README.md"', 1),
+    ('    <a href="previews/comparison.jpg">Toe bean comparison <span>\u2197</span></a>\n'.encode(), b'', 1),
 ]
 for old, new, n in pairs:
     assert s.count(old) == n, (old, s.count(old))

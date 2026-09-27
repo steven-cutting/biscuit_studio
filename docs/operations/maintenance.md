@@ -93,8 +93,8 @@ Nothing has been promoted yet, so today this section describes a step nobody has
 
 A rebuild follows [Rebuild the model](../how-to/rebuild-the-model.md) and replaces the
 approved model only when the maintainer approves the result. Weigh the cost before starting:
-every rebuild adds the viewer's 26 MB and the GLB's 16 MB to ordinary history, and another
-32 MB of LFS objects to storage, and none of it can be taken back without rewriting history.
+every rebuild adds the viewer's 29 MB and the GLB's 16 MB to ordinary history, and another
+40 MB of LFS objects to storage, and none of it can be taken back without rewriting history.
 After an approved rebuild, read the manifest's diff whole, check that every changed entry
 says `rebuilt:` with the date, and, if anything rebuilt has already left, take the step above.
 

@@ -76,7 +76,7 @@ paragraph on the model, and three links: the viewer, the GLB, and the Blender sc
 GitHub, because the `.blend` is an LFS object and Pages would serve its pointer. `/gallery/`
 shows the eleven cel drawings, each a figure with its own caption and alt text.
 
-The viewer is not a route. It is a hand-written WebGL 2 page of its own, 26 MB with every
+The viewer is not a route. It is a hand-written WebGL 2 page of its own, 29 MB with every
 texture inlined, served as a static file under `static/pose-studio/`; the model page links
 to it and never frames it. It keeps its own light palette and its own type, and nothing of
 the platform's reaches it. [Decision 0008](../decisions/0008-the-viewer-is-embedded-as-is.md)

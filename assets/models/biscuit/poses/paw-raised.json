@@ -2,7 +2,7 @@
   "format": "biscuit-pose",
   "version": 1,
   "modelId": "biscuit-miami-soft-charm-poseable",
-  "rigVersion": 1,
+  "rigVersion": 2,
   "name": "Paw raised",
   "bones": {
     "root": {

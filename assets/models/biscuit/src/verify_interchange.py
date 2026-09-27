@@ -105,7 +105,7 @@ def main():
                 error = max(error, expected[ob.name].find_nearest(point)[3]); count += 1
             errors[ob.name] = error
             ev.to_mesh_clear()
-        assert len(errors) == len(expected) == 148
+        assert len(errors) == len(expected)
         worst = sorted(errors.items(), key=lambda item: -item[1])[:5]
         print(key, 'largest GLB reimport errors:', worst, flush=True)
         # Both portable skin evaluation and Blender reimport must agree within

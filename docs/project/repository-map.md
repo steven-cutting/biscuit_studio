@@ -86,7 +86,7 @@ compared with what was copied.
 | The agent contract's shape, the app shell, `pages.yml`, `SECURITY.md`, `scripts/bootstrap_repo.sh` | The template, `steven-cutting/biscuit_games_template` at `2283589` |
 | The validators, the composite action `ci.yml` uses, the shared Pages workflow | The tooling repository, `steven-cutting/biscuit_games_tooling` at `v0.3.0` |
 | `.npmrc` | Poodl at `a2860fc` |
-| Everything under `assets/` and `static/pose-studio/` | `biscuit_pics` at `1d9d358`, each file's path recorded in its manifest `source` |
+| Everything under `assets/` and `static/pose-studio/` | `biscuit_pics`: the model at `891c44c`, the drawings at `1d9d358`, each file's path recorded in its manifest `source` |
 | `scripts/check_assets.py`, `scripts/rebuild_model.sh`, `src/lib/appearance.ts`, `src/lib/brand.ts`, this handbook's prose | Written here |
 
 ## What is not here

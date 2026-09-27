@@ -1,0 +1,13 @@
+{
+  "rig2SpecificationExact": true,
+  "restBonesAndControlsExact": true,
+  "protectedPartsExact": 144,
+  "pawExteriorsPreserved": true,
+  "soleOnlyEdits": [
+    "Paw.Front.L",
+    "Paw.Front.R",
+    "Paw.Hind.L",
+    "Paw.Hind.R"
+  ],
+  "addedPads": 20
+}

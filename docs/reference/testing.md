@@ -99,7 +99,7 @@ Vitest 4's text reporter prints the per-file table empty; the figures are in
 | `lockup.test.ts` | That the lockup's accessible text is exactly `biscuit games / studio`, with the mark `aria-hidden`. |
 | `appearance.test.ts` | `documentAttributes` clause by clause — animations on unless the device asks for less motion, high contrast off unless it asks for more — and `applyAppearance` writing both attributes on the element it is given, following the fake port's changes, and stopping once unsubscribed. |
 | `route.test.ts` | The home page: one level-one heading reading the lockup, the document title, a main landmark, and the two links by name with their unprefixed hrefs. |
-| `pages.test.ts` | The model page: the lockup as its only level-one heading, its section name as the level-two heading, the pose studio and the GLB linked by name under `/pose-studio/`, the Blender scene linked on GitHub, and alt text on the preview naming the four poses. The gallery: its section name, eleven captioned figures each with alt text, and the sentence saying the drawings were generated and have not left the studio. |
+| `pages.test.ts` | The model page: the lockup as its only level-one heading, its section name as the level-two heading, the pose studio and the GLB linked by name under `/pose-studio/`, the Blender scene linked on GitHub, alt text on the preview naming the four poses, and the description naming the toe beans. The gallery: its section name, eleven captioned figures each with alt text, and the sentence saying the drawings were generated and have not left the studio. |
 
 ## The asset checker's own test
 

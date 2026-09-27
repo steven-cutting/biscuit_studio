@@ -23,12 +23,12 @@ it.
 
 Every file under `assets/` and `static/pose-studio/` has an entry, except
 `assets/manifest.json` itself. Nothing else is listed: `tests/fixtures/exif-gps.jpg` is a test
-input, not an asset. Today the manifest lists 105 files.
+input, not an asset. Today the manifest lists 130 files.
 
 ## An entry
 
 ```json
-{"path": "static/pose-studio/model/biscuit-poseable.glb", "bytes": 16112380, "sha256": "51d16c1826b2c3ad6ad85fcb176a73e0d1c7a0ac3665ad10f1b6700e9e9be716", "storage": "blob", "source": "biscuit_pics@1d9d358:models/biscuit/model/biscuit-poseable.glb", "licence": "unsettled"}
+{"path": "static/pose-studio/model/biscuit-poseable.glb", "bytes": 16826176, "sha256": "36a89ac9cd4fe77aeee3fc2b406e9f7434fe9d2e4c08c59f3154812cc90197d3", "storage": "blob", "source": "biscuit_pics@891c44c:models/biscuit/model/biscuit-poseable.glb", "licence": "unsettled"}
 ```
 
 Six fields are required, in this order:
@@ -48,7 +48,8 @@ repository, commit and path it names are real is for the reviewer to see, so
 not:
 
 - `<repository>@<commit>:<path>` — imported, from that path in that repository at that
-  commit. Every entry today reads `biscuit_pics@1d9d358:` followed by its path there.
+  commit. Every entry today reads `biscuit_pics@` and a commit followed by its path there:
+  `891c44c` for the model, `1d9d358` for the drawings.
 - `rebuilt:<date>` — regenerated here by a rebuild on that date.
 - `studio` — made here. It is what `write` gives a new file, and a person replaces it when
   the file came from elsewhere.
@@ -64,10 +65,11 @@ Two optional fields are present only where true, and always together:
 | `source_sha256` | string | The committed bytes differ from the source's. 64 lowercase hex digits, never equal to `sha256`. For a `rebuilt:` entry the source is the build output, so it is the digest of the file before any patch the rebuild applies. |
 | `patched` | list of strings | The same condition. A non-empty list of non-empty strings, each saying what changed. |
 
-Two entries carry them today. The viewer's `patched` lists its three rewritten links and that
-nothing else differs, and its `source_sha256` is the unpatched page's digest, which the build
-also records as `sha256` in `assets/models/biscuit/qa/viewer-package.json`; the checker reads
-that record and refuses a mismatch. The model's README carries them because its links and a
+Two entries carry them today. The viewer's `patched` lists its three rewritten links, the
+comparison link it removed, and that nothing else differs, and its `source_sha256` is the
+unpatched page's digest, which the build also records as `sha256` in
+`assets/models/biscuit/qa/viewer-package.json`; the checker reads that record and refuses a
+mismatch. The model's README carries them because its links and a
 provenance section were adapted to this repository.
 
 ## The checker

@@ -35,7 +35,7 @@ Where a rule is genuinely wrong for a body of files, the fix is to configure it 
 config file, with a comment saying why. The studio's one standing example is the exclusion
 set: the imported assets and the served viewer are skipped by every linter through one
 pattern set, written in each tool's own configuration with the reason beside it, because
-Blender's build scripts, a 26 MB page of inlined textures and a folder of PNG files were
+Blender's build scripts, a 29 MB page of inlined textures and a folder of PNG files were
 never written to this repository's rules and are not edited by hand. That is a scope drawn
 once, not a rule disabled where it fired. `eslint.config.js` turns no rule off or down, and
 no file under `src/`, `tests/` or `scripts/` carries a suppression comment.
